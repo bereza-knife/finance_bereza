@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>БЕРЕЗА НАЙФ — CRM</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=JetBrains+Mono:wght@300;400&display=swap');
+
+  :root {
+    --bg: #0e0c0a;
+    --surface: #171410;
+    --border: #2a2420;
+    --accent: #c8a96e;
+    --accent2: #8b6d3f;
+    --text: #e8e0d4;
+    --muted: #6b5f52;
+    --danger: #c0392b;
+    --success: #2d6a4f;
+    --red: #e07b54;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+  }
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .logo span { color: var(--muted); font-size: 12px; display: block; letter-spacing: 3px; margin-top: 2px; }
+
+  .nav { display: flex; gap: 4px; }
+  .nav-btn {
+    background: none; border: 1px solid transparent; color: var(--muted);
+    padding: 8px 16px; cursor: pointer; font-family: inherit; font-size: 11px;
+    letter-spacing: 2px; text-transform: uppercase; transition: all 0.2s;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    border-color: var(--accent); color: var(--accent);
+  }
+
+  /* LAYOUT */
+  .main { display: flex; height: calc(100vh - 73px); }
+
+  /* LEFT PANEL - FORM */
+  .panel-form {
+    width: 520px;
+    min-width: 520px;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 24px;
+  }
+
+  /* RIGHT PANEL - ORDERS */
+  .panel-orders {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+  }
+
+  /* SECTION TITLES */
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 300;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* FORM */
+  .form-group { margin-bottom: 14px; }
+  .form-label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+  .form-control {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+  .form-control:focus { border-color: var(--accent2); }
+  select.form-control { cursor: pointer; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* АРТИКУЛ DISPLAY */
+  .artikul-box {
+    background: #1a1510;
+    border: 1px solid var(--accent2);
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  .artikul-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .artikul-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    word-break: break-all;
+  }
+
+  /* COST BREAKDOWN */
+  .cost-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  .cost-row {
+    display: flex; justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid #1e1a16;
+    font-size: 11px;
+  }
+  .cost-row:last-child { border-bottom: none; }
+  .cost-row .label { color: var(--muted); }
+  .cost-row .value { color: var(--text); }
+  .cost-total {
+    display: flex; justify-content: space-between;
+    padding: 10px 0 4px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+  }
+  .cost-total .label { color: var(--muted); }
+  .cost-total .value { color: var(--accent); }
+
+  .margin-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 8px; padding: 10px; border: 1px solid var(--border);
+    background: #111009;
+  }
+  .margin-good { color: #5a9e7a; }
+  .margin-ok { color: var(--accent); }
+  .margin-bad { color: var(--red); }
+
+  /* BUTTONS */
+  .btn {
+    padding: 10px 20px; font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; border: 1px solid; transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--accent2); border-color: var(--accent);
+    color: #0e0c0a; width: 100%; padding: 13px;
+    font-size: 12px;
+  }
+  .btn-primary:hover { background: var(--accent); }
+  .btn-sm {
+    padding: 5px 10px; font-size: 10px;
+    background: none; border-color: var(--border); color: var(--muted);
+  }
+  .btn-sm:hover { border-color: var(--accent2); color: var(--text); }
+  .btn-danger { border-color: #4a1a17; color: var(--danger); }
+  .btn-danger:hover { background: #2a0e0c; }
+
+  /* ORDERS TABLE */
+  .orders-filters {
+    display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;
+  }
+  .filter-input {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); padding: 7px 12px; font-family: inherit; font-size: 11px;
+    outline: none; flex: 1; min-width: 150px;
+  }
+  .filter-input:focus { border-color: var(--accent2); }
+  select.filter-input { cursor: pointer; max-width: 160px; }
+
+  .stats-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); padding: 14px;
+  }
+  .stat-card .s-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .stat-card .s-value {
+    font-family: 'Cormorant Garamond', serif; font-size: 22px;
+    color: var(--accent); margin-top: 4px;
+  }
+
+  /* ORDER CARDS */
+  .order-card {
+    background: var(--surface); border: 1px solid var(--border);
+    margin-bottom: 8px; padding: 14px; transition: border-color 0.2s;
+    cursor: default;
+  }
+  .order-card:hover { border-color: var(--accent2); }
+  .order-card-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .order-num {
+    font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--accent);
+  }
+  .order-date { font-size: 10px; color: var(--muted); }
+  .order-client { font-size: 13px; margin-bottom: 4px; }
+  .order-artikul { font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-bottom: 8px; word-break: break-all; }
+  .order-financials {
+    display: flex; gap: 16px; font-size: 11px; flex-wrap: wrap;
+  }
+  .fin-item .fin-label { color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; }
+  .fin-item .fin-value { color: var(--text); }
+  .fin-item .fin-value.profit { color: #5a9e7a; }
+  .fin-item .fin-value.loss { color: var(--red); }
+
+  .status-badge {
+    padding: 3px 10px; font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    border: 1px solid;
+  }
+  .status-new { border-color: #2a4a6a; color: #6a9ec0; background: #0d1a26; }
+  .status-work { border-color: #4a3a10; color: var(--accent); background: #1a1408; }
+  .status-done { border-color: #1a3a28; color: #5a9e7a; background: #0d1f18; }
+  .status-paid { border-color: #2a3a1a; color: #8ab87a; background: #111a0d; }
+
+  .order-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: var(--muted);
+  }
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--accent2); color: #0e0c0a;
+    padding: 12px 20px; font-size: 11px; letter-spacing: 1px;
+    opacity: 0; transform: translateY(10px);
+    transition: all 0.3s; pointer-events: none; z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+  .note-text { font-size: 10px; color: var(--muted); margin-top: 4px; font-style: italic; }
+
+  .view-analytics { display: none; padding: 24px; }
+  .view-orders { display: flex; flex: 1; }
+
+  /* CSV export button */
+  .export-btn {
+    background: none; border: 1px solid var(--border); color: var(--muted);
+    padding: 7px 14px; font-family: inherit; font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+  }
+  .export-btn:hover { border-color: var(--accent2); color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    Береза Найф
+    <span>Управление заказами</span>
+  </div>
+  <div class="nav">
+    <button class="nav-btn active" onclick="showView('orders')">Заказы</button>
+    <button class="nav-btn" onclick="showView('analytics')">Аналитика</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ORDERS VIEW -->
+  <div class="view-orders" id="view-orders" style="display:flex; width:100%;">
+
+    <!-- LEFT: FORM -->
+    <div class="panel-form">
+      <div class="section-title">Новый заказ</div>
+
+      <!-- Client info -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Клиент</label>
+          <input class="form-control" id="f-client" type="text" placeholder="Имя / компания">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Телефон</label>
+          <input class="form-control" id="f-phone" type="text" placeholder="+7">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- КЛИНОК -->
+      <div class="form-group">
+        <label class="form-label">№1 — Модель клинка</label>
+        <select class="form-control" id="f-model" onchange="updateAll()">
+          <option value="">— выберите модель —</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">№2 — Марка стали</label>
+        <select class="form-control" id="f-steel" onchange="updateAll()">
+          <option value="">— выберите сталь —</option>
+        </select>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- РУЧКА -->
+      <div class="form-group">
+        <label class="form-label">№5 — Материал ручки</label>
+        <select class="form-control" id="f-handle" onchange="updateAll()">
+          <option value="">— выберите материал —</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">№6 — Форма ручки</label>
+        <select class="form-control" id="f-shape" onchange="updateAll()">
+          <option value="">— форма —</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">№3 — Больстер</label>
+        <select class="form-control" id="f-bolster" onchange="updateAll()">
+          <option value="">— нет —</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">№4 — Вставка</label>
+        <select class="form-control" id="f-insert" onchange="updateAll()">
+          <option value="">— нет —</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">№7 — Лайнеры</label>
+          <select class="form-control" id="f-liner" onchange="updateAll()">
+            <option value="">— нет —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">№8 — Всечка</label>
+          <select class="form-control" id="f-vsechka" onchange="updateAll()">
+            <option value="">— нет —</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ARTIKUL -->
+      <div class="artikul-box">
+        <div class="artikul-label">Артикул изделия</div>
+        <div class="artikul-value" id="artikul-display">—</div>
+      </div>
+
+      <!-- COST BREAKDOWN -->
+      <div class="cost-box" id="cost-box">
+        <div class="cost-row">
+          <span class="label">Клинок (сталь + обработка)</span>
+          <span class="value" id="c-blade">—</span>
+        </div>
+        <div class="cost-row">
+          <span class="label">Ручка</span>
+          <span class="value" id="c-handle">—</span>
+        </div>
+        <div class="cost-row" id="cr-bolster" style="display:none">
+          <span class="label">Больстер</span>
+          <span class="value" id="c-bolster">—</span>
+        </div>
+        <div class="cost-row" id="cr-insert" style="display:none">
+          <span class="label">Вставка</span>
+          <span class="value" id="c-insert">—</span>
+        </div>
+        <div class="cost-row" id="cr-liner" style="display:none">
+          <span class="label">Лайнеры</span>
+          <span class="value" id="c-liner">—</span>
+        </div>
+        <div class="cost-row" id="cr-vsechka" style="display:none">
+          <span class="label">Всечка</span>
+          <span class="value" id="c-vsechka">—</span>
+        </div>
+        <div class="cost-row" id="cr-shape" style="display:none">
+          <span class="label">Форма (спецобработка)</span>
+          <span class="value" id="c-shape">—</span>
+        </div>
+        <div class="cost-total">
+          <span class="label">Себестоимость</span>
+          <span class="value" id="c-total">—</span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Цена продажи (₽)</label>
+          <input class="form-control" id="f-price" type="number" placeholder="0" oninput="updateMargin()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Предоплата (₽)</label>
+          <input class="form-control" id="f-prepay" type="number" placeholder="0">
+        </div>
+      </div>
+
+      <div class="margin-row" id="margin-row">
+        <span style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;">Маржа</span>
+        <span id="margin-display" style="font-family:'Cormorant Garamond',serif;font-size:20px;">—</span>
+      </div>
+
+      <div style="margin-top:16px;">
+        <div class="form-group">
+          <label class="form-label">Примечание</label>
+          <input class="form-control" id="f-note" type="text" placeholder="Гравировка, пожелания...">
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="saveOrder()" style="margin-top:8px;">
+        ＋ Создать заказ
+      </button>
+    </div>
+
+    <!-- RIGHT: ORDERS LIST -->
+    <div class="panel-orders">
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card">
+          <div class="s-label">Заказов всего</div>
+          <div class="s-value" id="stat-count">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Выручка</div>
+          <div class="s-value" id="stat-revenue">0 ₽</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Прибыль</div>
+          <div class="s-value" id="stat-profit">0 ₽</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Средний чек</div>
+          <div class="s-value" id="stat-avg">0 ₽</div>
+        </div>
+      </div>
+
+      <div class="orders-filters">
+        <input class="filter-input" id="search-input" type="text" placeholder="Поиск по клиенту, артикулу..." oninput="renderOrders()">
+        <select class="filter-input" id="filter-status" onchange="renderOrders()">
+          <option value="">Все статусы</option>
+          <option value="new">Новый</option>
+          <option value="work">В работе</option>
+          <option value="done">Готов</option>
+          <option value="paid">Оплачен</option>
+        </select>
+        <button class="export-btn" onclick="exportCSV()">↓ CSV</button>
+      </div>
+
+      <div class="section-title">История заказов</div>
+      <div id="orders-list"></div>
+    </div>
+
+  </div>
+
+  <!-- ANALYTICS VIEW -->
+  <div class="view-analytics" id="view-analytics" style="width:100%;">
+    <div class="section-title">Аналитика</div>
+    <div id="analytics-content"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// =============================================
+// DATA: MODELS & STEEL COSTS
+// =============================================
+
+const STEAK_MODELS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17];
+
+const MODELS = {
+  1:'MAX', 2:'MAX reznoi', 3:'MAX vs', 4:'SARAY', 5:'POLE', 6:'LABER',
+  7:'BOBO', 8:'TUR', 9:'JP', 10:'STAMBUL', 11:'PADRON', 12:'JAPAN',
+  13:'JAPAN vs', 14:'PERS', 15:'MARTA', 16:'TANTO', 17:'TANTO vs',
+  18:'PARING 90', 19:'PETTY 130', 20:'HANKOTSU', 21:'UTILITI 150',
+  22:'GYUTO 160', 23:'GYUTO 180', 24:'GYUTO 210', 25:'GYUTO 250',
+  26:'GYUTO 270', 27:'KIRITSUKE 210', 28:'HLEB 210', 29:'SUJIHIKI 210',
+  30:'SUJIHIKI 270', 31:'NAKIRI 165', 32:'PARING 110 evro',
+  33:'UTILITI 150 evro', 34:'GYUTO 180 evro', 35:'GYUTO 200 evro',
+  36:'GYUTO 250 evro', 37:'GYUTO 270 evro', 38:'SUJIHIKI 210 evro',
+  39:'SUJIHIKI 270 evro', 40:'HLEB 210 evro', 41:'PARING 110 evro n/m',
+  42:'HANKOTSU evro n/m', 43:'UTILITI 150 evro n/m', 44:'GYUTO 160 evro n/m',
+  45:'GYUTO 180 evro n/m', 46:'GYUTO 200 evro n/m', 47:'HLEB 210 evro n/m',
+  48:'SUJIHIKI 210 evro n/m', 49:'NAKIRI 165 evro n/m',
+  50:'PETTY 120 KRAMER', 51:'SANTOKU 165 KRAMER', 52:'GYUTO 180 KRAMER',
+  53:'GYOTO 210 KRAMER', 54:'MIKRO FINKA', 55:'GRIBNIK 90 vs',
+  56:'PUKKO', 57:'TURIST', 58:'FINKA', 59:'KASUMI', 60:'TYAPKA',
+  65:'мусат 3000', 66:'вилка 5500'
+};
+
+// STEEL COSTS (blade cost = закупка+эрозия+лазер+закалка+заточка+слесарка+галтовка+расходники+аморт+аренда)
+// Format: {modelId: cost}
+const STEEL_COSTS = {
+  // AUS10co всадной монтаж (col 01 = AUS10, нет эрозии)
+  '01': {1:1932,2:1917,3:1461,4:1926,5:1710,6:1685,7:1745,8:1778,9:1698,10:1784,11:1813,12:1828,13:1337,14:1534,15:1826,16:1938,17:1462,18:1470,19:2058,20:1928,21:2591,22:2950,23:3618,24:4429,25:5148,26:5362,27:4366,28:3531,29:3269,30:4068,31:4385,32:1738,33:2473,34:3639,35:4192,36:5119,37:5405,38:3352,39:4155,40:3577,41:2280,42:2481,43:3020,44:3536,45:4183,46:4740,47:4125,48:3901,49:4896,50:2593,51:4608,52:4918,53:5546,54:764,55:1400,56:1832,57:2117,58:3325,59:3412,60:790},
+  // AUS10co накладной (с эрозией)
+  '01e': {1:2261,2:2292,3:1751,4:2256,5:2039,6:2010,7:2069,8:2103,9:2021,10:2113,11:2145,12:2154,13:1613,14:1830,15:2154,16:2270,17:1755,18:1744,19:2389,20:2259,21:2963,22:3336,23:4055,24:4894,25:5671,26:5915,27:4833,28:3982,29:3718,30:4604,31:4818,32:2038,33:2836,34:4059,35:4646,36:5644,37:5958,38:3801,39:4690,40:4033,41:2646,42:2883,43:3450,44:3989,45:4670,46:5265,47:4651,48:4420,49:5389,50:2963,51:5074,52:5404,53:6075,54:919,55:1653,56:2111,57:2428,58:3709,59:3997,60:934},
+  // 95x18
+  '02': {1:2162,2:2129,3:1606,4:2153,5:1872,6:1840,7:1919,8:1961,9:1859,10:1969,11:2006,12:2026,13:1449,14:1652,15:2023,16:2169,17:1608,18:1601,19:2261,20:2103,21:2884,22:3278,23:4036,24:4972,25:5789,26:6027,27:4897,28:3917,29:3612,30:4510,31:4950,32:1907,33:2733,34:4068,35:4704,36:5750,37:6083,38:3721,39:4624,40:3979,41:2595,42:2806,43:3428,44:4023,45:4758,46:5399,47:4675,48:4416,49:5600,50:2894,51:5204,52:5551,53:6263,54:819,55:1512,56:2048,57:2390,58:3700,59:3892,60:852},
+  // N690 без эрозии
+  '03': {1:2277,2:2253,3:1699,4:2267,5:1976,6:1943,7:2024,8:2068,9:1961,10:2077,11:2116,12:2135,13:1533,14:1741,15:2132,16:2285,17:1701,18:1687,19:2372,20:2210,21:3020,22:3422,23:4206,24:5168,25:6014,26:6264,27:5092,28:4086,29:3773,30:4708,31:5142,32:2005,33:2861,34:4235,35:4892,36:5974,37:6322,38:3886,39:4826,40:4152,41:2732,42:2954,43:3595,44:4208,45:4965,46:5627,47:4887,48:4621,49:5828,50:3029,51:5409,52:5767,53:6502,54:864,55:1590,56:2149,57:2508,58:3850,59:4107,60:896},
+  // N690 с эрозией
+  '03e': {1:2605,2:2628,3:1989,4:2598,5:2305,6:2268,7:2348,8:2393,9:2284,10:2405,11:2447,12:2462,13:1809,14:2037,15:2461,16:2616,17:1994,18:1962,19:2702,20:2542,21:3393,22:3807,23:4642,24:5633,25:6537,26:6817,27:5559,28:4537,29:4222,30:5244,31:5575,32:2305,33:3225,34:4655,35:5346,36:6499,37:6876,38:4335,39:5361,40:4607,41:3098,42:3356,43:4025,44:4661,45:5452,46:6152,47:5413,48:5141,49:6321,50:3399,51:5876,52:6253,53:7030,54:1018,55:1843,56:2428,57:2818,58:4234,59:4692,60:1039},
+  // CROMAX с эрозией+лазер
+  '04': {1:3201,2:3209,3:2402,4:3189,5:2766,6:2714,7:2831,8:2895,9:2739,10:2911,11:2970,12:2995,13:2149,14:2395,15:2992,16:3215,17:2408,18:2339,19:3245,20:3032,21:4135,22:4623,23:5658,24:6913,25:8035,26:8378,27:6817,28:5498,29:5095,30:6351,31:6886,32:2768,33:3897,34:5687,35:6557,36:7979,37:8463,38:5259,39:6521,40:5602,41:3881,42:4173,43:5022,44:5824,45:6805,46:7687,47:6732,48:6388,49:7934,50:4154,51:7262,52:7723,53:8685,54:1190,55:2172,56:2976,57:3493,58:5144,59:5896,60:1221},
+  // 31 слой ламинат
+  '05': {1:3369,2:3373,3:2509,4:3357,5:2889,6:2833,7:2962,8:3033,9:2860,10:3050,11:3115,12:3143,13:2232,14:2485,15:3139,16:3384,17:2516,18:2434,19:3396,20:3165,21:4353,22:4865,23:5967,24:7309,25:8505,26:8868,27:7206,28:5789,29:5356,30:6689,31:7293,32:2892,33:4091,34:6001,35:6931,36:8443,37:8963,38:5537,39:6878,40:5904,41:4112,42:4416,43:5324,44:6181,45:7226,46:8169,47:7141,48:6774,49:8442,50:4376,51:7694,52:8182,53:9206,54:1218,55:2252,56:3129,57:3689,58:5417,59:6267,60:1252},
+  // 137 дамаск
+  '06': {1:4073,2:3998,3:2933,4:4051,5:3396,6:3323,7:3508,8:3604,9:3367,10:3623,11:3710,12:3757,13:2567,14:2884,15:3749,16:4089,17:2937,18:2819,19:4029,20:3695,21:5283,22:5950,23:7376,24:9181,25:10723,26:11169,27:9032,28:7070,29:6473,30:8147,31:9263,32:3410,33:4931,34:7452,35:8687,36:10632,37:11301,38:6728,39:8413,40:7229,41:5012,42:5335,43:6551,44:7687,45:9060,46:10307,47:8849,48:8348,49:10777,50:5363,51:9767,52:10388,53:11713,54:1511,55:2594,56:3772,57:4521,58:6683,59:7712,60:1573}
+};
+
+const STEELS = {
+  '01': 'AUS10co (всадной)',
+  '01e': 'AUS10co (накладной)',
+  '02': '95x18',
+  '03': 'N690 (без эрозии)',
+  '03e': 'N690 (с эрозией)',
+  '04': 'CROMAX',
+  '05': 'Ламинат 31 слой',
+  '06': '137 дамаск'
+};
+
+// HANDLE COSTS (шеф / стейк по арт материала)
+const HANDLE_CHEF = {
+  '01':2650,'02':2650,'03':2400,'04':2900,'05':2900,'06':3900,'07':3600,
+  '08':2400,'09':1900,'10':1900,'11':1900,'12':2700,'13':4050,'14':2750,
+  '15':6600,'16':6600,'17':8100,'18':8100,'19':8100,'20':8100,'21':8100,
+  '22':8100,'23':8100,'24':20000,'25':16000,'26':16000,'27':4150,'28':4150,
+  '29':4150,'30':4150,'31':4150,'32':2450,'33':6950,'34':13950,'35':9950,
+  '36':2000,'37':3400,'38':7400,'39':7400,'40':7400,'41':3400
+};
+const HANDLE_STEAK = {
+  '01':1370,'02':1370,'03':1165,'04':1520,'05':1520,'06':1845,'07':1845,
+  '08':1165,'09':995,'10':995,'11':995,'12':1420,'13':1895,'14':1395,
+  '15':2255,'16':2255,'17':2355,'18':2355,'19':2355,'20':2595,'21':2595,
+  '22':3255,'23':3255,'24':13000,'25':9000,'26':9000,'27':2095,'28':2095,
+  '29':2095,'30':2095,'31':2095,'32':2000,'33':4000,'34':7500,'35':5500,
+  '36':2345
+};
+const HANDLE_NAMES = {
+  '01':'карел берёза','02':'огненная карел берёза','03':'граб','04':'смолаклен синий',
+  '05':'смолаклен красный','06':'аризонка','07':'олива','08':'дуб','09':'падук',
+  '10':'окан','11':'бубинго','12':'гренадил','13':'элфорин','14':'исск. Кость',
+  '15':'карбон Твилл чёрный','16':'карбон Твилл серый','17':'карбон хаотичный чёрный',
+  '18':'карбон хаотичный синий','19':'карбон хаотичный красный','20':'карбон хаотичный серебро',
+  '21':'карбон хаотичный золото','22':'карбон керам белый','23':'карбон керам красный',
+  '24':'титан','25':'латунь','26':'медь','27':'рафир чёрный алюм','28':'рафир чёрный латунь',
+  '29':'рафир синий','30':'рафир красный','31':'рафир зелёный','32':'кость',
+  '33':'рог буйвола','34':'бивень мамонта','35':'бивень моржа','36':'Ж10',
+  '37':'граб/клен','38':'вулкан','39':'озера','40':'водопад','41':'граб/береза'
+};
+
+const BOLSTER_CHEF = {'01':330,'02':330,'03':1000,'04':3000,'05':1000};
+const BOLSTER_NAMES = {'01':'нейзильбер','02':'латунь','03':'мокуме','04':'тимаскус','05':'карбон'};
+
+const INSERT_COSTS = {
+  '01':2000,'02':2000,'03':2000,'04':2000,'05':2000,'06':2000,'07':2000,
+  '08':2000,'09':2000,'10':2000,'11':1000,'12':2000,'13':2000,'14':2000,
+  '15':6000,'16':1050
+};
+const INSERT_NAMES = {
+  '01':'зуб мамонта коричневый','02':'зуб мамонта красный','03':'зуб мамонта синий',
+  '04':'зуб мамонта зеленый','05':'коралл зеленый','06':'коралл красный',
+  '07':'коралл синий','08':'позвоночник кита синий','09':'позвоночник кита красный',
+  '10':'позвоночник кита синий 2','11':'рог буйвола','12':'бивень мамонта',
+  '13':'бивень моржа','14':'Мокуме','15':'Тимаскус','16':'искусственная кость'
+};
+
+const SHAPE_COSTS = {'03':2500,'04':3000};
+const SHAPE_NAMES = {'01':'круг','02':'октагон','03':'евро','04':'крамер'};
+
+const LINER_COSTS = {'01':2000,'02':2000,'03':2000,'04':4000,'05':5000,'06':7000};
+const LINER_NAMES = {'01':'латунь','02':'нержавейка','03':'медь','04':'титан','05':'мокуме','06':'тимаскус'};
+
+const VSECHKA_COSTS = {
+  '06':1000,'12':1000,'13':1000,'14':1000,'15':2000,'20':3000,'21':3000,
+  '22':3000,'23':3000,'24':5000,'25':3000,'26':3000,'32':2000,'33':3000,
+  '34':5000,'35':5000,'36':2000
+};
+const VSECHKA_NAMES = {
+  '01':'карел берёза','02':'огненная карел берёза','03':'граб','04':'смолаклен синий',
+  '05':'смолаклен красный','06':'аризонка','07':'олива','08':'дуб','09':'падук стейк',
+  '10':'окан стейк','11':'бубинго','12':'гренадил','13':'элфорин','14':'исск. Кость',
+  '15':'карбон Твилл чёрный','16':'карбон Твилл серый','17':'карбон хаотичный чёрный',
+  '18':'карбон хаотичный синий','19':'карбон хаотичный красный','20':'карбон хаотичный серебро',
+  '21':'карбон хаотичный золото','22':'карбон керам белый','23':'карбон керам красный',
+  '24':'титан','25':'латунь','26':'медь','27':'рафир чёрный алюм','28':'рафир чёрный латунь',
+  '29':'рафир синий','30':'рафир красный','31':'рафир зелёный','32':'кость',
+  '33':'рог буйвола','34':'бивень мамонта','35':'бивень моржа','36':'Ж10'
+};
+
+// =============================================
+// INIT SELECTS
+// =============================================
+function initSelects() {
+  const modelSel = document.getElementById('f-model');
+  for (const [id, name] of Object.entries(MODELS)) {
+    const isSteak = STEAK_MODELS.includes(+id);
+    const opt = new Option(`${String(id).padStart(3,'0')} — ${name}${isSteak?' [СТЕЙК]':' [ШЕФ]'}`, id);
+    modelSel.appendChild(opt);
+  }
+
+  const steelSel = document.getElementById('f-steel');
+  for (const [id, name] of Object.entries(STEELS)) {
+    steelSel.appendChild(new Option(name, id));
+  }
+
+  const handleSel = document.getElementById('f-handle');
+  for (const [id, name] of Object.entries(HANDLE_NAMES)) {
+    handleSel.appendChild(new Option(name, id));
+  }
+
+  const shapeSel = document.getElementById('f-shape');
+  shapeSel.appendChild(new Option('круг (0)', '01'));
+  shapeSel.appendChild(new Option('октагон (0)', '02'));
+  shapeSel.appendChild(new Option('евро (+2500)', '03'));
+  shapeSel.appendChild(new Option('крамер (+3000)', '04'));
+
+  const bolsterSel = document.getElementById('f-bolster');
+  bolsterSel.appendChild(new Option('— нет —', ''));
+  for (const [id, name] of Object.entries(BOLSTER_NAMES)) {
+    bolsterSel.appendChild(new Option(`${name} (+${BOLSTER_CHEF[id]}₽)`, id));
+  }
+
+  const insertSel = document.getElementById('f-insert');
+  insertSel.appendChild(new Option('— нет —', ''));
+  for (const [id, name] of Object.entries(INSERT_NAMES)) {
+    insertSel.appendChild(new Option(`${name} (+${INSERT_COSTS[id]}₽)`, id));
+  }
+
+  const linerSel = document.getElementById('f-liner');
+  linerSel.appendChild(new Option('— нет —', ''));
+  for (const [id, name] of Object.entries(LINER_NAMES)) {
+    linerSel.appendChild(new Option(`${name} (+${LINER_COSTS[id]}₽)`, id));
+  }
+
+  const vsechkaSel = document.getElementById('f-vsechka');
+  vsechkaSel.appendChild(new Option('— нет —', ''));
+  for (const [id, name] of Object.entries(VSECHKA_NAMES)) {
+    const cost = VSECHKA_COSTS[id] || 0;
+    vsechkaSel.appendChild(new Option(`${name}${cost?' (+'+cost+'₽)':''}`, id));
+  }
+}
+
+// =============================================
+// CALC
+// =============================================
+let currentCost = 0;
+
+function updateAll() {
+  const modelId = +document.getElementById('f-model').value;
+  const steelId = document.getElementById('f-steel').value;
+  const handleId = document.getElementById('f-handle').value;
+  const shapeId = document.getElementById('f-shape').value;
+  const bolsterId = document.getElementById('f-bolster').value;
+  const insertId = document.getElementById('f-insert').value;
+  const linerId = document.getElementById('f-liner').value;
+  const vsechkaId = document.getElementById('f-vsechka').value;
+
+  // Artikul
+  const modelStr = modelId ? String(modelId).padStart(3,'0') : '?';
+  const k = `K/${modelStr}`;
+  const parts = [
+    modelStr,
+    steelId ? `C/${steelId}` : null,
+    bolsterId ? `B/${bolsterId}` : null,
+    insertId ? `V/${insertId}` : null,
+    handleId ? `R/${handleId}` : null,
+    shapeId ? `F/${shapeId}` : null,
+    linerId ? `L/${linerId}` : null,
+    vsechkaId ? `VS/${vsechkaId}` : null
+  ].filter(Boolean);
+  document.getElementById('artikul-display').textContent = parts.join('/');
+
+  // COSTS
+  let bladeCost = 0, handleCost = 0, bolsterCost = 0, insertCost = 0,
+      linerCost = 0, vsechkaCost = 0, shapeCost = 0;
+  let valid = modelId && steelId && handleId;
+
+  if (valid) {
+    const steelTable = STEEL_COSTS[steelId];
+    bladeCost = steelTable ? (steelTable[modelId] || 0) : 0;
+
+    const isSteak = STEAK_MODELS.includes(modelId);
+    const handleTable = isSteak ? HANDLE_STEAK : HANDLE_CHEF;
+    handleCost = handleTable[handleId] || 0;
+
+    if (bolsterId) bolsterCost = BOLSTER_CHEF[bolsterId] || 0;
+    if (insertId) insertCost = INSERT_COSTS[insertId] || 0;
+    if (linerId) linerCost = LINER_COSTS[linerId] || 0;
+    if (vsechkaId) vsechkaCost = VSECHKA_COSTS[vsechkaId] || 0;
+    if (shapeId && SHAPE_COSTS[shapeId]) shapeCost = SHAPE_COSTS[shapeId];
+  }
+
+  currentCost = bladeCost + handleCost + bolsterCost + insertCost + linerCost + vsechkaCost + shapeCost;
+
+  const fmt = v => v.toLocaleString('ru') + ' ₽';
+
+  document.getElementById('c-blade').textContent = bladeCost ? fmt(bladeCost) : '—';
+  document.getElementById('c-handle').textContent = handleCost ? fmt(handleCost) : '—';
+
+  const toggleRow = (id, show, valId, val) => {
+    document.getElementById(id).style.display = show ? 'flex' : 'none';
+    if (show) document.getElementById(valId).textContent = fmt(val);
+  };
+  toggleRow('cr-bolster', !!bolsterId, 'c-bolster', bolsterCost);
+  toggleRow('cr-insert', !!insertId, 'c-insert', insertCost);
+  toggleRow('cr-liner', !!linerId, 'c-liner', linerCost);
+  toggleRow('cr-vsechka', !!vsechkaId, 'c-vsechka', vsechkaCost);
+  toggleRow('cr-shape', !!shapeCost, 'c-shape', shapeCost);
+
+  document.getElementById('c-total').textContent = currentCost ? fmt(currentCost) : '—';
+  updateMargin();
+}
+
+function updateMargin() {
+  const price = +document.getElementById('f-price').value || 0;
+  const el = document.getElementById('margin-display');
+  if (!price || !currentCost) { el.textContent = '—'; el.className = ''; return; }
+  const profit = price - currentCost;
+  const pct = Math.round(profit / price * 100);
+  el.textContent = `${profit.toLocaleString('ru')} ₽ (${pct}%)`;
+  el.className = pct >= 60 ? 'margin-good' : pct >= 40 ? 'margin-ok' : 'margin-bad';
+}
+
+// =============================================
+// ORDERS
+// =============================================
+let orders = JSON.parse(localStorage.getItem('bn_orders') || '[]');
+let orderCounter = +localStorage.getItem('bn_counter') || 1;
+
+function saveOrder() {
+  const client = document.getElementById('f-client').value.trim();
+  const modelId = +document.getElementById('f-model').value;
+  const steelId = document.getElementById('f-steel').value;
+  const handleId = document.getElementById('f-handle').value;
+
+  if (!client) { showToast('Укажи клиента'); return; }
+  if (!modelId) { showToast('Выбери модель'); return; }
+  if (!steelId) { showToast('Выбери сталь'); return; }
+  if (!handleId) { showToast('Выбери материал ручки'); return; }
+
+  const price = +document.getElementById('f-price').value || 0;
+  const prepay = +document.getElementById('f-prepay').value || 0;
+
+  const artikul = document.getElementById('artikul-display').textContent;
+
+  const order = {
+    id: orderCounter++,
+    date: new Date().toLocaleDateString('ru'),
+    client,
+    phone: document.getElementById('f-phone').value,
+    modelId,
+    modelName: MODELS[modelId],
+    steelId,
+    steelName: STEELS[steelId],
+    handleId,
+    handleName: HANDLE_NAMES[handleId],
+    bolsterId: document.getElementById('f-bolster').value,
+    insertId: document.getElementById('f-insert').value,
+    linerId: document.getElementById('f-liner').value,
+    vsechkaId: document.getElementById('f-vsechka').value,
+    shapeId: document.getElementById('f-shape').value,
+    artikul,
+    cost: currentCost,
+    price,
+    prepay,
+    note: document.getElementById('f-note').value,
+    status: 'new'
+  };
+
+  orders.unshift(order);
+  saveOrders();
+  renderOrders();
+  showToast(`Заказ №${order.id} создан`);
+
+  // Reset
+  ['f-client','f-phone','f-price','f-prepay','f-note'].forEach(id => document.getElementById(id).value = '');
+  ['f-model','f-steel','f-handle','f-shape','f-bolster','f-insert','f-liner','f-vsechka'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('artikul-display').textContent = '—';
+  document.getElementById('c-total').textContent = '—';
+  document.getElementById('c-blade').textContent = '—';
+  document.getElementById('c-handle').textContent = '—';
+  document.getElementById('margin-display').textContent = '—';
+  currentCost = 0;
+}
+
+function saveOrders() {
+  localStorage.setItem('bn_orders', JSON.stringify(orders));
+  localStorage.setItem('bn_counter', orderCounter);
+}
+
+const STATUS_FLOW = { new:'work', work:'done', done:'paid', paid:'new' };
+const STATUS_LABELS = { new:'Новый', work:'В работе', done:'Готов', paid:'Оплачен' };
+
+function changeStatus(id, status) {
+  const o = orders.find(x => x.id === id);
+  if (o) { o.status = status; saveOrders(); renderOrders(); }
+}
+function nextStatus(id) {
+  const o = orders.find(x => x.id === id);
+  if (o) { o.status = STATUS_FLOW[o.status]; saveOrders(); renderOrders(); }
+}
+function deleteOrder(id) {
+  if (!confirm('Удалить заказ?')) return;
+  orders = orders.filter(x => x.id !== id);
+  saveOrders(); renderOrders();
+}
+
+function renderOrders() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const statusFilter = document.getElementById('filter-status').value;
+
+  let filtered = orders.filter(o => {
+    const matchSearch = !search ||
+      o.client.toLowerCase().includes(search) ||
+      o.artikul.toLowerCase().includes(search) ||
+      String(o.id).includes(search);
+    const matchStatus = !statusFilter || o.status === statusFilter;
+    return matchSearch && matchStatus;
+  });
+
+  // Stats
+  const paid = orders.filter(o => o.status === 'paid');
+  document.getElementById('stat-count').textContent = orders.length;
+  document.getElementById('stat-revenue').textContent = (paid.reduce((s,o)=>s+o.price,0)).toLocaleString('ru') + ' ₽';
+  document.getElementById('stat-profit').textContent = (paid.reduce((s,o)=>s+(o.price-o.cost),0)).toLocaleString('ru') + ' ₽';
+  const avg = paid.length ? Math.round(paid.reduce((s,o)=>s+o.price,0)/paid.length) : 0;
+  document.getElementById('stat-avg').textContent = avg.toLocaleString('ru') + ' ₽';
+
+  const list = document.getElementById('orders-list');
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">◇</div>Заказов нет</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(o => {
+    const profit = o.price - o.cost;
+    const margin = o.price ? Math.round(profit/o.price*100) : 0;
+    const profitClass = profit > 0 ? 'profit' : 'loss';
+    return `<div class="order-card">
+      <div class="order-card-header">
+        <div>
+          <div class="order-num">№${o.id}</div>
+          <div class="order-date">${o.date}</div>
+        </div>
+        <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status]}</span>
+      </div>
+      <div class="order-client">${o.client}${o.phone?' · '+o.phone:''}</div>
+      <div class="order-artikul">${o.artikul}</div>
+      ${o.note?`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">✎ ${o.note}</div>`:''}
+      <div class="order-financials">
+        <div class="fin-item">
+          <div class="fin-label">Себестоимость</div>
+          <div class="fin-value">${o.cost.toLocaleString('ru')} ₽</div>
+        </div>
+        <div class="fin-item">
+          <div class="fin-label">Цена продажи</div>
+          <div class="fin-value">${o.price ? o.price.toLocaleString('ru')+' ₽' : '—'}</div>
+        </div>
+        <div class="fin-item">
+          <div class="fin-label">Прибыль</div>
+          <div class="fin-value ${profitClass}">${o.price ? profit.toLocaleString('ru')+' ₽ ('+margin+'%)' : '—'}</div>
+        </div>
+        ${o.prepay?`<div class="fin-item"><div class="fin-label">Предоплата</div><div class="fin-value">${o.prepay.toLocaleString('ru')} ₽</div></div>`:''}
+      </div>
+      <div class="order-actions">
+        <button class="btn btn-sm" onclick="nextStatus(${o.id})">→ ${STATUS_LABELS[STATUS_FLOW[o.status]]}</button>
+        <select class="btn btn-sm" onchange="changeStatus(${o.id},this.value); this.value=''" style="background:var(--surface);cursor:pointer;">
+          <option value="">Статус...</option>
+          ${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}
+        </select>
+        <button class="btn btn-sm btn-danger" onclick="deleteOrder(${o.id})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// =============================================
+// EXPORT CSV
+// =============================================
+function exportCSV() {
+  const headers = ['№','Дата','Клиент','Артикул','Себестоимость','Цена','Прибыль','Маржа%','Статус','Примечание'];
+  const rows = orders.map(o => {
+    const profit = o.price - o.cost;
+    const margin = o.price ? Math.round(profit/o.price*100) : 0;
+    return [o.id, o.date, o.client, o.artikul, o.cost, o.price, profit, margin+'%', STATUS_LABELS[o.status], o.note||''];
+  });
+  const csv = [headers, ...rows].map(r => r.join(';')).join('\n');
+  const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bereza_orders.csv';
+  a.click();
+}
+
+// =============================================
+// VIEWS
+// =============================================
+function showView(v) {
+  document.getElementById('view-orders').style.display = v==='orders' ? 'flex' : 'none';
+  document.getElementById('view-analytics').style.display = v==='analytics' ? 'block' : 'none';
+  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&v==='orders')||(i===1&&v==='analytics')));
+  if (v==='analytics') renderAnalytics();
+}
+
+function renderAnalytics() {
+  const paid = orders.filter(o=>o.status==='paid');
+  const all = orders;
+  const totalRevenue = paid.reduce((s,o)=>s+o.price,0);
+  const totalCost = paid.reduce((s,o)=>s+o.cost,0);
+  const totalProfit = totalRevenue - totalCost;
+  const avgMargin = paid.length ? Math.round(totalProfit/totalRevenue*100) : 0;
+
+  // By status
+  const byStatus = {};
+  all.forEach(o => { byStatus[o.status] = (byStatus[o.status]||0)+1; });
+
+  // Top models
+  const byModel = {};
+  all.forEach(o => { byModel[o.modelName] = (byModel[o.modelName]||0)+1; });
+  const topModels = Object.entries(byModel).sort((a,b)=>b[1]-a[1]).slice(0,10);
+
+  const fmt = v => v.toLocaleString('ru') + ' ₽';
+
+  document.getElementById('analytics-content').innerHTML = `
+    <div class="stats-row" style="margin-bottom:24px;">
+      <div class="stat-card"><div class="s-label">Выручка (оплач.)</div><div class="s-value">${fmt(totalRevenue)}</div></div>
+      <div class="stat-card"><div class="s-label">Прибыль</div><div class="s-value">${fmt(totalProfit)}</div></div>
+      <div class="stat-card"><div class="s-label">Средняя маржа</div><div class="s-value">${avgMargin}%</div></div>
+      <div class="stat-card"><div class="s-label">Всего заказов</div><div class="s-value">${all.length}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div>
+        <div class="section-title">По статусам</div>
+        ${Object.entries(STATUS_LABELS).map(([k,v])=>`
+          <div class="cost-row">
+            <span class="label">${v}</span>
+            <span class="value">${byStatus[k]||0} шт.</span>
+          </div>`).join('')}
+      </div>
+      <div>
+        <div class="section-title">Топ моделей</div>
+        ${topModels.map(([m,c])=>`
+          <div class="cost-row">
+            <span class="label">${m}</span>
+            <span class="value">${c} шт.</span>
+          </div>`).join('') || '<div style="color:var(--muted);font-size:11px;">Нет данных</div>'}
+      </div>
+    </div>
+  `;
+}
+
+// =============================================
+// TOAST
+// =============================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// INIT
+initSelects();
+renderOrders();
+</script>
+</body>
+</html>

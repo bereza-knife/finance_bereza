@@ -288,7 +288,7 @@
 
 <div class="header">
   <div class="logo">
-    Береза Найф
+    Bereza Knife
     <span>Управление заказами</span>
   </div>
   <div class="nav">
@@ -703,13 +703,13 @@ function updateAll() {
   const k = `K/${modelStr}`;
   const parts = [
     modelStr,
-    steelId ? `C/${steelId}` : null,
-    bolsterId ? `B/${bolsterId}` : null,
-    insertId ? `V/${insertId}` : null,
-    handleId ? `R/${handleId}` : null,
-    shapeId ? `F/${shapeId}` : null,
-    linerId ? `L/${linerId}` : null,
-    vsechkaId ? `VS/${vsechkaId}` : null
+    steelId || null,
+    bolsterId || null,
+    insertId || null,
+    handleId || null,
+    shapeId || null,
+    linerId || null,
+    vsechkaId || null
   ].filter(Boolean);
   document.getElementById('artikul-display').textContent = parts.join('/');
 

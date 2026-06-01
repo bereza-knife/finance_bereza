@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/gregorygromov/bereza_crm && git add . && git commit -m \"update\" && git push 2>/dev/null || true",
+            "statusMessage": "Committing and pushing changes..."
+          }
+        ]
+      }
+    ]
+  }
+}

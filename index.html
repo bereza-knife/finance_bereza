@@ -1621,7 +1621,8 @@ function saveMishaOrder() {
   renderMishaOrders();
   showToast(`Заказ №${order.id} создан`);
 
-  ['m-client','m-phone','m-tg','m-note'].forEach(id => document.getElementById(id).value = '');
+  ['m-client','m-phone','m-tg','m-price','m-prepay','m-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('m-margin-display').textContent = '—';
   ['m-model','m-steel','m-handle','m-shape','m-bolster','m-insert','m-liner','m-vsechka']
     .forEach(id => document.getElementById(id).value = '');
   document.getElementById('m-artikul-display').textContent = '—';

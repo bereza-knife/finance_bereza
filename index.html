@@ -285,11 +285,19 @@
 
   /* ===================== LOGIN ===================== */
   #login-screen {
-    position: fixed; inset: 0; background: var(--bg);
+    position: fixed; inset: 0;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    z-index: 9999;
+    z-index: 9999; overflow: hidden;
   }
+  #login-screen::before {
+    content: '';
+    position: absolute; inset: -20px;
+    background: url('bg.jpg') center center / cover no-repeat;
+    filter: blur(18px) brightness(0.28) saturate(0.7);
+    z-index: 0;
+  }
+  #login-screen > * { position: relative; z-index: 1; }
   .login-logo {
     font-family: 'Cormorant Garamond', serif;
     font-size: 32px; font-weight: 300;

@@ -1244,6 +1244,7 @@ function saveOrder() {
     date: new Date().toLocaleDateString('ru'),
     client,
     phone: document.getElementById('f-phone').value,
+    tg: document.getElementById('f-tg').value.trim(),
     modelId,
     modelName: MODELS[modelId],
     steelId,

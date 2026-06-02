@@ -1392,15 +1392,26 @@ function exportCSV() {
 // VIEWS
 // =============================================
 function showView(v) {
-  document.getElementById('view-orders').style.display    = v==='orders'    ? 'flex'   : 'none';
-  document.getElementById('view-prod').style.display      = v==='prod'       ? 'block'  : 'none';
-  document.getElementById('view-analytics').style.display = v==='analytics'  ? 'block'  : 'none';
-  document.querySelectorAll('.nav-btn').forEach((b,i) => {
-    b.classList.toggle('active',
-      (i===0&&v==='orders') || (i===1&&v==='prod') || (i===2&&v==='analytics'));
+  document.getElementById('view-orders').style.display    = v==='orders'   ? 'flex'  : 'none';
+  document.getElementById('view-prod').style.display      = v==='prod'      ? 'block' : 'none';
+  document.getElementById('view-clients').style.display   = v==='clients'   ? 'block' : 'none';
+  document.getElementById('view-analytics').style.display = v==='analytics' ? 'block' : 'none';
+  const views = ['orders','prod','clients','analytics'];
+  document.querySelectorAll('#app-lesha .nav .nav-btn').forEach((b,i) => {
+    b.classList.toggle('active', views[i] === v);
   });
   if (v==='analytics') renderAnalytics();
   if (v==='prod') renderProd();
+  if (v==='clients') renderClients();
+}
+
+function showMishaView(v) {
+  document.getElementById('m-view-orders').style.display  = v==='orders'  ? 'flex'  : 'none';
+  document.getElementById('m-view-clients').style.display = v==='clients' ? 'block' : 'none';
+  document.querySelectorAll('#app-misha .nav .nav-btn').forEach((b,i) => {
+    b.classList.toggle('active', (i===0&&v==='orders')||(i===1&&v==='clients'));
+  });
+  if (v==='clients') renderMishaClients();
 }
 
 function renderAnalytics() {

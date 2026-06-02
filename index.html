@@ -1658,8 +1658,22 @@ function renderMishaOrders() {
       <div class="order-client">${o.client}${o.phone?' · '+o.phone:''}${o.tg?' · <span style="color:#6a9ec0">'+o.tg+'</span>':''}</div>
       <div class="order-artikul">${o.artikul}</div>
       ${o.note?`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">✎ ${o.note}</div>`:''}
-      ${o.cost?`<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">
-        Ориент. цена: <span style="color:var(--accent)">${approxPrice.toLocaleString('ru')} ₽</span>
+      ${o.cost?`<div class="order-financials">
+        <div class="fin-item">
+          <div class="fin-label">Цена от Лёши</div>
+          <div class="fin-value">${approxPrice.toLocaleString('ru')} ₽</div>
+        </div>
+        ${o.price?`<div class="fin-item">
+          <div class="fin-label">Цена продажи</div>
+          <div class="fin-value">${o.price.toLocaleString('ru')} ₽</div>
+        </div>
+        <div class="fin-item">
+          <div class="fin-label">Маржа</div>
+          <div class="fin-value ${(o.price-o.cost)/o.price>=0.6?'profit':(o.price-o.cost)/o.price>=0.4?'':'loss'}">
+            ${(o.price-o.cost).toLocaleString('ru')} ₽ (${Math.round((o.price-o.cost)/o.price*100)}%)
+          </div>
+        </div>`:''}
+        ${o.prepay?`<div class="fin-item"><div class="fin-label">Предоплата</div><div class="fin-value">${o.prepay.toLocaleString('ru')} ₽</div></div>`:''}
       </div>`:''}
       <div class="order-actions">
         <button class="btn btn-sm" onclick="nextStatus(${o.id});renderMishaOrders()">→ ${STATUS_LABELS[STATUS_FLOW[o.status]]}</button>

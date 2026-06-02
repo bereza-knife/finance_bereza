@@ -1228,10 +1228,15 @@ function exportCSV() {
 // VIEWS
 // =============================================
 function showView(v) {
-  document.getElementById('view-orders').style.display = v==='orders' ? 'flex' : 'none';
-  document.getElementById('view-analytics').style.display = v==='analytics' ? 'block' : 'none';
-  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&v==='orders')||(i===1&&v==='analytics')));
+  document.getElementById('view-orders').style.display    = v==='orders'    ? 'flex'   : 'none';
+  document.getElementById('view-prod').style.display      = v==='prod'       ? 'block'  : 'none';
+  document.getElementById('view-analytics').style.display = v==='analytics'  ? 'block'  : 'none';
+  document.querySelectorAll('.nav-btn').forEach((b,i) => {
+    b.classList.toggle('active',
+      (i===0&&v==='orders') || (i===1&&v==='prod') || (i===2&&v==='analytics'));
+  });
   if (v==='analytics') renderAnalytics();
+  if (v==='prod') renderProd();
 }
 
 function renderAnalytics() {

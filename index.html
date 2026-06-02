@@ -900,12 +900,25 @@
       </div>
       <div class="misha-cost-box" id="m-cost-box" style="display:none">
         <div>
-          <div class="misha-cost-label">Ориентировочная цена</div>
-          <div style="font-size:9px;color:var(--muted);margin-top:2px;letter-spacing:1px;">себестоимость × 1.3</div>
+          <div class="misha-cost-label">Цена от Лёши</div>
         </div>
         <div class="misha-cost-value" id="m-cost-display">—</div>
       </div>
-      <div style="margin-top:8px;">
+      <div class="form-row" style="margin-top:8px;">
+        <div class="form-group">
+          <label class="form-label">Цена продажи (₽)</label>
+          <input class="form-control" id="m-price" type="number" placeholder="0" oninput="updateMishaMargin()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Предоплата (₽)</label>
+          <input class="form-control" id="m-prepay" type="number" placeholder="0">
+        </div>
+      </div>
+      <div class="margin-row" id="m-margin-row">
+        <span style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;">Маржа</span>
+        <span id="m-margin-display" style="font-family:'Cormorant Garamond',serif;font-size:20px;">—</span>
+      </div>
+      <div style="margin-top:12px;">
         <div class="form-group">
           <label class="form-label">Примечание</label>
           <input class="form-control" id="m-note" type="text" placeholder="Гравировка, пожелания...">

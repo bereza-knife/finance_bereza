@@ -282,9 +282,149 @@
     text-transform: uppercase; cursor: pointer; transition: all 0.2s;
   }
   .export-btn:hover { border-color: var(--accent2); color: var(--text); }
+
+  /* ===================== LOGIN ===================== */
+  #login-screen {
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 9999;
+  }
+  .login-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px; font-weight: 300;
+    letter-spacing: 10px; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .login-sub {
+    font-size: 10px; letter-spacing: 4px; color: var(--muted);
+    text-transform: uppercase; margin-bottom: 48px;
+  }
+  .user-cards {
+    display: flex; gap: 16px; margin-bottom: 40px;
+  }
+  .user-card {
+    width: 120px; height: 120px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s; gap: 10px;
+  }
+  .user-card:hover { border-color: var(--accent2); }
+  .user-card.selected { border-color: var(--accent); background: #1e1a14; }
+  .user-avatar {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px; color: var(--accent); line-height: 1;
+  }
+  .user-name {
+    font-size: 10px; letter-spacing: 3px; color: var(--muted);
+    text-transform: uppercase;
+  }
+  .pin-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .pin-wrap.visible { opacity: 1; pointer-events: all; }
+  .pin-label {
+    font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase;
+  }
+  .pin-dots {
+    display: flex; gap: 10px;
+  }
+  .pin-dot {
+    width: 12px; height: 12px; border: 1px solid var(--border);
+    border-radius: 50%; background: transparent; transition: all 0.15s;
+  }
+  .pin-dot.filled { background: var(--accent); border-color: var(--accent); }
+  .pin-keypad {
+    display: grid; grid-template-columns: repeat(3, 52px); gap: 8px;
+  }
+  .pin-key {
+    height: 44px; background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 16px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .pin-key:hover { border-color: var(--accent2); color: var(--accent); }
+  .pin-key.del { font-size: 12px; color: var(--muted); }
+  .pin-error {
+    font-size: 10px; letter-spacing: 2px; color: var(--red);
+    text-transform: uppercase; height: 14px;
+  }
+
+  /* logout */
+  .logout-btn {
+    background: none; border: 1px solid var(--border); color: var(--muted);
+    padding: 6px 14px; font-family: inherit; font-size: 10px;
+    letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* placeholder dashboards */
+  .placeholder-wrap {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    height: calc(100vh - 73px); gap: 16px;
+  }
+  .placeholder-icon {
+    font-size: 48px; opacity: 0.15;
+  }
+  .placeholder-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 28px;
+    color: var(--accent); letter-spacing: 4px; text-transform: uppercase;
+  }
+  .placeholder-sub { font-size: 11px; color: var(--muted); letter-spacing: 2px; }
 </style>
 </head>
 <body>
+
+<!-- ===================== LOGIN SCREEN ===================== -->
+<div id="login-screen">
+  <div class="login-logo">Bereza Knife</div>
+  <div class="login-sub">Личный кабинет</div>
+  <div class="user-cards">
+    <div class="user-card" id="card-lesha" onclick="selectUser('lesha')">
+      <div class="user-avatar">Л</div>
+      <div class="user-name">Лёша</div>
+    </div>
+    <div class="user-card" id="card-misha" onclick="selectUser('misha')">
+      <div class="user-avatar">М</div>
+      <div class="user-name">Миша</div>
+    </div>
+    <div class="user-card" id="card-admin" onclick="selectUser('admin')">
+      <div class="user-avatar">Г</div>
+      <div class="user-name">Григорий</div>
+    </div>
+  </div>
+  <div class="pin-wrap" id="pin-wrap">
+    <div class="pin-label" id="pin-label">Введите PIN</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="dot-0"></div>
+      <div class="pin-dot" id="dot-1"></div>
+      <div class="pin-dot" id="dot-2"></div>
+      <div class="pin-dot" id="dot-3"></div>
+    </div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinInput('1')">1</button>
+      <button class="pin-key" onclick="pinInput('2')">2</button>
+      <button class="pin-key" onclick="pinInput('3')">3</button>
+      <button class="pin-key" onclick="pinInput('4')">4</button>
+      <button class="pin-key" onclick="pinInput('5')">5</button>
+      <button class="pin-key" onclick="pinInput('6')">6</button>
+      <button class="pin-key" onclick="pinInput('7')">7</button>
+      <button class="pin-key" onclick="pinInput('8')">8</button>
+      <button class="pin-key" onclick="pinInput('9')">9</button>
+      <button class="pin-key del" onclick="pinClear()" style="grid-column:1">CLR</button>
+      <button class="pin-key" onclick="pinInput('0')">0</button>
+      <button class="pin-key del" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+  </div>
+</div>
+
+<!-- ===================== LESHA'S INTERFACE ===================== -->
+<div id="app-lesha" style="display:none">
 
 <div class="header">
   <div class="logo">

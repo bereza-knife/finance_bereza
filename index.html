@@ -1608,7 +1608,8 @@ function saveMishaOrder() {
     shapeId:   document.getElementById('m-shape').value,
     artikul,
     cost: mishaCost,
-    price: 0, prepay: 0,
+    price: +document.getElementById('m-price').value || 0,
+    prepay: +document.getElementById('m-prepay').value || 0,
     note: document.getElementById('m-note').value,
     status: 'new',
     createdBy: 'misha'

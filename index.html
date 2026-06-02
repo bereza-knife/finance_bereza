@@ -1473,6 +1473,249 @@ function showToast(msg) {
 }
 
 // =============================================
+// MISHA — INIT SELECTS (без цен в лейблах)
+// =============================================
+function initMishaSelects() {
+  const modelSel = document.getElementById('m-model');
+  for (const [id, name] of Object.entries(MODELS)) {
+    const isSteak = STEAK_MODELS.includes(+id);
+    modelSel.appendChild(new Option(`${String(id).padStart(3,'0')} — ${name}${isSteak?' [СТЕЙК]':' [ШЕФ]'}`, id));
+  }
+  const steelSel = document.getElementById('m-steel');
+  for (const [id, name] of Object.entries(STEELS)) steelSel.appendChild(new Option(name, id));
+
+  const handleSel = document.getElementById('m-handle');
+  for (const [id, name] of Object.entries(HANDLE_NAMES)) handleSel.appendChild(new Option(name, id));
+
+  const shapeSel = document.getElementById('m-shape');
+  ['круг','октагон','евро','крамер'].forEach((n,i) => shapeSel.appendChild(new Option(n, String(i+1).padStart(2,'0'))));
+
+  const bolsterSel = document.getElementById('m-bolster');
+  bolsterSel.appendChild(new Option('— нет —', ''));
+  for (const [id, name] of Object.entries(BOLSTER_NAMES)) bolsterSel.appendChild(new Option(name, id));
+
+  const insertSel = document.getElementById('m-insert');
+  insertSel.appendChild(new Option('— нет —', ''));
+  for (const [id, name] of Object.entries(INSERT_NAMES)) insertSel.appendChild(new Option(name, id));
+
+  const linerSel = document.getElementById('m-liner');
+  linerSel.appendChild(new Option('— нет —', ''));
+  for (const [id, name] of Object.entries(LINER_NAMES)) linerSel.appendChild(new Option(name, id));
+
+  const vsechkaSel = document.getElementById('m-vsechka');
+  vsechkaSel.appendChild(new Option('— нет —', ''));
+  for (const [id, name] of Object.entries(VSECHKA_NAMES)) vsechkaSel.appendChild(new Option(name, id));
+}
+
+// =============================================
+// MISHA — CALC
+// =============================================
+let mishaCost = 0;
+
+function updateMishaAll() {
+  const modelId = +document.getElementById('m-model').value;
+  const steelId  = document.getElementById('m-steel').value;
+  const handleId = document.getElementById('m-handle').value;
+  const shapeId  = document.getElementById('m-shape').value;
+  const bolsterId = document.getElementById('m-bolster').value;
+  const insertId  = document.getElementById('m-insert').value;
+  const linerId   = document.getElementById('m-liner').value;
+  const vsechkaId = document.getElementById('m-vsechka').value;
+
+  // Artikul
+  const modelStr = modelId ? String(modelId).padStart(3,'0') : '?';
+  const parts = [modelStr, steelId||null, bolsterId||null, insertId||null,
+    handleId||null, shapeId||null, linerId||null, vsechkaId||null].filter(Boolean);
+  document.getElementById('m-artikul-display').textContent = parts.join('/');
+
+  // Cost
+  let bladeCost=0, handleCost=0, bolsterCost=0, insertCost=0, linerCost=0, vsechkaCost=0, shapeCost=0;
+  const valid = modelId && steelId && handleId;
+  if (valid) {
+    const st = STEEL_COSTS[steelId];
+    bladeCost = st ? (st[modelId]||0) : 0;
+    const isSteak = STEAK_MODELS.includes(modelId);
+    handleCost = (isSteak ? HANDLE_STEAK : HANDLE_CHEF)[handleId] || 0;
+    if (bolsterId) bolsterCost = BOLSTER_CHEF[bolsterId]||0;
+    if (insertId)  insertCost  = INSERT_COSTS[insertId]||0;
+    if (linerId)   linerCost   = LINER_COSTS[linerId]||0;
+    if (vsechkaId) vsechkaCost = VSECHKA_COSTS[vsechkaId]||0;
+    if (shapeId && SHAPE_COSTS[shapeId]) shapeCost = SHAPE_COSTS[shapeId];
+  }
+  mishaCost = bladeCost + handleCost + bolsterCost + insertCost + linerCost + vsechkaCost + shapeCost;
+  const box = document.getElementById('m-cost-box');
+  if (mishaCost) {
+    box.style.display = 'flex';
+    document.getElementById('m-cost-display').textContent =
+      Math.round(mishaCost * 1.3).toLocaleString('ru') + ' ₽';
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+// =============================================
+// MISHA — SAVE ORDER
+// =============================================
+function saveMishaOrder() {
+  const client = document.getElementById('m-client').value.trim();
+  const modelId = +document.getElementById('m-model').value;
+  const steelId  = document.getElementById('m-steel').value;
+  const handleId = document.getElementById('m-handle').value;
+  if (!client) { showToast('Укажи клиента'); return; }
+  if (!modelId) { showToast('Выбери модель'); return; }
+  if (!steelId) { showToast('Выбери сталь'); return; }
+  if (!handleId) { showToast('Выбери материал ручки'); return; }
+
+  const artikul = document.getElementById('m-artikul-display').textContent;
+  const order = {
+    id: orderCounter++,
+    date: new Date().toLocaleDateString('ru'),
+    client,
+    phone: document.getElementById('m-phone').value,
+    tg: document.getElementById('m-tg').value.trim(),
+    modelId, modelName: MODELS[modelId],
+    steelId, steelName: STEELS[steelId],
+    handleId, handleName: HANDLE_NAMES[handleId],
+    bolsterId: document.getElementById('m-bolster').value,
+    insertId:  document.getElementById('m-insert').value,
+    linerId:   document.getElementById('m-liner').value,
+    vsechkaId: document.getElementById('m-vsechka').value,
+    shapeId:   document.getElementById('m-shape').value,
+    artikul,
+    cost: mishaCost,
+    price: 0, prepay: 0,
+    note: document.getElementById('m-note').value,
+    status: 'new',
+    createdBy: 'misha'
+  };
+
+  orders.unshift(order);
+  saveOrders();
+  renderOrders();
+  renderMishaOrders();
+  showToast(`Заказ №${order.id} создан`);
+
+  ['m-client','m-phone','m-tg','m-note'].forEach(id => document.getElementById(id).value = '');
+  ['m-model','m-steel','m-handle','m-shape','m-bolster','m-insert','m-liner','m-vsechka']
+    .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('m-artikul-display').textContent = '—';
+  document.getElementById('m-cost-box').style.display = 'none';
+  mishaCost = 0;
+}
+
+// =============================================
+// MISHA — RENDER ORDERS (без цен)
+// =============================================
+function renderMishaOrders() {
+  const search = (document.getElementById('m-search')?.value || '').toLowerCase();
+  const statusFilter = document.getElementById('m-filter-status')?.value || '';
+  const filtered = orders.filter(o => {
+    const ms = !search || o.client.toLowerCase().includes(search) ||
+      o.artikul.toLowerCase().includes(search) || String(o.id).includes(search);
+    const ss = !statusFilter || o.status === statusFilter;
+    return ms && ss;
+  });
+  const list = document.getElementById('m-orders-list');
+  if (!list) return;
+  if (!filtered.length) { list.innerHTML = '<div class="empty-state"><div class="icon">◇</div>Заказов нет</div>'; return; }
+  list.innerHTML = filtered.map(o => {
+    const approxPrice = Math.round(o.cost * 1.3);
+    return `<div class="order-card">
+      <div class="order-card-header">
+        <div>
+          <div class="order-num">№${o.id}</div>
+          <div class="order-date">${o.date}</div>
+        </div>
+        <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status]}</span>
+      </div>
+      <div class="order-client">${o.client}${o.phone?' · '+o.phone:''}${o.tg?' · <span style="color:#6a9ec0">'+o.tg+'</span>':''}</div>
+      <div class="order-artikul">${o.artikul}</div>
+      ${o.note?`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">✎ ${o.note}</div>`:''}
+      ${o.cost?`<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">
+        Ориент. цена: <span style="color:var(--accent)">${approxPrice.toLocaleString('ru')} ₽</span>
+      </div>`:''}
+      <div class="order-actions">
+        <button class="btn btn-sm" onclick="nextStatus(${o.id});renderMishaOrders()">→ ${STATUS_LABELS[STATUS_FLOW[o.status]]}</button>
+        <select class="btn btn-sm" onchange="changeStatus(${o.id},this.value);renderMishaOrders();this.value=''" style="background:var(--surface);cursor:pointer;">
+          <option value="">Статус...</option>
+          ${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}
+        </select>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// =============================================
+// CLIENTS
+// =============================================
+function buildClientsData() {
+  const map = {};
+  orders.forEach(o => {
+    const key = o.client;
+    if (!map[key]) map[key] = { name: o.client, phone: o.phone||'', tg: o.tg||'', orders: [], lastDate: '' };
+    map[key].orders.push(o);
+    // Обновляем контактные данные (берём последние непустые)
+    if (o.phone) map[key].phone = o.phone;
+    if (o.tg)    map[key].tg    = o.tg;
+  });
+  // Сортируем заказы по id desc, берём дату последнего
+  Object.values(map).forEach(c => {
+    c.orders.sort((a,b) => b.id - a.id);
+    c.lastDate = c.orders[0]?.date || '';
+    c.totalSpend = c.orders.filter(o=>o.status==='paid').reduce((s,o)=>s+o.price,0);
+  });
+  return Object.values(map).sort((a,b) => b.orders[0]?.id - a.orders[0]?.id);
+}
+
+function renderClients() {
+  const search = (document.getElementById('clients-search')?.value||'').toLowerCase();
+  const clients = buildClientsData().filter(c =>
+    !search || c.name.toLowerCase().includes(search) ||
+    c.phone.includes(search) || c.tg.toLowerCase().includes(search)
+  );
+  const grid = document.getElementById('clients-grid');
+  if (!clients.length) { grid.innerHTML = '<div style="color:var(--muted);font-size:11px;">Клиентов нет</div>'; return; }
+  grid.innerHTML = clients.map(c => `
+    <div class="client-card">
+      <div class="client-name">${c.name}</div>
+      ${c.phone?`<div class="client-row">📞 <span>${c.phone}</span></div>`:''}
+      ${c.tg?`<div class="client-row">✈ <span class="client-tag">${c.tg}</span></div>`:''}
+      <div class="client-row">Последний заказ: <span>${c.lastDate||'—'}</span></div>
+      <div class="client-stats">
+        <div class="client-stat"><div class="cs-label">Заказов</div><div class="cs-value">${c.orders.length}</div></div>
+        ${c.totalSpend?`<div class="client-stat"><div class="cs-label">Выручка</div><div class="cs-value">${c.totalSpend.toLocaleString('ru')} ₽</div></div>`:''}
+        <div class="client-stat"><div class="cs-label">Статусы</div><div class="cs-value" style="font-size:12px">${
+          [...new Set(c.orders.map(o=>STATUS_LABELS[o.status]))].join(', ')
+        }</div></div>
+      </div>
+    </div>`).join('');
+}
+
+function renderMishaClients() {
+  const search = (document.getElementById('m-clients-search')?.value||'').toLowerCase();
+  const clients = buildClientsData().filter(c =>
+    !search || c.name.toLowerCase().includes(search) ||
+    c.phone.includes(search) || c.tg.toLowerCase().includes(search)
+  );
+  const grid = document.getElementById('m-clients-grid');
+  if (!grid) return;
+  if (!clients.length) { grid.innerHTML = '<div style="color:var(--muted);font-size:11px;">Клиентов нет</div>'; return; }
+  grid.innerHTML = clients.map(c => `
+    <div class="client-card">
+      <div class="client-name">${c.name}</div>
+      ${c.phone?`<div class="client-row">📞 <span>${c.phone}</span></div>`:''}
+      ${c.tg?`<div class="client-row">✈ <span class="client-tag">${c.tg}</span></div>`:''}
+      <div class="client-row">Последний заказ: <span>${c.lastDate||'—'}</span></div>
+      <div class="client-stats">
+        <div class="client-stat"><div class="cs-label">Заказов</div><div class="cs-value">${c.orders.length}</div></div>
+        <div class="client-stat"><div class="cs-label">Статусы</div><div class="cs-value" style="font-size:12px">${
+          [...new Set(c.orders.map(o=>STATUS_LABELS[o.status]))].join(', ')
+        }</div></div>
+      </div>
+    </div>`).join('');
+}
+
+// =============================================
 // ПРОИЗВОДСТВО
 // =============================================
 

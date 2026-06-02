@@ -275,6 +275,34 @@
   .view-analytics { display: none; padding: 24px; }
   .view-orders { display: flex; flex: 1; }
 
+  /* ===== КЛИЕНТЫ ===== */
+  .view-clients { display: none; padding: 24px; overflow-y: auto; height: calc(100vh - 73px); }
+  .clients-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin-top: 0; }
+  .client-card {
+    background: var(--surface); border: 1px solid var(--border); padding: 18px;
+    transition: border-color 0.2s;
+  }
+  .client-card:hover { border-color: var(--accent2); }
+  .client-name {
+    font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .client-row { display: flex; gap: 8px; align-items: center; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .client-row span { color: var(--text); }
+  .client-tag { display: inline-block; font-size: 9px; letter-spacing: 1px; padding: 2px 7px; border: 1px solid #2a4a6a; color: #6a9ec0; background: #0d1a26; }
+  .client-stats { display: flex; gap: 16px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .client-stat .cs-label { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+  .client-stat .cs-value { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--accent2); }
+  .clients-search { margin-bottom: 16px; display: flex; gap: 8px; }
+
+  /* ===== МИША: cost-display ===== */
+  .misha-cost-box {
+    background: var(--surface); border: 1px solid var(--accent2); padding: 14px; margin-bottom: 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .misha-cost-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .misha-cost-value { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--accent); }
+
   /* ===== ПРОИЗВОДСТВО ===== */
   .view-prod { display: none; padding: 24px; overflow-y: auto; height: calc(100vh - 73px); }
 

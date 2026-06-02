@@ -275,6 +275,103 @@
   .view-analytics { display: none; padding: 24px; }
   .view-orders { display: flex; flex: 1; }
 
+  /* ===== ПРОИЗВОДСТВО ===== */
+  .view-prod { display: none; padding: 24px; overflow-y: auto; height: calc(100vh - 73px); }
+
+  .prod-stats {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 24px;
+  }
+  .prod-stat {
+    background: var(--surface); border: 1px solid var(--border); padding: 14px;
+  }
+  .prod-stat .ps-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .prod-stat .ps-value { font-family: 'Cormorant Garamond', serif; font-size: 26px; color: var(--accent); margin-top: 4px; }
+  .prod-stat .ps-value.danger { color: var(--red); }
+  .prod-stat .ps-value.ok { color: #5a9e7a; }
+
+  .prod-grid { display: grid; grid-template-columns: 1fr 360px; gap: 20px; }
+
+  /* Kanban */
+  .prod-stages { display: flex; flex-direction: column; gap: 12px; }
+  .stage-row {
+    background: var(--surface); border: 1px solid var(--border);
+  }
+  .stage-row-header {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    border-bottom: 1px solid var(--border); cursor: pointer;
+    user-select: none;
+  }
+  .stage-row-header:hover { background: #1a1714; }
+  .stage-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .stage-title { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text); flex: 1; }
+  .stage-count {
+    font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--muted);
+  }
+  .stage-body { padding: 0; }
+  .prod-card {
+    display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center;
+    padding: 10px 14px; border-bottom: 1px solid #1a1714;
+    transition: background 0.15s;
+  }
+  .prod-card:last-child { border-bottom: none; }
+  .prod-card:hover { background: #1a1714; }
+  .pc-num {
+    font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--accent2); text-align: center;
+  }
+  .pc-info { min-width: 0; }
+  .pc-client { font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pc-artikul { font-size: 10px; color: var(--muted); margin-top: 2px; letter-spacing: 1px; }
+  .pc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 90px; }
+  .deadline-badge {
+    font-size: 9px; padding: 2px 7px; border: 1px solid; letter-spacing: 1px; white-space: nowrap;
+  }
+  .dl-ok { border-color: #1a3a28; color: #5a9e7a; background: #0d1f18; }
+  .dl-warn { border-color: #4a3a10; color: var(--accent); background: #1a1408; }
+  .dl-over { border-color: #4a1a17; color: var(--red); background: #1a0e0c; }
+  .dl-none { border-color: var(--border); color: var(--muted); background: transparent; }
+
+  /* Stage selector */
+  .stage-sel {
+    background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 3px 6px;
+    cursor: pointer; outline: none; letter-spacing: 1px;
+  }
+  .stage-sel:focus { border-color: var(--accent2); }
+
+  /* Deadline editor */
+  .dl-input {
+    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 2px 5px;
+    width: 94px; outline: none;
+  }
+  .dl-input:focus { border-color: var(--accent2); }
+
+  /* Timeline / deadlines panel */
+  .prod-timeline { display: flex; flex-direction: column; gap: 0; }
+  .timeline-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--accent);
+    letter-spacing: 3px; text-transform: uppercase; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border); margin-bottom: 12px;
+  }
+  .tl-item {
+    display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #1a1714;
+    align-items: flex-start;
+  }
+  .tl-item:last-child { border-bottom: none; }
+  .tl-day {
+    min-width: 36px; font-family: 'Cormorant Garamond', serif; font-size: 22px;
+    color: var(--accent2); line-height: 1; text-align: center;
+  }
+  .tl-month { font-size: 8px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; text-align: center; margin-top: 2px; }
+  .tl-body { flex: 1; }
+  .tl-client { font-size: 12px; color: var(--text); }
+  .tl-detail { font-size: 10px; color: var(--muted); margin-top: 2px; letter-spacing: 1px; }
+  .tl-days-left { font-size: 10px; padding: 2px 8px; border: 1px solid; }
+
+  .prod-empty { text-align: center; padding: 24px; color: var(--muted); font-size: 11px; letter-spacing: 1px; }
+
   /* CSV export button */
   .export-btn {
     background: none; border: 1px solid var(--border); color: var(--muted);

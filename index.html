@@ -1564,6 +1564,18 @@ function updateMishaAll() {
   } else {
     box.style.display = 'none';
   }
+  updateMishaMargin();
+}
+
+function updateMishaMargin() {
+  const price = +document.getElementById('m-price')?.value || 0;
+  const el = document.getElementById('m-margin-display');
+  if (!el) return;
+  if (!price || !mishaCost) { el.textContent = '—'; el.className = ''; return; }
+  const profit = price - mishaCost;
+  const pct = Math.round(profit / price * 100);
+  el.textContent = `${profit.toLocaleString('ru')} ₽ (${pct}%)`;
+  el.className = pct >= 60 ? 'margin-good' : pct >= 40 ? 'margin-ok' : 'margin-bad';
 }
 
 // =============================================

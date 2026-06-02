@@ -1270,7 +1270,7 @@ function saveOrder() {
   showToast(`Заказ №${order.id} создан`);
 
   // Reset
-  ['f-client','f-phone','f-price','f-prepay','f-note'].forEach(id => document.getElementById(id).value = '');
+  ['f-client','f-phone','f-tg','f-price','f-prepay','f-note'].forEach(id => document.getElementById(id).value = '');
   ['f-model','f-steel','f-handle','f-shape','f-bolster','f-insert','f-liner','f-vsechka'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('artikul-display').textContent = '—';
   document.getElementById('c-total').textContent = '—';

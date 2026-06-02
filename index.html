@@ -1341,7 +1341,7 @@ function renderOrders() {
         </div>
         <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status]}</span>
       </div>
-      <div class="order-client">${o.client}${o.phone?' · '+o.phone:''}</div>
+      <div class="order-client">${o.client}${o.phone?' · '+o.phone:''}${o.tg?' · <span style="color:#6a9ec0">'+o.tg+'</span>':''}</div>
       <div class="order-artikul">${o.artikul}</div>
       ${o.note?`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">✎ ${o.note}</div>`:''}
       <div class="order-financials">

@@ -1176,6 +1176,93 @@ function showToast(msg) {
 // INIT
 initSelects();
 renderOrders();
+
+// =============================================
+// AUTH
+// =============================================
+const USERS = {
+  lesha: { pin: '1234', app: 'app-lesha' },
+  misha: { pin: '5678', app: 'app-misha' },
+  admin: { pin: '0000', app: 'app-admin' }
+};
+
+let selectedUser = null;
+let pinBuffer = '';
+
+function selectUser(role) {
+  selectedUser = role;
+  document.querySelectorAll('.user-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('card-' + role).classList.add('selected');
+  document.getElementById('pin-wrap').classList.add('visible');
+  document.getElementById('pin-label').textContent = 'Введите PIN';
+  pinBuffer = '';
+  updateDots();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function pinInput(digit) {
+  if (!selectedUser || pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updateDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(checkPin, 120);
+  }
+}
+
+function pinDel() {
+  pinBuffer = pinBuffer.slice(0, -1);
+  updateDots();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function pinClear() {
+  pinBuffer = '';
+  updateDots();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function updateDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('dot-' + i).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function checkPin() {
+  const user = USERS[selectedUser];
+  if (pinBuffer === user.pin) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById(user.app).style.display = 'block';
+    sessionStorage.setItem('bk_role', selectedUser);
+  } else {
+    document.getElementById('pin-error').textContent = 'Неверный PIN';
+    pinBuffer = '';
+    updateDots();
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('bk_role');
+  Object.values(USERS).forEach(u => {
+    document.getElementById(u.app).style.display = 'none';
+  });
+  document.getElementById('login-screen').style.display = 'flex';
+  selectedUser = null;
+  pinBuffer = '';
+  updateDots();
+  document.querySelectorAll('.user-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('pin-wrap').classList.remove('visible');
+  document.getElementById('pin-error').textContent = '';
+}
+
+// Восстановить сессию
+(function() {
+  const saved = sessionStorage.getItem('bk_role');
+  if (saved && USERS[saved]) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById(USERS[saved].app).style.display = 'block';
+    selectedUser = saved;
+  }
+})();
 </script>
 </body>
 </html>

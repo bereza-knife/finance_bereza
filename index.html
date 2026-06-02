@@ -1296,6 +1296,150 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+// =============================================
+// ПРОИЗВОДСТВО
+// =============================================
+
+const PROD_STAGES = [
+  { id: 'wait',     label: 'Ожидает',        color: '#4a4a4a' },
+  { id: 'buy',      label: 'Закупка',         color: '#6b5f52' },
+  { id: 'erosion',  label: 'Эрозия / Лазер',  color: '#5a7a9e' },
+  { id: 'hardening',label: 'Закалка',         color: '#9e6b5a' },
+  { id: 'fitting',  label: 'Слесарка',        color: '#7a9e5a' },
+  { id: 'sharpening',label: 'Заточка',        color: '#c8a96e' },
+  { id: 'tumbling', label: 'Галтовка',        color: '#9e5a7a' },
+  { id: 'assembly', label: 'Сборка / Финиш',  color: '#5a9e7a' },
+];
+
+// { [orderId]: { stage, deadline, comment } }
+function loadProdData() {
+  try { return JSON.parse(localStorage.getItem('bk_prod') || '{}'); } catch { return {}; }
+}
+function saveProdData(d) { localStorage.setItem('bk_prod', JSON.stringify(d)); }
+
+function setProdField(orderId, field, value) {
+  const d = loadProdData();
+  if (!d[orderId]) d[orderId] = { stage: 'wait', deadline: '', comment: '' };
+  d[orderId][field] = value;
+  saveProdData(d);
+  renderProd();
+}
+
+function getDaysLeft(deadline) {
+  if (!deadline) return null;
+  const diff = Math.round((new Date(deadline) - new Date()) / 86400000);
+  return diff;
+}
+
+function deadlineBadge(deadline) {
+  if (!deadline) return `<span class="deadline-badge dl-none">Нет срока</span>`;
+  const d = getDaysLeft(deadline);
+  if (d < 0)  return `<span class="deadline-badge dl-over">Просрочено ${Math.abs(d)} дн.</span>`;
+  if (d === 0) return `<span class="deadline-badge dl-over">Сегодня!</span>`;
+  if (d <= 3) return `<span class="deadline-badge dl-warn">${d} дн.</span>`;
+  return `<span class="deadline-badge dl-ok">${d} дн.</span>`;
+}
+
+function renderProd() {
+  const prod = loadProdData();
+  const active = orders.filter(o => o.status === 'new' || o.status === 'work');
+
+  // Ensure all active orders have a prod record
+  active.forEach(o => {
+    if (!prod[o.id]) prod[o.id] = { stage: o.status === 'work' ? 'buy' : 'wait', deadline: '', comment: '' };
+  });
+
+  // ---- STATS ----
+  const inWork   = active.filter(o => prod[o.id]?.stage !== 'wait').length;
+  const inQueue  = active.filter(o => prod[o.id]?.stage === 'wait').length;
+  const overdue  = active.filter(o => { const d = getDaysLeft(prod[o.id]?.deadline); return d !== null && d < 0; }).length;
+  const dueSoon  = active.filter(o => { const d = getDaysLeft(prod[o.id]?.deadline); return d !== null && d >= 0 && d <= 3; }).length;
+  const noDeadline = active.filter(o => !prod[o.id]?.deadline).length;
+
+  document.getElementById('prod-stats').innerHTML = `
+    <div class="prod-stat"><div class="ps-label">Всего активных</div><div class="ps-value">${active.length}</div></div>
+    <div class="prod-stat"><div class="ps-label">В работе</div><div class="ps-value">${inWork}</div></div>
+    <div class="prod-stat"><div class="ps-label">В очереди</div><div class="ps-value">${inQueue}</div></div>
+    <div class="prod-stat"><div class="ps-label">Просрочено</div><div class="ps-value ${overdue>0?'danger':''}">${overdue}</div></div>
+    <div class="prod-stat"><div class="ps-label">Скоро (≤3 дн.)</div><div class="ps-value ${dueSoon>0?'':'ok'}">${dueSoon}</div></div>
+  `;
+
+  // ---- KANBAN по этапам ----
+  const stagesHTML = PROD_STAGES.map(st => {
+    const cards = active.filter(o => (prod[o.id]?.stage || 'wait') === st.id);
+    return `
+      <div class="stage-row">
+        <div class="stage-row-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+          <div class="stage-dot" style="background:${st.color}"></div>
+          <div class="stage-title">${st.label}</div>
+          <div class="stage-count">${cards.length}</div>
+        </div>
+        <div class="stage-body" ${cards.length===0?'style="display:none"':''}>
+          ${cards.length===0
+            ? `<div class="prod-empty">—</div>`
+            : cards.map(o => {
+                const pd = prod[o.id] || {};
+                const stageOptions = PROD_STAGES.map(s =>
+                  `<option value="${s.id}" ${pd.stage===s.id?'selected':''}>${s.label}</option>`
+                ).join('');
+                return `
+                <div class="prod-card">
+                  <div class="pc-num">#${o.id}</div>
+                  <div class="pc-info">
+                    <div class="pc-client">${o.client || '—'}</div>
+                    <div class="pc-artikul">${o.artikul || '—'}</div>
+                    <div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap;">
+                      <select class="stage-sel" onchange="setProdField(${o.id},'stage',this.value)">${stageOptions}</select>
+                      <input class="dl-input" type="date" value="${pd.deadline||''}"
+                        onchange="setProdField(${o.id},'deadline',this.value)" title="Дедлайн">
+                    </div>
+                  </div>
+                  <div class="pc-right">
+                    ${deadlineBadge(pd.deadline)}
+                    <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status]||o.status}</span>
+                  </div>
+                </div>`;
+              }).join('')
+          }
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('prod-stages').innerHTML = stagesHTML || `<div class="prod-empty">Нет активных заказов</div>`;
+
+  // ---- TIMELINE дедлайны ----
+  const withDL = active
+    .filter(o => prod[o.id]?.deadline)
+    .map(o => ({ ...o, pd: prod[o.id], daysLeft: getDaysLeft(prod[o.id].deadline) }))
+    .sort((a,b) => a.daysLeft - b.daysLeft);
+
+  const MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  const tlHTML = withDL.map(o => {
+    const dt = new Date(o.pd.deadline);
+    const day = dt.getDate();
+    const mon = MONTHS[dt.getMonth()];
+    const d = o.daysLeft;
+    const cls = d < 0 ? 'dl-over' : d <= 3 ? 'dl-warn' : 'dl-ok';
+    const label = d < 0 ? `−${Math.abs(d)} дн.` : d === 0 ? 'Сегодня' : `+${d} дн.`;
+    const stageLabel = PROD_STAGES.find(s=>s.id===(o.pd.stage||'wait'))?.label || '—';
+    return `
+      <div class="tl-item">
+        <div>
+          <div class="tl-day">${day}</div>
+          <div class="tl-month">${mon}</div>
+        </div>
+        <div class="tl-body">
+          <div class="tl-client">${o.client || '—'} — #${o.id}</div>
+          <div class="tl-detail">${o.artikul || '—'} · ${stageLabel}</div>
+        </div>
+        <div class="tl-days-left ${cls}">${label}</div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('prod-timeline').innerHTML = tlHTML ||
+    `<div class="prod-empty">Дедлайны не назначены.<br>Укажите сроки в очереди слева.</div>`;
+}
+
 // INIT
 initSelects();
 renderOrders();

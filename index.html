@@ -1145,7 +1145,7 @@ function initSelects() {
   vsechkaSel.appendChild(new Option('— нет —', ''));
   for (const [id, name] of Object.entries(VSECHKA_NAMES)) {
     const cost = VSECHKA_COSTS[id] || 0;
-    vsechkaSel.appendChild(new Option(`${name}${cost?' (+'+cost+'₽)':''}`, id));
+    vsechkaSel.appendChild(new Option(name, id));
   }
 }
 

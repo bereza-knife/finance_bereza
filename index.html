@@ -1377,6 +1377,7 @@ function renderOrders() {
           <option value="">Статус...</option>
           ${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}
         </select>
+        <button class="btn btn-sm" onclick="editOrder(${o.id})" style="border-color:#2a4a3a;color:#5a9e7a;">✎ Редакт.</button>
         <button class="btn btn-sm btn-danger" onclick="deleteOrder(${o.id})">✕</button>
       </div>
     </div>`;

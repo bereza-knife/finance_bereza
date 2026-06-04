@@ -1667,6 +1667,53 @@ function updateMishaMargin() {
 }
 
 // =============================================
+// EDIT ORDER — MISHA
+// =============================================
+let editingMishaOrderId = null;
+
+function editMishaOrder(id) {
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+  editingMishaOrderId = id;
+
+  document.getElementById('m-client').value  = o.client || '';
+  document.getElementById('m-phone').value   = o.phone  || '';
+  document.getElementById('m-tg').value      = o.tg     || '';
+  document.getElementById('m-model').value   = o.modelId || '';
+  document.getElementById('m-steel').value   = o.steelId || '';
+  document.getElementById('m-handle').value  = o.handleId || '';
+  document.getElementById('m-shape').value   = o.shapeId  || '';
+  document.getElementById('m-bolster').value = o.bolsterId || '';
+  document.getElementById('m-insert').value  = o.insertId  || '';
+  document.getElementById('m-liner').value   = o.linerId   || '';
+  document.getElementById('m-vsechka').value = o.vsechkaId || '';
+  document.getElementById('m-price').value   = o.price  || '';
+  document.getElementById('m-prepay').value  = o.prepay || '';
+  document.getElementById('m-note').value    = o.note   || '';
+
+  updateMishaAll();
+
+  document.getElementById('m-form-title').textContent = `Редактирование №${id}`;
+  document.getElementById('m-submit-btn').textContent = '✓ Сохранить изменения';
+  document.getElementById('m-cancel-edit').style.display = 'block';
+
+  document.querySelector('#app-misha .panel-form').scrollTo({ top: 0, behavior: 'smooth' });
+  showMishaView('orders');
+}
+
+function cancelMishaEdit() {
+  editingMishaOrderId = null;
+  document.getElementById('m-form-title').textContent = 'Новый заказ';
+  document.getElementById('m-submit-btn').textContent = '＋ Создать заказ';
+  document.getElementById('m-cancel-edit').style.display = 'none';
+  ['m-client','m-phone','m-tg','m-price','m-prepay','m-note'].forEach(id => document.getElementById(id).value = '');
+  ['m-model','m-steel','m-handle','m-shape','m-bolster','m-insert','m-liner','m-vsechka'].forEach(id => document.getElementById(id).value = '');
+  mishaCost = 0;
+  document.getElementById('m-cost-box').style.display = 'none';
+  document.getElementById('m-margin-display').textContent = '—';
+}
+
+// =============================================
 // MISHA — SAVE ORDER
 // =============================================
 function saveMishaOrder() {

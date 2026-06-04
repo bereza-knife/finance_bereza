@@ -1126,7 +1126,7 @@ function initSelects() {
   const bolsterSel = document.getElementById('f-bolster');
   bolsterSel.appendChild(new Option('— нет —', ''));
   for (const [id, name] of Object.entries(BOLSTER_NAMES)) {
-    bolsterSel.appendChild(new Option(`${name} (+${BOLSTER_CHEF[id]}₽)`, id));
+    bolsterSel.appendChild(new Option(name, id));
   }
 
   const insertSel = document.getElementById('f-insert');

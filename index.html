@@ -1132,7 +1132,7 @@ function initSelects() {
   const insertSel = document.getElementById('f-insert');
   insertSel.appendChild(new Option('— нет —', ''));
   for (const [id, name] of Object.entries(INSERT_NAMES)) {
-    insertSel.appendChild(new Option(`${name} (+${INSERT_COSTS[id]}₽)`, id));
+    insertSel.appendChild(new Option(name, id));
   }
 
   const linerSel = document.getElementById('f-liner');

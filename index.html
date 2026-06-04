@@ -1138,7 +1138,7 @@ function initSelects() {
   const linerSel = document.getElementById('f-liner');
   linerSel.appendChild(new Option('— нет —', ''));
   for (const [id, name] of Object.entries(LINER_NAMES)) {
-    linerSel.appendChild(new Option(`${name} (+${LINER_COSTS[id]}₽)`, id));
+    linerSel.appendChild(new Option(name, id));
   }
 
   const vsechkaSel = document.getElementById('f-vsechka');

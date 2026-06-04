@@ -927,8 +927,11 @@
           <input class="form-control" id="m-note" type="text" placeholder="Гравировка, пожелания...">
         </div>
       </div>
-      <button class="btn btn-primary" onclick="saveMishaOrder()" style="margin-top:8px;">
+      <button class="btn btn-primary" id="m-submit-btn" onclick="saveMishaOrder()" style="margin-top:8px;">
         ＋ Создать заказ
+      </button>
+      <button class="btn btn-sm" id="m-cancel-edit" onclick="cancelMishaEdit()" style="display:none;margin-top:6px;width:100%;text-align:center;">
+        ✕ Отменить редактирование
       </button>
     </div>
 

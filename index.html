@@ -1241,6 +1241,55 @@ function updateMargin() {
 let orders = JSON.parse(localStorage.getItem('bn_orders') || '[]');
 let orderCounter = +localStorage.getItem('bn_counter') || 1;
 
+// =============================================
+// EDIT ORDER — LESHA
+// =============================================
+let editingOrderId = null;
+
+function editOrder(id) {
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+  editingOrderId = id;
+
+  // Заполняем форму
+  document.getElementById('f-client').value  = o.client || '';
+  document.getElementById('f-phone').value   = o.phone  || '';
+  document.getElementById('f-tg').value      = o.tg     || '';
+  document.getElementById('f-model').value   = o.modelId || '';
+  document.getElementById('f-steel').value   = o.steelId || '';
+  document.getElementById('f-handle').value  = o.handleId || '';
+  document.getElementById('f-shape').value   = o.shapeId  || '';
+  document.getElementById('f-bolster').value = o.bolsterId || '';
+  document.getElementById('f-insert').value  = o.insertId  || '';
+  document.getElementById('f-liner').value   = o.linerId   || '';
+  document.getElementById('f-vsechka').value = o.vsechkaId || '';
+  document.getElementById('f-price').value   = o.price  || '';
+  document.getElementById('f-prepay').value  = o.prepay || '';
+  document.getElementById('f-note').value    = o.note   || '';
+
+  updateAll();
+
+  // UI
+  document.getElementById('form-title').textContent = `Редактирование №${id}`;
+  document.getElementById('f-submit-btn').textContent = '✓ Сохранить изменения';
+  document.getElementById('f-cancel-edit').style.display = 'block';
+
+  // Скролл к форме
+  document.querySelector('#app-lesha .panel-form').scrollTo({ top: 0, behavior: 'smooth' });
+  showView('orders');
+}
+
+function cancelEdit() {
+  editingOrderId = null;
+  document.getElementById('form-title').textContent = 'Новый заказ';
+  document.getElementById('f-submit-btn').textContent = '＋ Создать заказ';
+  document.getElementById('f-cancel-edit').style.display = 'none';
+  ['f-client','f-phone','f-tg','f-price','f-prepay','f-note'].forEach(id => document.getElementById(id).value = '');
+  ['f-model','f-steel','f-handle','f-shape','f-bolster','f-insert','f-liner','f-vsechka'].forEach(id => document.getElementById(id).value = '');
+  currentCost = 0;
+  updateAll();
+}
+
 function saveOrder() {
   const client = document.getElementById('f-client').value.trim();
   const modelId = +document.getElementById('f-model').value;

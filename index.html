@@ -1536,8 +1536,16 @@ function updateMishaAll() {
 
   // Artikul
   const modelStr = modelId ? String(modelId).padStart(3,'0') : '?';
-  const parts = [modelStr, steelId||null, bolsterId||null, insertId||null,
-    handleId||null, shapeId||null, linerId||null, vsechkaId||null].filter(Boolean);
+  const parts = [
+    modelStr,
+    steelId  || '00',
+    bolsterId|| '00',
+    insertId || '00',
+    handleId || '00',
+    shapeId  || '00',
+    linerId  || '00',
+    vsechkaId|| '00'
+  ];
   document.getElementById('m-artikul-display').textContent = parts.join('/');
 
   // Cost

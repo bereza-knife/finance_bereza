@@ -1727,11 +1727,8 @@ function saveMishaOrder() {
   if (!handleId) { showToast('Выбери материал ручки'); return; }
 
   const artikul = document.getElementById('m-artikul-display').textContent;
-  const order = {
-    id: orderCounter++,
-    date: new Date().toLocaleDateString('ru'),
-    client,
-    phone: document.getElementById('m-phone').value,
+  const fields = () => ({
+    client, phone: document.getElementById('m-phone').value,
     tg: document.getElementById('m-tg').value.trim(),
     modelId, modelName: MODELS[modelId],
     steelId, steelName: STEELS[steelId],
@@ -1741,15 +1738,22 @@ function saveMishaOrder() {
     linerId:   document.getElementById('m-liner').value,
     vsechkaId: document.getElementById('m-vsechka').value,
     shapeId:   document.getElementById('m-shape').value,
-    artikul,
-    cost: mishaCost,
+    artikul, cost: mishaCost,
     price: +document.getElementById('m-price').value || 0,
     prepay: +document.getElementById('m-prepay').value || 0,
     note: document.getElementById('m-note').value,
-    status: 'new',
-    createdBy: 'misha'
-  };
+  });
 
+  if (editingMishaOrderId !== null) {
+    const idx = orders.findIndex(x => x.id === editingMishaOrderId);
+    if (idx !== -1) orders[idx] = { ...orders[idx], ...fields() };
+    saveOrders(); renderOrders(); renderMishaOrders();
+    showToast(`Заказ №${editingMishaOrderId} обновлён`);
+    cancelMishaEdit();
+    return;
+  }
+
+  const order = { id: orderCounter++, date: new Date().toLocaleDateString('ru'), ...fields(), status: 'new', createdBy: 'misha' };
   orders.unshift(order);
   saveOrders();
   renderOrders();

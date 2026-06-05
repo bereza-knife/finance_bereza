@@ -2110,9 +2110,9 @@ function renderMishaOrders() {
   if (!list) return;
   if (!filtered.length) { list.innerHTML = '<div class="empty-state"><div class="icon">◇</div>Заказов нет</div>'; return; }
   list.innerHTML = filtered.map(o => {
-    const lp = o.leshaPrice || Math.round(o.cost * (o.isSteak ? 1.3 : 1.5));
+    const lp = o.leshaPrice || 0;
     const mishaProfit = o.price
-      ? (o.isSteak ? (o.price - lp) / 2 : o.price - lp)
+      ? (o.isSteak ? Math.max(0, o.price - lp) / 2 : o.price - lp)
       : 0;
     const mishaPct = o.price ? Math.round(mishaProfit / o.price * 100) : 0;
     const profitCls = mishaPct >= 40 ? 'profit' : mishaPct >= 20 ? '' : 'loss';

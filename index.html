@@ -1953,10 +1953,17 @@ const PROD_STAGES = [
 ];
 
 // { [orderId]: { stage, deadline, comment } }
-function loadProdData() {
-  try { return JSON.parse(localStorage.getItem('bk_prod') || '{}'); } catch { return {}; }
+let _prodCache = JSON.parse(localStorage.getItem('bk_prod') || '{}');
+fbDb.ref('prod').on('value', snap => {
+  _prodCache = snap.val() || {};
+  localStorage.setItem('bk_prod', JSON.stringify(_prodCache));
+});
+function loadProdData() { return _prodCache; }
+function saveProdData(d) {
+  _prodCache = d;
+  fbDb.ref('prod').set(d);
+  localStorage.setItem('bk_prod', JSON.stringify(d));
 }
-function saveProdData(d) { localStorage.setItem('bk_prod', JSON.stringify(d)); }
 
 function setProdField(orderId, field, value) {
   const d = loadProdData();

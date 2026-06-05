@@ -1574,25 +1574,26 @@ function saveOrder() {
 
   const artikul = document.getElementById('artikul-display').textContent;
 
+  const leshaFields = () => ({
+    client, phone: document.getElementById('f-phone').value,
+    tg: document.getElementById('f-tg').value.trim(),
+    modelId, modelName: MODELS[modelId],
+    steelId, steelName: STEELS[steelId],
+    handleId, handleName: HANDLE_NAMES[handleId],
+    bolsterId: document.getElementById('f-bolster').value,
+    insertId:  document.getElementById('f-insert').value,
+    linerId:   document.getElementById('f-liner').value,
+    vsechkaId: document.getElementById('f-vsechka').value,
+    shapeId:   document.getElementById('f-shape').value,
+    qty: Math.max(1, +document.getElementById('f-qty').value || 1),
+    accessories: getAccData('f'),
+    artikul, cost: currentCost, price, prepay,
+    note: document.getElementById('f-note').value,
+  });
+
   if (editingOrderId !== null) {
-    // Обновляем существующий заказ
     const idx = orders.findIndex(x => x.id === editingOrderId);
-    if (idx !== -1) {
-      orders[idx] = { ...orders[idx],
-        client, phone: document.getElementById('f-phone').value,
-        tg: document.getElementById('f-tg').value.trim(),
-        modelId, modelName: MODELS[modelId],
-        steelId, steelName: STEELS[steelId],
-        handleId, handleName: HANDLE_NAMES[handleId],
-        bolsterId: document.getElementById('f-bolster').value,
-        insertId:  document.getElementById('f-insert').value,
-        linerId:   document.getElementById('f-liner').value,
-        vsechkaId: document.getElementById('f-vsechka').value,
-        shapeId:   document.getElementById('f-shape').value,
-        artikul, cost: currentCost, price, prepay,
-        note: document.getElementById('f-note').value,
-      };
-    }
+    if (idx !== -1) orders[idx] = { ...orders[idx], ...leshaFields() };
     saveOrders(); renderOrders();
     showToast(`Заказ №${editingOrderId} обновлён`);
     cancelEdit();
@@ -1602,25 +1603,7 @@ function saveOrder() {
   const order = {
     id: orderCounter++,
     date: new Date().toLocaleDateString('ru'),
-    client,
-    phone: document.getElementById('f-phone').value,
-    tg: document.getElementById('f-tg').value.trim(),
-    modelId,
-    modelName: MODELS[modelId],
-    steelId,
-    steelName: STEELS[steelId],
-    handleId,
-    handleName: HANDLE_NAMES[handleId],
-    bolsterId: document.getElementById('f-bolster').value,
-    insertId: document.getElementById('f-insert').value,
-    linerId: document.getElementById('f-liner').value,
-    vsechkaId: document.getElementById('f-vsechka').value,
-    shapeId: document.getElementById('f-shape').value,
-    artikul,
-    cost: currentCost,
-    price,
-    prepay,
-    note: document.getElementById('f-note').value,
+    ...leshaFields(),
     status: 'new'
   };
 

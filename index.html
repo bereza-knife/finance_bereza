@@ -2078,8 +2078,13 @@ function saveMishaOrder() {
   document.getElementById('m-margin-display').textContent = '—';
   ['m-model','m-steel','m-handle','m-shape','m-bolster','m-insert','m-liner','m-vsechka']
     .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('m-qty').value = 1;
+  document.getElementById('m-set-type').value = '';
+  resetAcc('m');
   document.getElementById('m-artikul-display').textContent = '—';
-  document.getElementById('m-cost-box').style.display = 'none';
+  const mbox = document.getElementById('m-cost-box');
+  mbox.style.display = 'none';
+  mbox._leshaPrice = 0;
   mishaCost = 0;
 }
 

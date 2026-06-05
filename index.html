@@ -1125,6 +1125,59 @@ const VSECHKA_NAMES = {
 };
 
 // =============================================
+// CHEF KNIFE LESHA→MISHA PRICES (from "Итого" column in spreadsheet)
+// For knives not in table → cost × 3.5 (cost + 250%)
+// =============================================
+const CHEF_LESHA_PRICE = {
+  '01':{18:8000,20:11000,21:12000,23:13000,27:15500,28:14500,29:14500,30:22000},
+  '02':{18:8000,20:11000,21:12000,23:13000,27:15500,28:14500,29:14500,30:22000},
+  '03':{18:8000,20:11000,21:12000,23:13000,27:15500,28:14500,29:14500,30:22000},
+  '04':{18:8000,20:11000,21:12000,23:13000,27:15500,28:14500,29:14500,30:22000},
+  '05':{18:11000,20:15000,21:18000,23:23000,27:26000,28:24000,29:24000,30:31700},
+  '06':{18:15000,21:25500,23:34500,27:35500,28:28000,29:28000,30:44000}
+};
+
+function getLeshaKnifePrice(cost, modelId, steelId, isSteak) {
+  if (isSteak) return Math.round(cost * 1.3);
+  const t = CHEF_LESHA_PRICE[steelId];
+  return (t && t[modelId]) ? t[modelId] : Math.round(cost * 3.5);
+}
+
+// =============================================
+// ACCESSORIES (Lesha's cost = yellow in spreadsheet)
+// =============================================
+const ACCESSORIES = {
+  musat:       {name:'Мусат',               cost:8500},
+  cover_ind:   {name:'Ножны индивидуальные', cost:10000},
+  roll_3:      {name:'Скрутка 3 предмета',  cost:6000},
+  roll_6:      {name:'Скрутка 6 предметов', cost:9000},
+  case_1:      {name:'Футляр на 1 нож',     cost:5000},
+  case_4:      {name:'Футляр на 4 ножа',    cost:12000},
+  bag_chef:    {name:'Рюкзак шефа',         cost:35000},
+  pencil_6:    {name:'Пенал на 6 стейков',  cost:8000},
+  stand_35:    {name:'Подставка карман 3/5', cost:10000},
+  box_s1015:   {name:'Коробка стейков 10/15',cost:5000},
+  box_s6:      {name:'Коробка стейков 6',   cost:4000},
+  box_card6:   {name:'Коробка картон 6',    cost:2500},
+  insert_m2:   {name:'Вставка мамонт 2 см', cost:8000},
+  insert_m4:   {name:'Вставка мамонт 4 см', cost:14000},
+  spacer_mok:  {name:'Проставка мокумэ',    cost:1000},
+  bolster_mok: {name:'Больстер мокумэ',     cost:5000},
+};
+
+// =============================================
+// SETS — Misha's selling prices to end customers
+// =============================================
+const SETS = {
+  troika:   {name:'Тройка (3 ножа)',    prices:{mono:51500, d31:80500,  d137:120500}},
+  pyaterka: {name:'Пятерка (5 ножей)', prices:{mono:98500, d31:149500, d137:223500}},
+  para180:  {name:'Пара Gyuto 180',    prices:{mono:33000, d31:53000,  d137:79000}},
+  gyuto180: {name:'Gyuto 180',         prices:{mono:20500, d31:34500,  d137:54500}},
+  gyuto200: {name:'Gyuto 200',         prices:{mono:25500, d31:39500,  d137:59500}},
+  util150:  {name:'Utility 150',       prices:{mono:18500, d31:27500,  d137:41500}},
+};
+
+// =============================================
 // INIT SELECTS
 // =============================================
 function initSelects() {

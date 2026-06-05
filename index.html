@@ -402,6 +402,26 @@
 
   .prod-empty { text-align: center; padding: 24px; color: var(--muted); font-size: 11px; letter-spacing: 1px; }
 
+  /* ACCESSORIES */
+  .acc-list { display:grid; grid-template-columns:1fr 1fr; gap:3px; margin-top:4px; }
+  .acc-item {
+    display:flex; align-items:center; gap:5px; font-size:10px;
+    padding:4px 6px; border:1px solid transparent; cursor:pointer;
+    transition: border-color 0.15s;
+  }
+  .acc-item:hover { border-color: var(--border); }
+  .acc-item.checked { border-color: var(--accent2); background: #1a1610; }
+  .acc-item input[type=checkbox] { cursor:pointer; accent-color: var(--accent2); flex-shrink:0; }
+  .acc-qty {
+    width:32px; background:var(--surface); border:1px solid var(--border);
+    color:var(--text); font-family:inherit; font-size:10px;
+    text-align:center; padding:1px 3px; display:none; flex-shrink:0;
+  }
+  .acc-item.checked .acc-qty { display:block; }
+
+  /* SETS */
+  .sets-row { display:grid; grid-template-columns:1fr 100px; gap:8px; }
+
   /* CSV export button */
   .export-btn {
     background: none; border: 1px solid var(--border); color: var(--muted);

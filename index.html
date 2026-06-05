@@ -1462,8 +1462,10 @@ function renderOrders() {
   }
 
   list.innerHTML = filtered.map(o => {
-    const profit = o.price - o.cost;
-    const margin = o.price ? Math.round(profit/o.price*100) : 0;
+    const isMisha = o.createdBy === 'misha';
+    const profit = isMisha ? leshaProfit(o) : o.price - o.cost;
+    const rev    = isMisha ? leshaRevenue(o) : o.price;
+    const margin = rev ? Math.round(profit/rev*100) : 0;
     const profitClass = profit > 0 ? 'profit' : 'loss';
     return `<div class="order-card">
       <div class="order-card-header">

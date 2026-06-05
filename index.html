@@ -1433,7 +1433,11 @@ function updateAll() {
     if (shapeId && SHAPE_COSTS[shapeId]) shapeCost = SHAPE_COSTS[shapeId];
   }
 
-  currentCost = bladeCost + handleCost + bolsterCost + insertCost + linerCost + vsechkaCost + shapeCost;
+  const qty = Math.max(1, +document.getElementById('f-qty')?.value || 1);
+  const knifeUnitCost = bladeCost + handleCost + bolsterCost + insertCost + linerCost + vsechkaCost + shapeCost;
+  const knifeTotalCost = knifeUnitCost * qty;
+  const accCost = getAccCost('f');
+  currentCost = knifeTotalCost + accCost;
 
   const fmt = v => v.toLocaleString('ru') + ' ₽';
 
@@ -1449,6 +1453,9 @@ function updateAll() {
   toggleRow('cr-liner', !!linerId, 'c-liner', linerCost);
   toggleRow('cr-vsechka', !!vsechkaId, 'c-vsechka', vsechkaCost);
   toggleRow('cr-shape', !!shapeCost, 'c-shape', shapeCost);
+  toggleRow('cr-qty', qty > 1, 'c-qty', qty);
+  if (qty > 1) document.getElementById('c-qty').textContent = `×${qty}`;
+  toggleRow('cr-acc', accCost > 0, 'c-acc', accCost);
 
   document.getElementById('c-total').textContent = currentCost ? fmt(currentCost) : '—';
   updateMargin();

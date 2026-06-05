@@ -1531,9 +1531,11 @@ function editOrder(id) {
   document.getElementById('f-insert').value  = o.insertId  || '';
   document.getElementById('f-liner').value   = o.linerId   || '';
   document.getElementById('f-vsechka').value = o.vsechkaId || '';
+  document.getElementById('f-qty').value     = o.qty || 1;
   document.getElementById('f-price').value   = o.price  || '';
   document.getElementById('f-prepay').value  = o.prepay || '';
   document.getElementById('f-note').value    = o.note   || '';
+  setAccData('f', o.accessories || {});
 
   updateAll();
 

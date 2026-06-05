@@ -2127,8 +2127,9 @@ function renderMishaOrders() {
         <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status]}</span>
       </div>
       <div class="order-client">${o.client}${o.phone?' · '+o.phone:''}${o.tg?' · <span style="color:#6a9ec0">'+o.tg+'</span>':''}</div>
-      <div class="order-artikul">${o.artikul}</div>
+      <div class="order-artikul">${o.artikul}${(o.qty&&o.qty>1)?` <span style="color:var(--accent2)">×${o.qty}</span>`:''}</div>
       ${o.note?`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">✎ ${o.note}</div>`:''}
+      ${o.accessories&&Object.keys(o.accessories).length?`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">+ ${Object.entries(o.accessories).map(([id,q])=>ACCESSORIES[id]?`${ACCESSORIES[id].name}${q>1?' ×'+q:''}`:id).join(', ')}</div>`:''}
       ${o.cost?`<div class="order-financials">
         <div class="fin-item">
           <div class="fin-label">Цена от Лёши</div>

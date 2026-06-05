@@ -954,7 +954,20 @@
         </div>
       </div>
       <div class="divider"></div>
-      <div class="artikul-box">
+
+      <!-- КОЛИЧЕСТВО -->
+      <div class="form-group">
+        <label class="form-label">Количество ножей</label>
+        <input class="form-control" id="m-qty" type="number" min="1" value="1" oninput="updateMishaAll()" style="max-width:80px;">
+      </div>
+
+      <!-- АКСЕССУАРЫ -->
+      <div class="form-group">
+        <label class="form-label">Аксессуары</label>
+        <div class="acc-list" id="m-acc-list"></div>
+      </div>
+
+      <div class="artikul-box" style="margin-top:12px;">
         <div class="artikul-label">Артикул изделия</div>
         <div class="artikul-value" id="m-artikul-display">—</div>
       </div>
@@ -964,6 +977,22 @@
         </div>
         <div class="misha-cost-value" id="m-cost-display">—</div>
       </div>
+
+      <!-- НАБОР -->
+      <div class="form-group" style="margin-top:8px;">
+        <label class="form-label">Набор — рекомендуемая цена</label>
+        <div class="sets-row">
+          <select class="form-control" id="m-set-type" onchange="updateSetPrice('m')">
+            <option value="">— выбрать набор —</option>
+          </select>
+          <select class="form-control" id="m-set-grade" onchange="updateSetPrice('m')">
+            <option value="mono">Моно</option>
+            <option value="d31">31 слой</option>
+            <option value="d137">137 дамаск</option>
+          </select>
+        </div>
+      </div>
+
       <div class="form-row" style="margin-top:8px;">
         <div class="form-group">
           <label class="form-label">Цена продажи (₽)</label>

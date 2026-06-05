@@ -1993,9 +1993,11 @@ function editMishaOrder(id) {
   document.getElementById('m-insert').value  = o.insertId  || '';
   document.getElementById('m-liner').value   = o.linerId   || '';
   document.getElementById('m-vsechka').value = o.vsechkaId || '';
+  document.getElementById('m-qty').value     = o.qty || 1;
   document.getElementById('m-price').value   = o.price  || '';
   document.getElementById('m-prepay').value  = o.prepay || '';
   document.getElementById('m-note').value    = o.note   || '';
+  setAccData('m', o.accessories || {});
 
   updateMishaAll();
 

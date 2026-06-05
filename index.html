@@ -1238,10 +1238,42 @@ function updateMargin() {
 }
 
 // =============================================
+// FIREBASE
+// =============================================
+const firebaseConfig = {
+  apiKey: "AIzaSyAZvxCSt66-fLEx39ieFs9XmNgZunnSFt8",
+  authDomain: "bereza-crm.firebaseapp.com",
+  databaseURL: "https://bereza-crm-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "bereza-crm",
+  storageBucket: "bereza-crm.firebasestorage.app",
+  messagingSenderId: "982902742895",
+  appId: "1:982902742895:web:15883f6ce8560f6a64929a"
+};
+firebase.initializeApp(firebaseConfig);
+const fbDb = firebase.database();
+
+// =============================================
 // ORDERS
 // =============================================
+// localStorage — быстрый старт (кэш), Firebase — источник правды
 let orders = JSON.parse(localStorage.getItem('bn_orders') || '[]');
 let orderCounter = +localStorage.getItem('bn_counter') || 1;
+
+// Реальный-тайм синк: любое изменение с любого устройства → обновляет UI
+fbDb.ref('orders').on('value', snap => {
+  const data = snap.val();
+  orders = data ? Object.values(data).sort((a,b) => b.id - a.id) : [];
+  localStorage.setItem('bn_orders', JSON.stringify(orders));
+  renderOrders();
+  renderMishaOrders();
+});
+fbDb.ref('counter').on('value', snap => {
+  const val = snap.val();
+  if (val && val > orderCounter) {
+    orderCounter = val;
+    localStorage.setItem('bn_counter', orderCounter);
+  }
+});
 
 // =============================================
 // EDIT ORDER — LESHA

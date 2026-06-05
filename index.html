@@ -1556,6 +1556,9 @@ function cancelEdit() {
   document.getElementById('f-cancel-edit').style.display = 'none';
   ['f-client','f-phone','f-tg','f-price','f-prepay','f-note'].forEach(id => document.getElementById(id).value = '');
   ['f-model','f-steel','f-handle','f-shape','f-bolster','f-insert','f-liner','f-vsechka'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-qty').value = 1;
+  document.getElementById('f-set-type').value = '';
+  resetAcc('f');
   currentCost = 0;
   updateAll();
 }

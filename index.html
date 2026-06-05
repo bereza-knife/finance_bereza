@@ -2034,8 +2034,9 @@ function saveMishaOrder() {
 
   const artikul = document.getElementById('m-artikul-display').textContent;
   const isSteakOrder = STEAK_MODELS.includes(modelId);
-  const leshaPrice = Math.round(mishaCost * (isSteakOrder ? 1.3 : 1.5));
-  const fields = () => ({
+  const box = document.getElementById('m-cost-box');
+  const leshaPrice = box?._leshaPrice || 0;
+  const mishaFields = () => ({
     client, phone: document.getElementById('m-phone').value,
     tg: document.getElementById('m-tg').value.trim(),
     modelId, modelName: MODELS[modelId],
@@ -2046,6 +2047,8 @@ function saveMishaOrder() {
     linerId:   document.getElementById('m-liner').value,
     vsechkaId: document.getElementById('m-vsechka').value,
     shapeId:   document.getElementById('m-shape').value,
+    qty: Math.max(1, +document.getElementById('m-qty').value || 1),
+    accessories: getAccData('m'),
     artikul, cost: mishaCost,
     leshaPrice,
     isSteak: isSteakOrder,
@@ -2053,6 +2056,7 @@ function saveMishaOrder() {
     prepay: +document.getElementById('m-prepay').value || 0,
     note: document.getElementById('m-note').value,
   });
+  const fields = mishaFields;
 
   if (editingMishaOrderId !== null) {
     const idx = orders.findIndex(x => x.id === editingMishaOrderId);

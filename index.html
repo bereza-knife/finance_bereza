@@ -687,8 +687,20 @@
 
       <div class="divider"></div>
 
+      <!-- КОЛИЧЕСТВО -->
+      <div class="form-group">
+        <label class="form-label">Количество ножей</label>
+        <input class="form-control" id="f-qty" type="number" min="1" value="1" oninput="updateAll()" style="max-width:80px;">
+      </div>
+
+      <!-- АКСЕССУАРЫ -->
+      <div class="form-group">
+        <label class="form-label">Аксессуары</label>
+        <div class="acc-list" id="f-acc-list"></div>
+      </div>
+
       <!-- ARTIKUL -->
-      <div class="artikul-box">
+      <div class="artikul-box" style="margin-top:12px;">
         <div class="artikul-label">Артикул изделия</div>
         <div class="artikul-value" id="artikul-display">—</div>
       </div>
@@ -723,9 +735,32 @@
           <span class="label">Форма (спецобработка)</span>
           <span class="value" id="c-shape">—</span>
         </div>
+        <div class="cost-row" id="cr-qty" style="display:none">
+          <span class="label">Количество</span>
+          <span class="value" id="c-qty">—</span>
+        </div>
+        <div class="cost-row" id="cr-acc" style="display:none">
+          <span class="label">Аксессуары</span>
+          <span class="value" id="c-acc">—</span>
+        </div>
         <div class="cost-total">
           <span class="label">Себестоимость</span>
           <span class="value" id="c-total">—</span>
+        </div>
+      </div>
+
+      <!-- НАБОР (рекомендуемая цена) -->
+      <div class="form-group">
+        <label class="form-label">Набор — рекомендуемая цена</label>
+        <div class="sets-row">
+          <select class="form-control" id="f-set-type" onchange="updateSetPrice('f')">
+            <option value="">— выбрать набор —</option>
+          </select>
+          <select class="form-control" id="f-set-grade" onchange="updateSetPrice('f')">
+            <option value="mono">Моно</option>
+            <option value="d31">31 слой</option>
+            <option value="d137">137 дамаск</option>
+          </select>
         </div>
       </div>
 

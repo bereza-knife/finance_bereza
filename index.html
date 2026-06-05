@@ -2016,8 +2016,13 @@ function cancelMishaEdit() {
   document.getElementById('m-cancel-edit').style.display = 'none';
   ['m-client','m-phone','m-tg','m-price','m-prepay','m-note'].forEach(id => document.getElementById(id).value = '');
   ['m-model','m-steel','m-handle','m-shape','m-bolster','m-insert','m-liner','m-vsechka'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('m-qty').value = 1;
+  document.getElementById('m-set-type').value = '';
+  resetAcc('m');
   mishaCost = 0;
-  document.getElementById('m-cost-box').style.display = 'none';
+  const mbox = document.getElementById('m-cost-box');
+  mbox.style.display = 'none';
+  mbox._leshaPrice = 0;
   document.getElementById('m-margin-display').textContent = '—';
 }
 

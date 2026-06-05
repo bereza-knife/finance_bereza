@@ -1231,6 +1231,96 @@ function initSelects() {
 }
 
 // =============================================
+// ACCESSORIES HELPERS
+// =============================================
+function initAccessories(prefix) {
+  const el = document.getElementById(prefix + '-acc-list');
+  if (!el) return;
+  el.innerHTML = Object.entries(ACCESSORIES).map(([id, a]) => `
+    <label class="acc-item" id="${prefix}-acc-wrap-${id}">
+      <input type="checkbox" id="${prefix}-acc-${id}"
+        onchange="onAccChange('${prefix}','${id}')" onclick="event.stopPropagation()">
+      <span style="flex:1;color:var(--muted)">${a.name} <span style="color:var(--accent2)">${a.cost.toLocaleString('ru')}₽</span></span>
+      <input type="number" class="acc-qty" id="${prefix}-acc-qty-${id}"
+        min="1" max="99" value="1"
+        oninput="${prefix==='f'?'updateAll()':'updateMishaAll()'}"
+        onclick="event.stopPropagation()">
+    </label>
+  `).join('');
+}
+
+function onAccChange(prefix, id) {
+  const cb  = document.getElementById(prefix + '-acc-' + id);
+  const wrap = document.getElementById(prefix + '-acc-wrap-' + id);
+  if (cb.checked) wrap.classList.add('checked');
+  else            wrap.classList.remove('checked');
+  if (prefix === 'f') updateAll(); else updateMishaAll();
+}
+
+function getAccCost(prefix) {
+  let total = 0;
+  Object.keys(ACCESSORIES).forEach(id => {
+    const cb = document.getElementById(prefix + '-acc-' + id);
+    if (cb && cb.checked) {
+      const qty = +(document.getElementById(prefix + '-acc-qty-' + id)?.value || 1);
+      total += ACCESSORIES[id].cost * qty;
+    }
+  });
+  return total;
+}
+
+function getAccData(prefix) {
+  const data = {};
+  Object.keys(ACCESSORIES).forEach(id => {
+    const cb = document.getElementById(prefix + '-acc-' + id);
+    if (cb && cb.checked)
+      data[id] = +(document.getElementById(prefix + '-acc-qty-' + id)?.value || 1);
+  });
+  return data;
+}
+
+function setAccData(prefix, data) {
+  Object.keys(ACCESSORIES).forEach(id => {
+    const cb   = document.getElementById(prefix + '-acc-' + id);
+    const wrap = document.getElementById(prefix + '-acc-wrap-' + id);
+    if (!cb) return;
+    const has = data && data[id];
+    cb.checked = !!has;
+    const qtyEl = document.getElementById(prefix + '-acc-qty-' + id);
+    if (has) { if (qtyEl) qtyEl.value = data[id]; wrap?.classList.add('checked'); }
+    else     { if (qtyEl) qtyEl.value = 1;          wrap?.classList.remove('checked'); }
+  });
+}
+
+function resetAcc(prefix) {
+  Object.keys(ACCESSORIES).forEach(id => {
+    const cb = document.getElementById(prefix + '-acc-' + id);
+    if (!cb) return;
+    cb.checked = false;
+    const qtyEl = document.getElementById(prefix + '-acc-qty-' + id);
+    if (qtyEl) qtyEl.value = 1;
+    document.getElementById(prefix + '-acc-wrap-' + id)?.classList.remove('checked');
+  });
+}
+
+function updateSetPrice(prefix) {
+  const setType = document.getElementById(prefix + '-set-type')?.value;
+  const grade   = document.getElementById(prefix + '-set-grade')?.value || 'mono';
+  if (!setType || !SETS[setType]) return;
+  const price = SETS[setType].prices[grade] || 0;
+  if (!price) return;
+  const priceEl = document.getElementById(prefix === 'f' ? 'f-price' : 'm-price');
+  if (priceEl) { priceEl.value = price; }
+  if (prefix === 'f') updateMargin(); else updateMishaMargin();
+}
+
+function initSetSelects(prefix) {
+  const sel = document.getElementById(prefix + '-set-type');
+  if (!sel) return;
+  Object.entries(SETS).forEach(([id, s]) => sel.appendChild(new Option(s.name, id)));
+}
+
+// =============================================
 // CALC
 // =============================================
 let currentCost = 0;

@@ -1053,10 +1053,61 @@
           <input class="form-control" id="m-prepay" type="number" placeholder="0">
         </div>
       </div>
+      <!-- РАСШИРЕННАЯ ОПЛАТА -->
+      <div class="form-row" style="margin-top:8px;">
+        <div class="form-group">
+          <label class="form-label">Дата предоплаты</label>
+          <input class="form-control" id="m-prepay-date" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Дата фин. оплаты</label>
+          <input class="form-control" id="m-final-date" type="date">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Сумма фин. оплаты (₽)</label>
+          <input class="form-control" id="m-final-pay" type="number" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Комиссия канала (₽)</label>
+          <input class="form-control" id="m-commission" type="number" placeholder="0">
+        </div>
+      </div>
+
       <div class="margin-row" id="m-margin-row">
         <span style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;">Маржа</span>
         <span id="m-margin-display" style="font-family:'Cormorant Garamond',serif;font-size:20px;">—</span>
       </div>
+
+      <!-- КАНАЛ И ДОП. УСЛУГИ -->
+      <div class="form-group" style="margin-top:12px;">
+        <label class="form-label">Канал продаж</label>
+        <select class="form-control" id="m-channel">
+          <option value="">— не указан —</option>
+          <option>Instagram</option>
+          <option>Telegram</option>
+          <option>Сайт</option>
+          <option>Выставка</option>
+          <option>Сарафан</option>
+          <option>Другое</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Гравировка (₽)</label>
+          <input class="form-control" id="m-engraving" type="number" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ПИН (₽)</label>
+          <input class="form-control" id="m-pin" type="number" placeholder="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Надбавка доп. услуги (₽)</label>
+        <input class="form-control" id="m-extra-price" type="number" placeholder="0">
+      </div>
+
       <div style="margin-top:12px;">
         <div class="form-group">
           <label class="form-label">Примечание</label>

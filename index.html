@@ -1763,6 +1763,8 @@ function cancelEdit() {
   ['f-model','f-steel','f-handle','f-shape','f-bolster','f-insert','f-liner','f-vsechka'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-qty').value = 1;
   document.getElementById('f-set-type').value = '';
+  ['f-engraving','f-pin','f-extra-price','f-commission','f-final-pay','f-prepay-date','f-final-date'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.getElementById('f-channel').value = '';
   resetAcc('f');
   currentCost = 0;
   updateAll();

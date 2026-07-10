@@ -1787,16 +1787,25 @@ function saveOrder() {
     linerId:   document.getElementById('f-liner').value,
     vsechkaId: document.getElementById('f-vsechka').value,
     shapeId:   document.getElementById('f-shape').value,
-    qty: Math.max(1, +document.getElementById('f-qty').value || 1),
+    qty:        Math.max(1, +document.getElementById('f-qty').value || 1),
     accessories: getAccData('f'),
+    accCost:    getAccCost('f'),
     artikul, cost: currentCost, price, prepay,
-    note: document.getElementById('f-note').value,
+    channel:    document.getElementById('f-channel').value,
+    engraving:  +document.getElementById('f-engraving').value || 0,
+    pin:        +document.getElementById('f-pin').value || 0,
+    extraPrice: +document.getElementById('f-extra-price').value || 0,
+    commission: +document.getElementById('f-commission').value || 0,
+    prepayDate: document.getElementById('f-prepay-date').value,
+    finalDate:  document.getElementById('f-final-date').value,
+    finalPay:   +document.getElementById('f-final-pay').value || 0,
+    note:       document.getElementById('f-note').value,
   });
 
   if (editingOrderId !== null) {
     const idx = orders.findIndex(x => x.id === editingOrderId);
     if (idx !== -1) orders[idx] = { ...orders[idx], ...leshaFields() };
-    saveOrders(); renderOrders();
+    saveOrders(orders.find(x => x.id === editingOrderId)); renderOrders();
     showToast(`Заказ №${editingOrderId} обновлён`);
     cancelEdit();
     return;

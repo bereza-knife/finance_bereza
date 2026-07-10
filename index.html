@@ -1819,13 +1819,15 @@ function saveOrder() {
   };
 
   orders.unshift(order);
-  saveOrders();
+  saveOrders(order);
   renderOrders();
   showToast(`Заказ №${order.id} создан`);
 
   // Reset
-  ['f-client','f-phone','f-tg','f-price','f-prepay','f-note'].forEach(id => document.getElementById(id).value = '');
-  ['f-model','f-steel','f-handle','f-shape','f-bolster','f-insert','f-liner','f-vsechka'].forEach(id => document.getElementById(id).value = '');
+  ['f-client','f-phone','f-tg','f-price','f-prepay','f-note',
+   'f-engraving','f-pin','f-extra-price','f-commission','f-final-pay',
+   'f-prepay-date','f-final-date'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  ['f-model','f-steel','f-handle','f-shape','f-bolster','f-insert','f-liner','f-vsechka','f-channel'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-qty').value = 1;
   document.getElementById('f-set-type').value = '';
   resetAcc('f');

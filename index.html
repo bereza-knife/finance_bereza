@@ -1641,6 +1641,34 @@ function updateMargin() {
 }
 
 // =============================================
+// GOOGLE SHEETS SYNC
+// =============================================
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyHcZNRKdFQyUFEIwi64QLSrifbTOHM2fYQMhBglM8Unb8gzHUjo8SFr2ZfD9TlvYiL/exec';
+
+function syncToSheets(order) {
+  const accCostTotal = Object.entries(order.accessories || {}).reduce((sum, [id, qty]) => {
+    return sum + (ACCESSORIES[id] ? ACCESSORIES[id].cost * qty : 0);
+  }, 0);
+  const accText = Object.entries(order.accessories || {})
+    .map(([id, q]) => ACCESSORIES[id] ? `${ACCESSORIES[id].name}${q > 1 ? ' ×' + q : ''}` : id)
+    .join(', ');
+
+  const payload = {
+    ...order,
+    accCost: accCostTotal,
+    accessoriesText: accText,
+    shapeName: SHAPE_NAMES[order.shapeId] || '',
+  };
+
+  fetch(SHEETS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  }).catch(e => console.warn('Sheets sync:', e));
+}
+
+// =============================================
 // FIREBASE
 // =============================================
 const firebaseConfig = {

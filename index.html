@@ -1828,15 +1828,14 @@ function saveOrder() {
   currentCost = 0;
 }
 
-function saveOrders() {
-  // Firebase — основное хранилище
+function saveOrders(syncOrder) {
   const ordersObj = {};
   orders.forEach(o => { ordersObj[o.id] = o; });
   fbDb.ref('orders').set(ordersObj);
   fbDb.ref('counter').set(orderCounter);
-  // localStorage — кэш для быстрого старта
   localStorage.setItem('bn_orders', JSON.stringify(orders));
   localStorage.setItem('bn_counter', orderCounter);
+  if (syncOrder) syncToSheets(syncOrder);
 }
 
 const STATUS_FLOW = { new:'work', work:'done', done:'paid', paid:'new' };

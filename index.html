@@ -2209,10 +2209,18 @@ function editMishaOrder(id) {
   document.getElementById('m-insert').value  = o.insertId  || '';
   document.getElementById('m-liner').value   = o.linerId   || '';
   document.getElementById('m-vsechka').value = o.vsechkaId || '';
-  document.getElementById('m-qty').value     = o.qty || 1;
-  document.getElementById('m-price').value   = o.price  || '';
-  document.getElementById('m-prepay').value  = o.prepay || '';
-  document.getElementById('m-note').value    = o.note   || '';
+  document.getElementById('m-qty').value         = o.qty || 1;
+  document.getElementById('m-price').value       = o.price  || '';
+  document.getElementById('m-prepay').value      = o.prepay || '';
+  document.getElementById('m-channel').value     = o.channel || '';
+  document.getElementById('m-engraving').value   = o.engraving || '';
+  document.getElementById('m-pin').value         = o.pin || '';
+  document.getElementById('m-extra-price').value = o.extraPrice || '';
+  document.getElementById('m-commission').value  = o.commission || '';
+  document.getElementById('m-prepay-date').value = o.prepayDate || '';
+  document.getElementById('m-final-date').value  = o.finalDate || '';
+  document.getElementById('m-final-pay').value   = o.finalPay || '';
+  document.getElementById('m-note').value        = o.note   || '';
   setAccData('m', o.accessories || {});
 
   updateMishaAll();

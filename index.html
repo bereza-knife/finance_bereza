@@ -2293,7 +2293,7 @@ function saveMishaOrder() {
   if (editingMishaOrderId !== null) {
     const idx = orders.findIndex(x => x.id === editingMishaOrderId);
     if (idx !== -1) orders[idx] = { ...orders[idx], ...fields() };
-    saveOrders(); renderOrders(); renderMishaOrders();
+    saveOrders(orders.find(x => x.id === editingMishaOrderId)); renderOrders(); renderMishaOrders();
     showToast(`Заказ №${editingMishaOrderId} обновлён`);
     cancelMishaEdit();
     return;
@@ -2301,14 +2301,16 @@ function saveMishaOrder() {
 
   const order = { id: orderCounter++, date: new Date().toLocaleDateString('ru'), ...fields(), status: 'new', createdBy: 'misha' };
   orders.unshift(order);
-  saveOrders();
+  saveOrders(order);
   renderOrders();
   renderMishaOrders();
   showToast(`Заказ №${order.id} создан`);
 
-  ['m-client','m-phone','m-tg','m-price','m-prepay','m-note'].forEach(id => document.getElementById(id).value = '');
+  ['m-client','m-phone','m-tg','m-price','m-prepay','m-note',
+   'm-engraving','m-pin','m-extra-price','m-commission','m-final-pay',
+   'm-prepay-date','m-final-date'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('m-margin-display').textContent = '—';
-  ['m-model','m-steel','m-handle','m-shape','m-bolster','m-insert','m-liner','m-vsechka']
+  ['m-model','m-steel','m-handle','m-shape','m-bolster','m-insert','m-liner','m-vsechka','m-channel']
     .forEach(id => document.getElementById(id).value = '');
   document.getElementById('m-qty').value = 1;
   document.getElementById('m-set-type').value = '';

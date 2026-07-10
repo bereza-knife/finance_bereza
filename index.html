@@ -1843,11 +1843,11 @@ const STATUS_LABELS = { new:'Новый', work:'В работе', done:'Гото
 
 function changeStatus(id, status) {
   const o = orders.find(x => x.id === id);
-  if (o) { o.status = status; saveOrders(); renderOrders(); }
+  if (o) { o.status = status; saveOrders(o); renderOrders(); renderMishaOrders(); }
 }
 function nextStatus(id) {
   const o = orders.find(x => x.id === id);
-  if (o) { o.status = STATUS_FLOW[o.status]; saveOrders(); renderOrders(); }
+  if (o) { o.status = STATUS_FLOW[o.status]; saveOrders(o); renderOrders(); renderMishaOrders(); }
 }
 function deleteOrder(id) {
   if (!confirm('Удалить заказ?')) return;

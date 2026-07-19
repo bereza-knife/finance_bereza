@@ -1663,8 +1663,7 @@ function syncToSheets(order) {
   fetch(SHEETS_URL, {
     method: 'POST',
     mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(payload)
+    body: new URLSearchParams({ data: JSON.stringify(payload) })
   }).catch(e => console.warn('Sheets sync:', e));
 }
 

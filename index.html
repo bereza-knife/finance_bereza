@@ -2293,7 +2293,7 @@ function saveMishaOrder() {
     prepay:     +document.getElementById('m-prepay').value || 0,
     channel:    document.getElementById('m-channel').value,
     engraving:  +document.getElementById('m-engraving').value || 0,
-    pin:        +document.getElementById('m-pin').value || 0,
+    pin:        document.getElementById('m-pin').value || '',
     extraPrice: +document.getElementById('m-extra-price').value || 0,
     commission: +document.getElementById('m-commission').value || 0,
     prepayDate: document.getElementById('m-prepay-date').value,

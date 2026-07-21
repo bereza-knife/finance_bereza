@@ -239,6 +239,26 @@
   .fin-item .fin-value.profit { color: #5a9e7a; }
   .fin-item .fin-value.loss { color: var(--red); }
 
+  .wh-item {
+    background: var(--surface); border: 1px solid var(--border);
+    margin-bottom: 8px; padding: 14px 16px; display: flex; align-items: center;
+    justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  .wh-item.low { border-color: var(--red); }
+  .wh-item-name { font-size: 14px; }
+  .wh-item-cat { font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-top: 2px; }
+  .wh-item-qty { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--accent); min-width: 90px; text-align: center; }
+  .wh-item-qty.low { color: var(--red); }
+  .wh-item-actions { display: flex; gap: 6px; align-items: center; }
+  .wh-history-row {
+    display: flex; gap: 14px; font-size: 11px; padding: 8px 0;
+    border-bottom: 1px solid var(--border); flex-wrap: wrap; align-items: center;
+  }
+  .wh-history-row .wh-h-date { color: var(--muted); min-width: 90px; }
+  .wh-history-row .wh-h-plus { color: #5a9e7a; }
+  .wh-history-row .wh-h-minus { color: var(--red); }
+  .wh-history-row .wh-h-comment { color: var(--muted); flex: 1; }
+
   .status-badge {
     padding: 3px 10px; font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
     border: 1px solid;

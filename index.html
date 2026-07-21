@@ -2702,6 +2702,111 @@ function renderProd() {
     `<div class="prod-empty">Дедлайны не назначены.<br>Укажите сроки в очереди слева.</div>`;
 }
 
+// =============================================
+// WAREHOUSE
+// =============================================
+let whItems = JSON.parse(localStorage.getItem('bn_wh_items') || '{}');
+let whHistory = JSON.parse(localStorage.getItem('bn_wh_history') || '[]');
+
+fbDb.ref('warehouse/items').on('value', snap => {
+  whItems = snap.val() || {};
+  localStorage.setItem('bn_wh_items', JSON.stringify(whItems));
+  whRender();
+});
+fbDb.ref('warehouse/history').on('value', snap => {
+  const val = snap.val() || {};
+  whHistory = Object.values(val).sort((a,b) => b.ts - a.ts);
+  localStorage.setItem('bn_wh_history', JSON.stringify(whHistory));
+  whRender();
+});
+
+function whSaveItems() {
+  fbDb.ref('warehouse/items').set(whItems);
+  localStorage.setItem('bn_wh_items', JSON.stringify(whItems));
+}
+
+function whLogHistory(itemName, delta, comment) {
+  const entry = { ts: Date.now(), date: new Date().toLocaleString('ru-RU'), item: itemName, delta, comment: comment || '' };
+  fbDb.ref('warehouse/history').push(entry);
+}
+
+function whAddItem() {
+  const name = document.getElementById('wh-name').value.trim();
+  if (!name) return;
+  const category = document.getElementById('wh-category').value;
+  const unit = document.getElementById('wh-unit').value.trim() || 'шт';
+  const qty = +document.getElementById('wh-qty').value || 0;
+  const min = +document.getElementById('wh-min').value || 0;
+  const id = 'i_' + Date.now();
+  whItems[id] = { name, category, unit, qty, min };
+  whSaveItems();
+  if (qty > 0) whLogHistory(name, qty, 'Первичное добавление на склад');
+  document.getElementById('wh-name').value = '';
+  document.getElementById('wh-qty').value = '0';
+  document.getElementById('wh-min').value = '0';
+  whRender();
+}
+
+function whChangeQty(id, delta) {
+  const item = whItems[id];
+  if (!item) return;
+  const amountStr = prompt((delta > 0 ? 'Приход' : 'Расход') + ' — количество (' + item.unit + '):', '1');
+  if (amountStr === null) return;
+  const amount = Math.abs(+amountStr) || 0;
+  if (!amount) return;
+  const comment = prompt('Комментарий (необязательно):', '') || '';
+  const change = delta > 0 ? amount : -amount;
+  item.qty = Math.max(0, (item.qty || 0) + change);
+  whSaveItems();
+  whLogHistory(item.name, change, comment);
+  whRender();
+}
+
+function whDeleteItem(id) {
+  const item = whItems[id];
+  if (!item) return;
+  if (!confirm('Удалить позицию «' + item.name + '» со склада?')) return;
+  delete whItems[id];
+  whSaveItems();
+  whRender();
+}
+
+function whRender() {
+  const listEl = document.getElementById('wh-items-list');
+  const histEl = document.getElementById('wh-history-list');
+  if (!listEl || !histEl) return;
+
+  const search = (document.getElementById('wh-search').value || '').toLowerCase();
+  const entries = Object.entries(whItems).filter(([id, it]) => it.name.toLowerCase().includes(search));
+
+  listEl.innerHTML = entries.length ? entries.map(([id, it]) => {
+    const low = it.min > 0 && it.qty <= it.min;
+    return `<div class="wh-item ${low ? 'low' : ''}">
+      <div>
+        <div class="wh-item-name">${it.name}</div>
+        <div class="wh-item-cat">${it.category} · мин. ${it.min} ${it.unit}</div>
+      </div>
+      <div class="wh-item-qty ${low ? 'low' : ''}">${it.qty} ${it.unit}</div>
+      <div class="wh-item-actions">
+        <button class="btn btn-sm" onclick="whChangeQty('${id}', 1)" style="border-color:#2a4a3a;color:#5a9e7a;">+ Приход</button>
+        <button class="btn btn-sm" onclick="whChangeQty('${id}', -1)" style="border-color:var(--red);color:var(--red);">− Расход</button>
+        <button class="btn btn-sm btn-danger" onclick="whDeleteItem('${id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('') : `<div style="color:var(--muted);padding:20px 0;">Позиций пока нет.</div>`;
+
+  histEl.innerHTML = whHistory.length ? whHistory.slice(0, 100).map(h => {
+    const cls = h.delta > 0 ? 'wh-h-plus' : 'wh-h-minus';
+    const sign = h.delta > 0 ? '+' : '';
+    return `<div class="wh-history-row">
+      <div class="wh-h-date">${h.date || ''}</div>
+      <div style="min-width:180px;">${h.item || ''}</div>
+      <div class="${cls}">${sign}${h.delta}</div>
+      <div class="wh-h-comment">${h.comment || ''}</div>
+    </div>`;
+  }).join('') : `<div style="color:var(--muted);padding:20px 0;">Операций пока нет.</div>`;
+}
+
 // INIT
 initSelects();
 initMishaSelects();
@@ -2711,6 +2816,7 @@ initSetSelects('f');
 initSetSelects('m');
 renderOrders();
 renderMishaOrders();
+whRender();
 
 // =============================================
 // AUTH

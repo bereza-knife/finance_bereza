@@ -3036,6 +3036,13 @@ function checkPin() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById(user.app).style.display = 'block';
     sessionStorage.setItem('bk_role', selectedUser);
+    if (user.name) {
+      currentWhEmployee = user.name;
+      document.getElementById('sklad-emp-title').textContent = 'Склад — ' + user.name;
+      whEmpCategory = null;
+      whEmpItemId = null;
+      whRenderEmployee();
+    }
   } else {
     document.getElementById('pin-error').textContent = 'Неверный PIN';
     pinBuffer = '';

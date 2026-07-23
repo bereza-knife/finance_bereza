@@ -2082,17 +2082,19 @@ function exportCSV() {
 // VIEWS
 // =============================================
 function showView(v) {
-  document.getElementById('view-orders').style.display    = v==='orders'   ? 'flex'  : 'none';
+  document.getElementById('view-orders').style.display    = v==='orders'    ? 'flex'  : 'none';
   document.getElementById('view-prod').style.display      = v==='prod'      ? 'block' : 'none';
   document.getElementById('view-clients').style.display   = v==='clients'   ? 'block' : 'none';
   document.getElementById('view-analytics').style.display = v==='analytics' ? 'block' : 'none';
-  const views = ['orders','prod','clients','analytics'];
+  document.getElementById('view-warehouse').style.display = v==='warehouse' ? 'block' : 'none';
+  const views = ['orders','prod','clients','analytics','warehouse'];
   document.querySelectorAll('#app-lesha .nav .nav-btn').forEach((b,i) => {
     b.classList.toggle('active', views[i] === v);
   });
   if (v==='analytics') renderAnalytics();
   if (v==='prod') renderProd();
   if (v==='clients') renderClients();
+  if (v==='warehouse') whRenderFull();
 }
 
 function showMishaView(v) {

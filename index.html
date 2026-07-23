@@ -952,6 +952,56 @@
     </div>
   </div>
 
+  <!-- СКЛАД (полный доступ) -->
+  <div class="view-warehouse" id="view-warehouse">
+    <div class="section-title" style="margin-bottom:16px;">Добавить позицию</div>
+    <div class="form-row" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:24px;">
+      <div class="form-group" style="flex:2;min-width:180px;">
+        <label class="form-label">Название</label>
+        <input class="form-control" id="wh-name" type="text" placeholder="Например: Клинок GYUTO 180">
+      </div>
+      <div class="form-group" style="flex:1;min-width:100px;">
+        <label class="form-label">Артикул</label>
+        <input class="form-control" id="wh-artikul" type="text" placeholder="—">
+      </div>
+      <div class="form-group" style="flex:1;min-width:150px;">
+        <label class="form-label">Категория</label>
+        <select class="form-control" id="wh-category">
+          <option value="Расходники">Расходники</option>
+          <option value="Материалы">Материалы</option>
+          <option value="Полуфабрикат">Полуфабрикат</option>
+          <option value="Готовые изделия">Готовые изделия</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex:1;min-width:90px;">
+        <label class="form-label">Ед. изм.</label>
+        <input class="form-control" id="wh-unit" type="text" placeholder="шт" value="шт">
+      </div>
+      <div class="form-group" style="flex:1;min-width:90px;">
+        <label class="form-label">Остаток</label>
+        <input class="form-control" id="wh-qty" type="number" placeholder="0" value="0">
+      </div>
+      <div class="form-group" style="flex:1;min-width:90px;">
+        <label class="form-label">Мин. остаток</label>
+        <input class="form-control" id="wh-min" type="number" placeholder="0" value="0">
+      </div>
+      <button class="btn btn-primary" onclick="whAddItem()" style="height:38px;">+ Добавить</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0;">
+      <div class="section-title" style="margin:0;">Остатки на складе</div>
+      <input class="filter-input" id="wh-search" type="text" placeholder="Поиск по названию, артикулу..." oninput="whRenderFull()" style="max-width:280px;">
+    </div>
+    <div id="wh-items-list"></div>
+
+    <div class="divider" style="margin-top:32px;"></div>
+
+    <div class="section-title" style="margin:16px 0;">История операций</div>
+    <div id="wh-history-list" style="overflow-x:auto;"></div>
+  </div>
+
 </div>
 
 <div class="toast" id="toast"></div>

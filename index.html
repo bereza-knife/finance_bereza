@@ -2719,19 +2719,27 @@ function renderProd() {
 // =============================================
 // WAREHOUSE
 // =============================================
+// Категории и подсказки (что входит в каждую)
+const WH_CATEGORIES = {
+  'Расходники':      ['Клей', 'Диски / бор', 'Полировочные круги', 'Паста'],
+  'Материалы':       ['Сталь (граммы)', 'Материал ручек', 'Доски для коробок', 'Больстеры', 'Пины'],
+  'Полуфабрикат':    ['Клинки', 'Вилки', 'Тесаки'],
+  'Готовые изделия': ['Ножи', 'Вилки', 'Коробки', 'ПОД'],
+};
+
 let whItems = JSON.parse(localStorage.getItem('bn_wh_items') || '{}');
 let whHistory = JSON.parse(localStorage.getItem('bn_wh_history') || '[]');
 
 fbDb.ref('warehouse/items').on('value', snap => {
   whItems = snap.val() || {};
   localStorage.setItem('bn_wh_items', JSON.stringify(whItems));
-  whRender();
+  whRenderAll();
 });
 fbDb.ref('warehouse/history').on('value', snap => {
   const val = snap.val() || {};
   whHistory = Object.values(val).sort((a,b) => b.ts - a.ts);
   localStorage.setItem('bn_wh_history', JSON.stringify(whHistory));
-  whRender();
+  whRenderAll();
 });
 
 function whSaveItems() {
@@ -2739,41 +2747,73 @@ function whSaveItems() {
   localStorage.setItem('bn_wh_items', JSON.stringify(whItems));
 }
 
-function whLogHistory(itemName, delta, comment) {
-  const entry = { ts: Date.now(), date: new Date().toLocaleString('ru-RU'), item: itemName, delta, comment: comment || '' };
+// Запись операции в историю (категория, артикул, название, сотрудник, дата, кол-во)
+function whLogHistory(item, delta, employee) {
+  const entry = {
+    ts: Date.now(),
+    date: new Date().toLocaleString('ru-RU'),
+    category: item.category || '',
+    artikul: item.artikul || '',
+    item: item.name || '',
+    unit: item.unit || '',
+    employee: employee || '',
+    delta
+  };
   fbDb.ref('warehouse/history').push(entry);
 }
 
+function whRenderAll() {
+  whRenderFull();
+  whRenderEmployee();
+}
+
+// ============ ЛЁША: полный интерфейс ============
 function whAddItem() {
   const name = document.getElementById('wh-name').value.trim();
   if (!name) return;
+  const artikul = document.getElementById('wh-artikul').value.trim();
   const category = document.getElementById('wh-category').value;
   const unit = document.getElementById('wh-unit').value.trim() || 'шт';
   const qty = +document.getElementById('wh-qty').value || 0;
   const min = +document.getElementById('wh-min').value || 0;
   const id = 'i_' + Date.now();
-  whItems[id] = { name, category, unit, qty, min };
+  const item = { name, artikul, category, unit, qty, min };
+  whItems[id] = item;
   whSaveItems();
-  if (qty > 0) whLogHistory(name, qty, 'Первичное добавление на склад');
+  if (qty > 0) whLogHistory(item, qty, 'Лёша (первичный приход)');
   document.getElementById('wh-name').value = '';
+  document.getElementById('wh-artikul').value = '';
   document.getElementById('wh-qty').value = '0';
   document.getElementById('wh-min').value = '0';
-  whRender();
+  whRenderFull();
 }
 
-function whChangeQty(id, delta) {
+// Приход (только Лёша)
+function whAddStock(id) {
   const item = whItems[id];
   if (!item) return;
-  const amountStr = prompt((delta > 0 ? 'Приход' : 'Расход') + ' — количество (' + item.unit + '):', '1');
+  const amountStr = prompt('Приход — количество (' + item.unit + '):', '1');
   if (amountStr === null) return;
   const amount = Math.abs(+amountStr) || 0;
   if (!amount) return;
-  const comment = prompt('Комментарий (необязательно):', '') || '';
-  const change = delta > 0 ? amount : -amount;
-  item.qty = Math.max(0, (item.qty || 0) + change);
+  item.qty = (item.qty || 0) + amount;
   whSaveItems();
-  whLogHistory(item.name, change, comment);
-  whRender();
+  whLogHistory(item, amount, 'Лёша');
+  whRenderFull();
+}
+
+// Ручная корректировка расхода (Лёша)
+function whRemoveStock(id) {
+  const item = whItems[id];
+  if (!item) return;
+  const amountStr = prompt('Расход / списание — количество (' + item.unit + '):', '1');
+  if (amountStr === null) return;
+  const amount = Math.abs(+amountStr) || 0;
+  if (!amount) return;
+  item.qty = Math.max(0, (item.qty || 0) - amount);
+  whSaveItems();
+  whLogHistory(item, -amount, 'Лёша');
+  whRenderFull();
 }
 
 function whDeleteItem(id) {
@@ -2782,43 +2822,139 @@ function whDeleteItem(id) {
   if (!confirm('Удалить позицию «' + item.name + '» со склада?')) return;
   delete whItems[id];
   whSaveItems();
-  whRender();
+  whRenderFull();
 }
 
-function whRender() {
+function whRenderFull() {
   const listEl = document.getElementById('wh-items-list');
   const histEl = document.getElementById('wh-history-list');
   if (!listEl || !histEl) return;
 
   const search = (document.getElementById('wh-search').value || '').toLowerCase();
-  const entries = Object.entries(whItems).filter(([id, it]) => it.name.toLowerCase().includes(search));
+  const entries = Object.entries(whItems).filter(([id, it]) =>
+    it.name.toLowerCase().includes(search) || (it.artikul || '').toLowerCase().includes(search));
 
   listEl.innerHTML = entries.length ? entries.map(([id, it]) => {
     const low = it.min > 0 && it.qty <= it.min;
     return `<div class="wh-item ${low ? 'low' : ''}">
       <div>
-        <div class="wh-item-name">${it.name}</div>
+        <div class="wh-item-name">${it.name}${it.artikul ? ' <span style="color:var(--muted);font-size:11px;">арт. '+it.artikul+'</span>' : ''}</div>
         <div class="wh-item-cat">${it.category} · мин. ${it.min} ${it.unit}</div>
       </div>
       <div class="wh-item-qty ${low ? 'low' : ''}">${it.qty} ${it.unit}</div>
       <div class="wh-item-actions">
-        <button class="btn btn-sm" onclick="whChangeQty('${id}', 1)" style="border-color:#2a4a3a;color:#5a9e7a;">+ Приход</button>
-        <button class="btn btn-sm" onclick="whChangeQty('${id}', -1)" style="border-color:var(--red);color:var(--red);">− Расход</button>
+        <button class="btn btn-sm" onclick="whAddStock('${id}')" style="border-color:#2a4a3a;color:#5a9e7a;">+ Приход</button>
+        <button class="btn btn-sm" onclick="whRemoveStock('${id}')" style="border-color:var(--red);color:var(--red);">− Расход</button>
         <button class="btn btn-sm btn-danger" onclick="whDeleteItem('${id}')">✕</button>
       </div>
     </div>`;
   }).join('') : `<div style="color:var(--muted);padding:20px 0;">Позиций пока нет.</div>`;
 
-  histEl.innerHTML = whHistory.length ? whHistory.slice(0, 100).map(h => {
+  histEl.innerHTML = whHistory.length ? `
+    <div class="wh-history-row" style="font-weight:600;color:var(--muted);text-transform:uppercase;font-size:9px;letter-spacing:1px;">
+      <div style="min-width:130px;">Дата</div>
+      <div style="min-width:120px;">Категория</div>
+      <div style="min-width:70px;">Арт.</div>
+      <div style="min-width:160px;">Название</div>
+      <div style="min-width:90px;">Сотрудник</div>
+      <div style="min-width:60px;">Кол-во</div>
+    </div>` + whHistory.slice(0, 150).map(h => {
     const cls = h.delta > 0 ? 'wh-h-plus' : 'wh-h-minus';
     const sign = h.delta > 0 ? '+' : '';
     return `<div class="wh-history-row">
-      <div class="wh-h-date">${h.date || ''}</div>
-      <div style="min-width:180px;">${h.item || ''}</div>
-      <div class="${cls}">${sign}${h.delta}</div>
-      <div class="wh-h-comment">${h.comment || ''}</div>
+      <div class="wh-h-date" style="min-width:130px;">${h.date || ''}</div>
+      <div style="min-width:120px;color:var(--muted);">${h.category || ''}</div>
+      <div style="min-width:70px;color:var(--muted);">${h.artikul || ''}</div>
+      <div style="min-width:160px;">${h.item || ''}</div>
+      <div style="min-width:90px;">${h.employee || ''}</div>
+      <div class="${cls}" style="min-width:60px;">${sign}${h.delta} ${h.unit || ''}</div>
     </div>`;
   }).join('') : `<div style="color:var(--muted);padding:20px 0;">Операций пока нет.</div>`;
+}
+
+// ============ СОТРУДНИК: только расход ============
+let whEmpCategory = null;
+let whEmpItemId = null;
+
+function whEmpSelectCategory(cat) {
+  whEmpCategory = cat;
+  whEmpItemId = null;
+  whRenderEmployee();
+}
+function whEmpBack() {
+  if (whEmpItemId) whEmpItemId = null;
+  else whEmpCategory = null;
+  whRenderEmployee();
+}
+function whEmpSelectItem(id) {
+  whEmpItemId = id;
+  whRenderEmployee();
+}
+function whEmpSubmit() {
+  const item = whItems[whEmpItemId];
+  if (!item) return;
+  const amount = Math.abs(+document.getElementById('emp-amount').value) || 0;
+  if (!amount) { alert('Введите количество'); return; }
+  item.qty = Math.max(0, (item.qty || 0) - amount);
+  whSaveItems();
+  whLogHistory(item, -amount, currentWhEmployee);
+  alert('Записан расход: ' + item.name + ' −' + amount + ' ' + item.unit);
+  whEmpItemId = null;
+  whEmpCategory = null;
+  whRenderEmployee();
+}
+
+function whRenderEmployee() {
+  const root = document.getElementById('sklad-emp-body');
+  if (!root) return;
+
+  // Шаг 1 — выбор категории
+  if (!whEmpCategory) {
+    root.innerHTML = `<div class="section-title" style="margin-bottom:16px;">Выберите категорию</div>
+      <div class="wh-cat-grid">` +
+      Object.entries(WH_CATEGORIES).map(([cat, items]) => `
+        <div class="wh-cat-card" onclick="whEmpSelectCategory('${cat}')">
+          <div class="wh-cat-name">${cat}</div>
+          <div class="wh-cat-hint">${items.join(' · ')}</div>
+        </div>`).join('') +
+      `</div>`;
+    return;
+  }
+
+  // Шаг 2 — выбор позиции
+  if (!whEmpItemId) {
+    const items = Object.entries(whItems).filter(([id, it]) => it.category === whEmpCategory);
+    root.innerHTML = `
+      <button class="btn btn-sm" onclick="whEmpBack()" style="margin-bottom:14px;">← Назад к категориям</button>
+      <div class="section-title" style="margin-bottom:16px;">${whEmpCategory} — выберите позицию</div>` +
+      (items.length ? items.map(([id, it]) => `
+        <div class="wh-item" onclick="whEmpSelectItem('${id}')" style="cursor:pointer;">
+          <div>
+            <div class="wh-item-name">${it.name}${it.artikul ? ' <span style="color:var(--muted);font-size:11px;">арт. '+it.artikul+'</span>' : ''}</div>
+            <div class="wh-item-cat">В наличии: ${it.qty} ${it.unit}</div>
+          </div>
+          <div class="wh-item-qty">${it.qty} ${it.unit}</div>
+        </div>`).join('')
+        : `<div style="color:var(--muted);padding:20px 0;">В этой категории пока нет позиций.</div>`);
+    return;
+  }
+
+  // Шаг 3 — ввод расхода
+  const item = whItems[whEmpItemId];
+  if (!item) { whEmpItemId = null; whRenderEmployee(); return; }
+  root.innerHTML = `
+    <button class="btn btn-sm" onclick="whEmpBack()" style="margin-bottom:14px;">← Назад к позициям</button>
+    <div class="section-title" style="margin-bottom:6px;">${item.name}</div>
+    <div style="color:var(--muted);font-size:12px;margin-bottom:20px;">
+      ${item.category}${item.artikul ? ' · арт. '+item.artikul : ''} · в наличии ${item.qty} ${item.unit}
+    </div>
+    <div class="form-group" style="max-width:260px;">
+      <label class="form-label">Сколько взяли со склада (${item.unit})</label>
+      <input class="form-control" id="emp-amount" type="number" min="1" placeholder="0" autofocus>
+    </div>
+    <button class="btn btn-primary" onclick="whEmpSubmit()" style="margin-top:10px;max-width:260px;">Записать расход</button>`;
+  const inp = document.getElementById('emp-amount');
+  if (inp) inp.focus();
 }
 
 // INIT

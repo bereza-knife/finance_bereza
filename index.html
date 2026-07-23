@@ -1209,62 +1209,17 @@
   </div>
 </div>
 
-<!-- ===================== WAREHOUSE INTERFACE ===================== -->
+<!-- ===================== WAREHOUSE — EMPLOYEE (расход) ===================== -->
 <div id="app-sklad" style="display:none">
   <div class="header">
     <div class="logo">
       Bereza Knife
-      <span>Склад</span>
+      <span id="sklad-emp-title">Склад</span>
     </div>
     <button class="logout-btn" onclick="logout()">Выйти</button>
   </div>
-  <div style="padding:24px;overflow-y:auto;height:calc(100vh - 73px);max-width:1100px;margin:0 auto;">
-
-    <div class="section-title" style="margin-bottom:16px;">Добавить позицию</div>
-    <div class="form-row" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:24px;">
-      <div class="form-group" style="flex:2;min-width:180px;">
-        <label class="form-label">Название</label>
-        <input class="form-control" id="wh-name" type="text" placeholder="Например: Клинок GYUTO 180">
-      </div>
-      <div class="form-group" style="flex:1;min-width:150px;">
-        <label class="form-label">Категория</label>
-        <select class="form-control" id="wh-category">
-          <option value="Сталь / клинки">Сталь / клинки</option>
-          <option value="Рукояти">Рукояти</option>
-          <option value="Фурнитура">Фурнитура</option>
-          <option value="Готовые ножи">Готовые ножи</option>
-          <option value="Аксессуары">Аксессуары</option>
-          <option value="Прочее">Прочее</option>
-        </select>
-      </div>
-      <div class="form-group" style="flex:1;min-width:100px;">
-        <label class="form-label">Ед. изм.</label>
-        <input class="form-control" id="wh-unit" type="text" placeholder="шт" value="шт">
-      </div>
-      <div class="form-group" style="flex:1;min-width:100px;">
-        <label class="form-label">Остаток</label>
-        <input class="form-control" id="wh-qty" type="number" placeholder="0" value="0">
-      </div>
-      <div class="form-group" style="flex:1;min-width:100px;">
-        <label class="form-label">Мин. остаток</label>
-        <input class="form-control" id="wh-min" type="number" placeholder="0" value="0">
-      </div>
-      <button class="btn btn-primary" onclick="whAddItem()" style="height:38px;">+ Добавить</button>
-    </div>
-
-    <div class="divider"></div>
-
-    <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0;">
-      <div class="section-title" style="margin:0;">Остатки на складе</div>
-      <input class="filter-input" id="wh-search" type="text" placeholder="Поиск по названию..." oninput="whRender()" style="max-width:260px;">
-    </div>
-    <div id="wh-items-list"></div>
-
-    <div class="divider" style="margin-top:32px;"></div>
-
-    <div class="section-title" style="margin:16px 0;">История операций</div>
-    <div id="wh-history-list"></div>
-
+  <div style="padding:24px;overflow-y:auto;height:calc(100vh - 73px);max-width:900px;margin:0 auto;">
+    <div id="sklad-emp-body"></div>
   </div>
 </div>
 

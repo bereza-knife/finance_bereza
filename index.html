@@ -2839,8 +2839,19 @@ const USERS = {
   lesha: { pin: '7820', app: 'app-lesha' },
   misha: { pin: '7777', app: 'app-misha' },
   admin: { pin: '0000', app: 'app-admin' },
-  sklad: { pin: '1234', app: 'app-sklad' }
+  sklad_matvey: { pin: '1111', app: 'app-sklad', name: 'Матвей' },
+  sklad_andrey: { pin: '2222', app: 'app-sklad', name: 'Андрей' },
+  sklad_slava:  { pin: '3333', app: 'app-sklad', name: 'Слава' }
 };
+
+// Текущий сотрудник склада (для записи расхода)
+let currentWhEmployee = '';
+
+function showSkladEmployees() {
+  const el = document.getElementById('sklad-employees');
+  el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+  document.getElementById('card-sklad').classList.toggle('selected');
+}
 
 let selectedUser = null;
 let pinBuffer = '';

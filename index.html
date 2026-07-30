@@ -3012,9 +3012,14 @@ function whEmpSubmit() {
   if (!item) return;
   const amount = Math.abs(+document.getElementById('emp-amount').value) || 0;
   if (!amount) { alert('Введите количество'); return; }
+  if (amount > (item.qty || 0)) {
+    if (!confirm('На складе только ' + (item.qty||0) + ' ' + item.unit + '. Списать всё равно (остаток станет 0)?')) return;
+  }
+  const comment = (document.getElementById('emp-comment')?.value || '').trim();
+  const itemId = whEmpItemId;
   item.qty = Math.max(0, (item.qty || 0) - amount);
   whSaveItems();
-  whLogHistory(item, -amount, currentWhEmployee);
+  whLogHistory(itemId, item, -amount, currentWhEmployee, comment);
   alert('Записан расход: ' + item.name + ' −' + amount + ' ' + item.unit);
   whEmpItemId = null;
   whEmpCategory = null;

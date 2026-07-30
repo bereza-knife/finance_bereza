@@ -3070,11 +3070,15 @@ function whRenderEmployee() {
     <div style="color:var(--muted);font-size:12px;margin-bottom:20px;">
       ${item.category}${item.artikul ? ' · арт. '+item.artikul : ''} · в наличии ${item.qty} ${item.unit}
     </div>
-    <div class="form-group" style="max-width:260px;">
+    <div class="form-group" style="max-width:320px;">
       <label class="form-label">Сколько взяли со склада (${item.unit})</label>
       <input class="form-control" id="emp-amount" type="number" min="1" placeholder="0" autofocus>
     </div>
-    <button class="btn btn-primary" onclick="whEmpSubmit()" style="margin-top:10px;max-width:260px;">Записать расход</button>`;
+    <div class="form-group" style="max-width:320px;">
+      <label class="form-label">Комментарий (на что / для какого заказа) — необязательно</label>
+      <input class="form-control" id="emp-comment" type="text" placeholder="Напр.: заказ №42, брак и т.п.">
+    </div>
+    <button class="btn btn-primary" onclick="whEmpSubmit()" style="margin-top:10px;max-width:320px;">Записать расход</button>`;
   const inp = document.getElementById('emp-amount');
   if (inp) inp.focus();
 }

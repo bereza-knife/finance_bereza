@@ -1010,6 +1010,17 @@
     <div class="divider" style="margin-top:32px;"></div>
 
     <div class="section-title" style="margin:16px 0;">История операций</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+      <input class="filter-input" id="wh-hist-search" type="text" placeholder="Поиск: название, категория, комментарий..." oninput="whRenderFull()" style="max-width:280px;">
+      <select class="filter-input" id="wh-hist-emp" onchange="whRenderFull()" style="max-width:180px;">
+        <option value="">Все сотрудники</option>
+      </select>
+      <select class="filter-input" id="wh-hist-type" onchange="whRenderFull()" style="max-width:150px;">
+        <option value="">Все операции</option>
+        <option value="in">Только приход</option>
+        <option value="out">Только расход</option>
+      </select>
+    </div>
     <div id="wh-history-list" style="overflow-x:auto;"></div>
   </div>
 

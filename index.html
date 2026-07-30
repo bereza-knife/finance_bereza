@@ -2827,7 +2827,6 @@ function whAddItem() {
 
   if (whEditingId) {
     // Редактирование существующей позиции (без изменения истории)
-    const prev = whItems[whEditingId] || {};
     whItems[whEditingId] = { name, artikul, category, unit, qty, min };
     whSaveItems();
     whCancelEdit();

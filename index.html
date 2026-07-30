@@ -2765,27 +2765,45 @@ function whSaveItems() {
   localStorage.setItem('bn_wh_items', JSON.stringify(whItems));
 }
 
-// Запись операции в историю (категория, артикул, название, сотрудник, дата, кол-во)
-function whLogHistory(item, delta, employee) {
+// Запись операции в историю (id, категория, артикул, название, сотрудник, дата, кол-во, комментарий)
+function whLogHistory(itemId, item, delta, employee, comment) {
   const entry = {
     ts: Date.now(),
     date: new Date().toLocaleString('ru-RU'),
+    itemId: itemId || '',
     category: item.category || '',
     artikul: item.artikul || '',
     item: item.name || '',
     unit: item.unit || '',
     employee: employee || '',
+    comment: comment || '',
     delta
   };
   fbDb.ref('warehouse/history').push(entry);
 }
 
+// Кол-во позиций ниже минимума
+function whLowStockCount() {
+  return Object.values(whItems).filter(it => it.min > 0 && it.qty <= it.min).length;
+}
+
+function whUpdateBadge() {
+  const badge = document.getElementById('wh-nav-badge');
+  if (!badge) return;
+  const n = whLowStockCount();
+  badge.textContent = n;
+  badge.style.display = n > 0 ? 'inline-block' : 'none';
+}
+
 function whRenderAll() {
   whRenderFull();
   whRenderEmployee();
+  whUpdateBadge();
 }
 
 // ============ ЛЁША: полный интерфейс ============
+let whEditingId = null;
+
 function whAddItem() {
   const name = document.getElementById('wh-name').value.trim();
   if (!name) return;
@@ -2794,16 +2812,55 @@ function whAddItem() {
   const unit = document.getElementById('wh-unit').value.trim() || 'шт';
   const qty = +document.getElementById('wh-qty').value || 0;
   const min = +document.getElementById('wh-min').value || 0;
+
+  if (whEditingId) {
+    // Редактирование существующей позиции (без изменения истории)
+    const prev = whItems[whEditingId] || {};
+    whItems[whEditingId] = { name, artikul, category, unit, qty, min };
+    whSaveItems();
+    whCancelEdit();
+    whRenderFull();
+    return;
+  }
+
   const id = 'i_' + Date.now();
   const item = { name, artikul, category, unit, qty, min };
   whItems[id] = item;
   whSaveItems();
-  if (qty > 0) whLogHistory(item, qty, 'Лёша (первичный приход)');
+  if (qty > 0) whLogHistory(id, item, qty, 'Лёша (первичный приход)', '');
+  whClearForm();
+  whRenderFull();
+}
+
+function whClearForm() {
   document.getElementById('wh-name').value = '';
   document.getElementById('wh-artikul').value = '';
   document.getElementById('wh-qty').value = '0';
   document.getElementById('wh-min').value = '0';
-  whRenderFull();
+}
+
+function whEditItem(id) {
+  const it = whItems[id];
+  if (!it) return;
+  whEditingId = id;
+  document.getElementById('wh-name').value = it.name || '';
+  document.getElementById('wh-artikul').value = it.artikul || '';
+  document.getElementById('wh-category').value = it.category || 'Расходники';
+  document.getElementById('wh-unit').value = it.unit || 'шт';
+  document.getElementById('wh-qty').value = it.qty || 0;
+  document.getElementById('wh-min').value = it.min || 0;
+  document.getElementById('wh-add-btn').textContent = '✓ Сохранить';
+  document.getElementById('wh-cancel-btn').style.display = 'inline-block';
+  document.getElementById('wh-form-title').textContent = 'Редактировать позицию';
+  document.querySelector('#view-warehouse').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function whCancelEdit() {
+  whEditingId = null;
+  whClearForm();
+  document.getElementById('wh-add-btn').textContent = '+ Добавить';
+  document.getElementById('wh-cancel-btn').style.display = 'none';
+  document.getElementById('wh-form-title').textContent = 'Добавить позицию';
 }
 
 // Приход (только Лёша)
@@ -2816,7 +2873,7 @@ function whAddStock(id) {
   if (!amount) return;
   item.qty = (item.qty || 0) + amount;
   whSaveItems();
-  whLogHistory(item, amount, 'Лёша');
+  whLogHistory(id, item, amount, 'Лёша', '');
   whRenderFull();
 }
 
@@ -2828,9 +2885,12 @@ function whRemoveStock(id) {
   if (amountStr === null) return;
   const amount = Math.abs(+amountStr) || 0;
   if (!amount) return;
+  if (amount > (item.qty || 0)) {
+    if (!confirm('На складе только ' + (item.qty||0) + ' ' + item.unit + '. Списать всё равно (остаток станет 0)?')) return;
+  }
   item.qty = Math.max(0, (item.qty || 0) - amount);
   whSaveItems();
-  whLogHistory(item, -amount, 'Лёша');
+  whLogHistory(id, item, -amount, 'Лёша', '');
   whRenderFull();
 }
 
@@ -2841,6 +2901,19 @@ function whDeleteItem(id) {
   delete whItems[id];
   whSaveItems();
   whRenderFull();
+}
+
+// Отмена операции: возвращает остаток и удаляет запись из истории
+function whRevertOp(key) {
+  const h = whHistory.find(x => x._key === key);
+  if (!h) return;
+  if (!confirm('Отменить операцию: ' + h.item + ' ' + (h.delta>0?'+':'') + h.delta + ' ' + (h.unit||'') + '?\nОстаток будет скорректирован обратно.')) return;
+  const item = h.itemId && whItems[h.itemId];
+  if (item) {
+    item.qty = Math.max(0, (item.qty || 0) - h.delta); // откат: вычитаем дельту
+    whSaveItems();
+  }
+  fbDb.ref('warehouse/history/' + key).remove();
 }
 
 function whRenderFull() {
@@ -2856,38 +2929,64 @@ function whRenderFull() {
     const low = it.min > 0 && it.qty <= it.min;
     return `<div class="wh-item ${low ? 'low' : ''}">
       <div>
-        <div class="wh-item-name">${it.name}${it.artikul ? ' <span style="color:var(--muted);font-size:11px;">арт. '+it.artikul+'</span>' : ''}</div>
+        <div class="wh-item-name">${it.name}${it.artikul ? ' <span style="color:var(--muted);font-size:11px;">арт. '+it.artikul+'</span>' : ''}${low ? ' <span style="color:var(--red);font-size:10px;">⚠ мало</span>' : ''}</div>
         <div class="wh-item-cat">${it.category} · мин. ${it.min} ${it.unit}</div>
       </div>
       <div class="wh-item-qty ${low ? 'low' : ''}">${it.qty} ${it.unit}</div>
       <div class="wh-item-actions">
         <button class="btn btn-sm" onclick="whAddStock('${id}')" style="border-color:#2a4a3a;color:#5a9e7a;">+ Приход</button>
         <button class="btn btn-sm" onclick="whRemoveStock('${id}')" style="border-color:var(--red);color:var(--red);">− Расход</button>
+        <button class="btn btn-sm" onclick="whEditItem('${id}')" style="border-color:#4a3a10;color:var(--accent);">✎</button>
         <button class="btn btn-sm btn-danger" onclick="whDeleteItem('${id}')">✕</button>
       </div>
     </div>`;
   }).join('') : `<div style="color:var(--muted);padding:20px 0;">Позиций пока нет.</div>`;
 
-  histEl.innerHTML = whHistory.length ? `
+  // История с фильтрами
+  const hSearch = (document.getElementById('wh-hist-search')?.value || '').toLowerCase();
+  const hEmp = document.getElementById('wh-hist-emp')?.value || '';
+  const hType = document.getElementById('wh-hist-type')?.value || '';
+  const filtered = whHistory.filter(h => {
+    if (hEmp && (h.employee || '') !== hEmp) return false;
+    if (hType === 'in' && h.delta <= 0) return false;
+    if (hType === 'out' && h.delta >= 0) return false;
+    if (hSearch && !((h.item||'').toLowerCase().includes(hSearch) || (h.category||'').toLowerCase().includes(hSearch) || (h.comment||'').toLowerCase().includes(hSearch))) return false;
+    return true;
+  });
+
+  histEl.innerHTML = filtered.length ? `
     <div class="wh-history-row" style="font-weight:600;color:var(--muted);text-transform:uppercase;font-size:9px;letter-spacing:1px;">
       <div style="min-width:130px;">Дата</div>
-      <div style="min-width:120px;">Категория</div>
-      <div style="min-width:70px;">Арт.</div>
-      <div style="min-width:160px;">Название</div>
-      <div style="min-width:90px;">Сотрудник</div>
-      <div style="min-width:60px;">Кол-во</div>
-    </div>` + whHistory.slice(0, 150).map(h => {
+      <div style="min-width:110px;">Категория</div>
+      <div style="min-width:60px;">Арт.</div>
+      <div style="min-width:150px;">Название</div>
+      <div style="min-width:80px;">Сотрудник</div>
+      <div style="min-width:55px;">Кол-во</div>
+      <div style="min-width:140px;">Комментарий</div>
+      <div style="min-width:70px;"></div>
+    </div>` + filtered.slice(0, 200).map(h => {
     const cls = h.delta > 0 ? 'wh-h-plus' : 'wh-h-minus';
     const sign = h.delta > 0 ? '+' : '';
     return `<div class="wh-history-row">
       <div class="wh-h-date" style="min-width:130px;">${h.date || ''}</div>
-      <div style="min-width:120px;color:var(--muted);">${h.category || ''}</div>
-      <div style="min-width:70px;color:var(--muted);">${h.artikul || ''}</div>
-      <div style="min-width:160px;">${h.item || ''}</div>
-      <div style="min-width:90px;">${h.employee || ''}</div>
-      <div class="${cls}" style="min-width:60px;">${sign}${h.delta} ${h.unit || ''}</div>
+      <div style="min-width:110px;color:var(--muted);">${h.category || ''}</div>
+      <div style="min-width:60px;color:var(--muted);">${h.artikul || ''}</div>
+      <div style="min-width:150px;">${h.item || ''}</div>
+      <div style="min-width:80px;">${h.employee || ''}</div>
+      <div class="${cls}" style="min-width:55px;">${sign}${h.delta} ${h.unit || ''}</div>
+      <div style="min-width:140px;color:var(--muted);font-size:10px;">${h.comment || ''}</div>
+      <div style="min-width:70px;"><button class="btn btn-sm" onclick="whRevertOp('${h._key}')" style="border-color:var(--red);color:var(--red);padding:2px 8px;">Отменить</button></div>
     </div>`;
-  }).join('') : `<div style="color:var(--muted);padding:20px 0;">Операций пока нет.</div>`;
+  }).join('') : `<div style="color:var(--muted);padding:20px 0;">Операций нет.</div>`;
+
+  // Заполняем фильтр сотрудников
+  const empSel = document.getElementById('wh-hist-emp');
+  if (empSel) {
+    const emps = [...new Set(whHistory.map(h => h.employee).filter(Boolean))];
+    const cur = empSel.value;
+    empSel.innerHTML = '<option value="">Все сотрудники</option>' + emps.map(e => `<option value="${e}">${e}</option>`).join('');
+    empSel.value = cur;
+  }
 }
 
 // ============ СОТРУДНИК: только расход ============

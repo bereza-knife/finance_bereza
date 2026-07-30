@@ -2755,7 +2755,7 @@ fbDb.ref('warehouse/items').on('value', snap => {
 });
 fbDb.ref('warehouse/history').on('value', snap => {
   const val = snap.val() || {};
-  whHistory = Object.values(val).sort((a,b) => b.ts - a.ts);
+  whHistory = Object.entries(val).map(([key, v]) => ({ ...v, _key: key })).sort((a,b) => b.ts - a.ts);
   localStorage.setItem('bn_wh_history', JSON.stringify(whHistory));
   whRenderAll();
 });

@@ -2756,6 +2756,46 @@ function renderProd() {
 }
 
 // =============================================
+// ЗАЩИТА ОТ ПОТЕРИ ДАННЫХ ФОРМЫ
+// =============================================
+const FORM_ROOTS = { f: '#view-orders .panel-form', m: '#m-view-orders .panel-form' };
+const cleanSnapshot = { f: null, m: null };
+
+// Слепок всех полей формы (включая чекбоксы аксессуаров)
+function formSnapshot(prefix) {
+  const root = document.querySelector(FORM_ROOTS[prefix]);
+  if (!root) return '';
+  return [...root.querySelectorAll('input, select, textarea')]
+    .map(el => el.type === 'checkbox' ? (el.checked ? '1' : '0') : (el.value || ''))
+    .join('');
+}
+
+function markFormClean(prefix) {
+  cleanSnapshot[prefix] = formSnapshot(prefix);
+}
+
+function isFormDirty(prefix) {
+  if (cleanSnapshot[prefix] === null) return false;
+  return formSnapshot(prefix) !== cleanSnapshot[prefix];
+}
+
+// Спросить подтверждение, если в форме есть несохранённые данные
+function confirmDiscard(prefix, action) {
+  if (!isFormDirty(prefix)) return true;
+  const editing = prefix === 'f' ? editingOrderId : editingMishaOrderId;
+  const what = editing ? `изменения в заказе №${editing}` : 'заполненные данные нового заказа';
+  return confirm(`В форме есть несохранённые ${what}.\n\n${action}\nПродолжить и потерять их?`);
+}
+
+// Предупреждение при закрытии вкладки
+window.addEventListener('beforeunload', e => {
+  if (isFormDirty('f') || isFormDirty('m')) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
+// =============================================
 // WAREHOUSE
 // =============================================
 // Категории и подсказки (что входит в каждую)

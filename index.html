@@ -878,25 +878,34 @@
         </div>
       </div>
 
-      <!-- РАСШИРЕННАЯ ОПЛАТА -->
-      <div class="form-row" style="margin-top:8px;">
-        <div class="form-group">
-          <label class="form-label">Дата предоплаты</label>
-          <input class="form-control" id="f-prepay-date" type="date">
+      <!-- РАСШИРЕННАЯ ОПЛАТА (сворачиваемый) -->
+      <div class="fold">
+        <div class="fold-head" onclick="toggleFold(this)">
+          <span class="fold-arrow">▶</span>
+          <span class="fold-title">Даты оплат и комиссия</span>
+          <span class="fold-dot"></span>
         </div>
-        <div class="form-group">
-          <label class="form-label">Дата фин. оплаты</label>
-          <input class="form-control" id="f-final-date" type="date">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Сумма фин. оплаты (₽)</label>
-          <input class="form-control" id="f-final-pay" type="number" placeholder="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Комиссия канала (₽)</label>
-          <input class="form-control" id="f-commission" type="number" placeholder="0">
+        <div class="fold-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Дата предоплаты</label>
+              <input class="form-control" id="f-prepay-date" type="date">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Дата фин. оплаты</label>
+              <input class="form-control" id="f-final-date" type="date">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Сумма фин. оплаты (₽)</label>
+              <input class="form-control" id="f-final-pay" type="number" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Комиссия канала (₽)</label>
+              <input class="form-control" id="f-commission" type="number" placeholder="0">
+            </div>
+          </div>
         </div>
       </div>
 

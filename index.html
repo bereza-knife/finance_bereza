@@ -1993,7 +1993,12 @@ const STATUS_LABELS = { new:'Новый', work:'В работе', done:'Гото
 
 function changeStatus(id, status) {
   const o = orders.find(x => x.id === id);
-  if (o) { o.status = status; saveOrders(o); renderOrders(); renderMishaOrders(); }
+  if (!o || o.status === status) return;
+  // Откат уже оплаченного заказа — только с подтверждением
+  if (o.status === 'paid' && status !== 'paid') {
+    if (!confirm(`Заказ №${o.id} (${o.client}) уже оплачен.\nВернуть в статус «${STATUS_LABELS[status]}»?`)) return;
+  }
+  o.status = status; saveOrders(o); renderOrders(); renderMishaOrders();
 }
 function nextStatus(id) {
   const o = orders.find(x => x.id === id);

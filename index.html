@@ -2481,6 +2481,7 @@ function editMishaOrder(id) {
 
   document.querySelector('#app-misha .panel-form').scrollTo({ top: 0, behavior: 'smooth' });
   showMishaView('orders');
+  syncFolds(true);   // раскрыть блоки, где есть данные
   markFormClean('m');
 }
 

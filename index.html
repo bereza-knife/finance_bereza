@@ -2504,6 +2504,7 @@ function cancelMishaEdit() {
   mbox.style.display = 'none';
   mbox._leshaPrice = 0;
   document.getElementById('m-margin-display').textContent = '—';
+  syncFolds(true);
   markFormClean('m');
 }
 

@@ -1842,6 +1842,7 @@ let editingOrderId = null;
 function editOrder(id) {
   const o = orders.find(x => x.id === id);
   if (!o) return;
+  if (!confirmDiscard('f', `Открыть на редактирование заказ №${id}?`)) return;
   editingOrderId = id;
 
   // Заполняем форму

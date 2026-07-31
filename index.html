@@ -1297,26 +1297,35 @@
         <span id="m-margin-display" style="font-family:'Cormorant Garamond',serif;font-size:20px;">—</span>
       </div>
 
-      <!-- КАНАЛ И ДОП. УСЛУГИ -->
-      <div class="form-group" style="margin-top:12px;">
-        <label class="form-label">Канал продаж</label>
-        <select class="form-control" id="m-channel">
-          <option value="">— не указан —</option>
-          <option>Instagram</option>
-          <option>Telegram</option>
-          <option>Сайт</option>
-          <option>Выставка</option>
-          <option>Сарафан</option>
-          <option>Другое</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Гравировка (₽)</label>
-        <input class="form-control" id="m-engraving" type="number" placeholder="0">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Надбавка доп. услуги (₽)</label>
-        <input class="form-control" id="m-extra-price" type="number" placeholder="0">
+      <!-- КАНАЛ И ДОП. УСЛУГИ (сворачиваемый) -->
+      <div class="fold">
+        <div class="fold-head" onclick="toggleFold(this)">
+          <span class="fold-arrow">▶</span>
+          <span class="fold-title">Канал продаж и доп. услуги</span>
+          <span class="fold-dot"></span>
+        </div>
+        <div class="fold-body">
+          <div class="form-group">
+            <label class="form-label">Канал продаж</label>
+            <select class="form-control" id="m-channel">
+              <option value="">— не указан —</option>
+              <option>Instagram</option>
+              <option>Telegram</option>
+              <option>Сайт</option>
+              <option>Выставка</option>
+              <option>Сарафан</option>
+              <option>Другое</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Гравировка (₽)</label>
+            <input class="form-control" id="m-engraving" type="number" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Надбавка доп. услуги (₽)</label>
+            <input class="form-control" id="m-extra-price" type="number" placeholder="0">
+          </div>
+        </div>
       </div>
 
       <div style="margin-top:12px;">

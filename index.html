@@ -294,6 +294,32 @@
 
   .note-text { font-size: 10px; color: var(--muted); margin-top: 4px; font-style: italic; }
 
+  /* ===== СВОРАЧИВАЕМЫЕ БЛОКИ ФОРМЫ ===== */
+  .fold { border-top: 1px solid var(--border); margin-top: 10px; }
+  .fold-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 11px 2px; cursor: pointer; user-select: none;
+  }
+  .fold-arrow {
+    color: var(--muted); font-size: 9px; transition: transform 0.2s;
+    display: inline-block; width: 9px;
+  }
+  .fold.open .fold-arrow { transform: rotate(90deg); }
+  .fold-title {
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); transition: color 0.2s; flex: 1;
+  }
+  .fold-head:hover .fold-title,
+  .fold-head:hover .fold-arrow { color: var(--accent); }
+  .fold.open .fold-title { color: var(--text); }
+  .fold-dot {
+    width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .fold.has-value .fold-dot { opacity: 1; }
+  .fold-body { display: none; padding-bottom: 6px; }
+  .fold.open .fold-body { display: block; }
+
   .view-analytics { display: none; padding: 24px; }
   .view-orders { display: flex; flex: 1; }
   .view-warehouse { display: none; padding: 24px; overflow-y: auto; height: calc(100vh - 73px); width: 100%; }

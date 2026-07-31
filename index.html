@@ -3297,6 +3297,16 @@ initSetSelects('m');
 renderOrders();
 renderMishaOrders();
 whRenderAll();
+
+// Сворачиваемые блоки: запомнить дефолты и следить за заполнением
+initFoldDefaults();
+syncFolds(false);
+Object.values(FORM_ROOTS).forEach(sel => {
+  const root = document.querySelector(sel);
+  if (root) root.addEventListener('input', () => syncFolds(false));
+  if (root) root.addEventListener('change', () => syncFolds(false));
+});
+
 markFormClean('f');
 markFormClean('m');
 

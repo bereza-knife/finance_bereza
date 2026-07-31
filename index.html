@@ -2518,7 +2518,7 @@ function renderMishaOrders() {
         ${o.prepay?`<div class="fin-item"><div class="fin-label">Предоплата</div><div class="fin-value">${o.prepay.toLocaleString('ru')} ₽</div></div>`:''}
       </div>`:''}
       <div class="order-actions">
-        <button class="btn btn-sm" onclick="nextStatus(${o.id});renderMishaOrders()">→ ${STATUS_LABELS[STATUS_FLOW[o.status]]}</button>
+        ${STATUS_FLOW[o.status] ? `<button class="btn btn-sm" onclick="nextStatus(${o.id});renderMishaOrders()">→ ${STATUS_LABELS[STATUS_FLOW[o.status]]}</button>` : ''}
         <select class="btn btn-sm" onchange="changeStatus(${o.id},this.value);renderMishaOrders();this.value=''" style="background:var(--surface);cursor:pointer;">
           <option value="">Статус...</option>
           ${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}

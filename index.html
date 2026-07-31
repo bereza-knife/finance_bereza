@@ -1881,6 +1881,7 @@ function editOrder(id) {
   // Скролл к форме
   document.querySelector('#app-lesha .panel-form').scrollTo({ top: 0, behavior: 'smooth' });
   showView('orders');
+  markFormClean('f');
 }
 
 function cancelEdit() {

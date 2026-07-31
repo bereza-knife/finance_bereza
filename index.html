@@ -2336,6 +2336,7 @@ let editingMishaOrderId = null;
 function editMishaOrder(id) {
   const o = orders.find(x => x.id === id);
   if (!o) return;
+  if (!confirmDiscard('m', `Открыть на редактирование заказ №${id}?`)) return;
   editingMishaOrderId = id;
 
   document.getElementById('m-client').value  = o.client || '';

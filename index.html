@@ -1987,7 +1987,8 @@ function saveOrders(syncOrder) {
   if (syncOrder) syncToSheets(syncOrder);
 }
 
-const STATUS_FLOW = { new:'work', work:'done', done:'paid', paid:'new' };
+// paid — финальный статус, дальше цепочка не идёт (защита от случайного сброса)
+const STATUS_FLOW = { new:'work', work:'done', done:'paid', paid:null };
 const STATUS_LABELS = { new:'Новый', work:'В работе', done:'Готов', paid:'Оплачен' };
 
 function changeStatus(id, status) {

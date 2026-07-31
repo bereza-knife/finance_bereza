@@ -2869,6 +2869,37 @@ function renderProd() {
 }
 
 // =============================================
+// СВОРАЧИВАЕМЫЕ БЛОКИ ФОРМЫ
+// =============================================
+function toggleFold(head) {
+  head.closest('.fold').classList.toggle('open');
+}
+
+// Запоминаем значения по умолчанию, чтобы отличать «заполнено» от «пусто»
+function initFoldDefaults() {
+  document.querySelectorAll('.fold input, .fold select').forEach(el => {
+    el.dataset.def = el.type === 'checkbox' ? (el.checked ? '1' : '0') : (el.value || '');
+  });
+}
+
+function foldHasValue(fold) {
+  return [...fold.querySelectorAll('input, select')].some(el => {
+    const cur = el.type === 'checkbox' ? (el.checked ? '1' : '0') : (el.value || '');
+    return cur !== (el.dataset.def ?? '');
+  });
+}
+
+// Подсветить точкой блоки с данными; при загрузке заказа — раскрыть их
+function syncFolds(expand) {
+  document.querySelectorAll('.fold').forEach(fold => {
+    const filled = foldHasValue(fold);
+    fold.classList.toggle('has-value', filled);
+    if (filled && expand) fold.classList.add('open');
+    if (!filled && expand) fold.classList.remove('open');
+  });
+}
+
+// =============================================
 // ЗАЩИТА ОТ ПОТЕРИ ДАННЫХ ФОРМЫ
 // =============================================
 const FORM_ROOTS = { f: '#view-orders .panel-form', m: '#m-view-orders .panel-form' };

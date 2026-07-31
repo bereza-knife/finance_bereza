@@ -1154,52 +1154,69 @@
           <option value="">— форма —</option>
         </select>
       </div>
-      <div class="form-group">
-        <label class="form-label">№3 — Больстер</label>
-        <select class="form-control" id="m-bolster" onchange="updateMishaAll()">
-          <option value="">— нет —</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">№4 — Вставка</label>
-        <select class="form-control" id="m-insert" onchange="updateMishaAll()">
-          <option value="">— нет —</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">№7 — Лайнеры</label>
-          <select class="form-control" id="m-liner" onchange="updateMishaAll()">
-            <option value="">— нет —</option>
-          </select>
+      <!-- ДОП. ЭЛЕМЕНТЫ (сворачиваемый) -->
+      <div class="fold">
+        <div class="fold-head" onclick="toggleFold(this)">
+          <span class="fold-arrow">▶</span>
+          <span class="fold-title">Доп. элементы ножа</span>
+          <span class="fold-dot"></span>
         </div>
-        <div class="form-group">
-          <label class="form-label">№8 — Всечка</label>
-          <select class="form-control" id="m-vsechka" onchange="updateMishaAll()">
-            <option value="">— нет —</option>
-          </select>
+        <div class="fold-body">
+          <div class="form-group">
+            <label class="form-label">№3 — Больстер</label>
+            <select class="form-control" id="m-bolster" onchange="updateMishaAll()">
+              <option value="">— нет —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">№4 — Вставка</label>
+            <select class="form-control" id="m-insert" onchange="updateMishaAll()">
+              <option value="">— нет —</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">№7 — Лайнеры</label>
+              <select class="form-control" id="m-liner" onchange="updateMishaAll()">
+                <option value="">— нет —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">№8 — Всечка</label>
+              <select class="form-control" id="m-vsechka" onchange="updateMishaAll()">
+                <option value="">— нет —</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">ПИН</label>
+            <select class="form-control" id="m-pin">
+              <option value="">— нет —</option>
+              <option value="листик">Листик</option>
+              <option value="без листика">Без листика</option>
+            </select>
+          </div>
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">ПИН</label>
-        <select class="form-control" id="m-pin">
-          <option value="">— нет —</option>
-          <option value="листик">Листик</option>
-          <option value="без листика">Без листика</option>
-        </select>
+
+      <!-- АКСЕССУАРЫ (сворачиваемый) -->
+      <div class="fold">
+        <div class="fold-head" onclick="toggleFold(this)">
+          <span class="fold-arrow">▶</span>
+          <span class="fold-title">Аксессуары</span>
+          <span class="fold-dot"></span>
+        </div>
+        <div class="fold-body">
+          <div class="acc-list" id="m-acc-list"></div>
+        </div>
       </div>
+
       <div class="divider"></div>
 
       <!-- КОЛИЧЕСТВО -->
       <div class="form-group">
         <label class="form-label">Количество ножей</label>
         <input class="form-control" id="m-qty" type="number" min="1" value="1" oninput="updateMishaAll()" style="max-width:80px;">
-      </div>
-
-      <!-- АКСЕССУАРЫ -->
-      <div class="form-group">
-        <label class="form-label">Аксессуары</label>
-        <div class="acc-list" id="m-acc-list"></div>
       </div>
 
       <div class="artikul-box" style="margin-top:12px;">

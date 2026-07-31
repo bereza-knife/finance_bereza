@@ -846,18 +846,24 @@
         </div>
       </div>
 
-      <!-- НАБОР (рекомендуемая цена) -->
-      <div class="form-group">
-        <label class="form-label">Набор — рекомендуемая цена</label>
-        <div class="sets-row">
-          <select class="form-control" id="f-set-type" onchange="updateSetPrice('f')">
-            <option value="">— выбрать набор —</option>
-          </select>
-          <select class="form-control" id="f-set-grade" onchange="updateSetPrice('f')">
-            <option value="mono">Моно</option>
-            <option value="d31">31 слой</option>
-            <option value="d137">137 дамаск</option>
-          </select>
+      <!-- НАБОР (сворачиваемый) -->
+      <div class="fold">
+        <div class="fold-head" onclick="toggleFold(this)">
+          <span class="fold-arrow">▶</span>
+          <span class="fold-title">Набор — рекомендуемая цена</span>
+          <span class="fold-dot"></span>
+        </div>
+        <div class="fold-body">
+          <div class="sets-row">
+            <select class="form-control" id="f-set-type" onchange="updateSetPrice('f')">
+              <option value="">— выбрать набор —</option>
+            </select>
+            <select class="form-control" id="f-set-grade" onchange="updateSetPrice('f')">
+              <option value="mono">Моно</option>
+              <option value="d31">31 слой</option>
+              <option value="d137">137 дамаск</option>
+            </select>
+          </div>
         </div>
       </div>
 

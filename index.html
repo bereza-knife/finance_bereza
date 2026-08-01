@@ -2221,9 +2221,21 @@ function nextStatus(id) {
   o.status = next; saveOrders(o); renderOrders(); renderMishaOrders();
 }
 function deleteOrder(id) {
-  if (!confirm('Удалить заказ?')) return;
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+  const info = [
+    `Удалить заказ №${o.id}?`,
+    '',
+    `Клиент: ${o.client || '—'}`,
+    `Изделие: ${o.modelName || '—'}${o.steelName ? ' · ' + o.steelName : ''}`,
+    o.price ? `Цена: ${o.price.toLocaleString('ru')} ₽` : null,
+    '',
+    'Отменить это действие будет нельзя.'
+  ].filter(x => x !== null).join('\n');
+  if (!confirm(info)) return;
   orders = orders.filter(x => x.id !== id);
-  saveOrders(); renderOrders();
+  saveOrders(); renderOrders(); renderMishaOrders();
+  showToast(`Заказ №${id} удалён`);
 }
 
 function renderOrders() {

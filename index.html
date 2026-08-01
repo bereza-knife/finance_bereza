@@ -2313,9 +2313,47 @@ function deleteOrder(id) {
     'Отменить это действие будет нельзя.'
   ].filter(x => x !== null).join('\n');
   if (!confirm(info)) return;
+  // Не стираем безвозвратно — переносим в корзину, откуда можно восстановить
+  fbDb.ref('deletedOrders').push({
+    ...o,
+    deletedTs: Date.now(),
+    deletedDate: new Date().toLocaleString('ru-RU'),
+    deletedBy: currentUserName()
+  });
+  logOrder('delete', o, `Клиент: ${o.client || '—'}, ${o.modelName || '—'}`);
   orders = orders.filter(x => x.id !== id);
   saveOrders(); renderOrders(); renderMishaOrders();
-  showToast(`Заказ №${id} удалён`);
+  showToast(`Заказ №${id} перемещён в корзину`);
+}
+
+// Вернуть заказ из корзины в работу
+function restoreOrder(key) {
+  const d = deletedOrders.find(x => x._key === key);
+  if (!d) return;
+  if (orders.some(o => o.id === d.id)) {
+    alert(`Заказ №${d.id} уже есть в списке — восстановление не требуется.`);
+    return;
+  }
+  if (!confirm(`Восстановить заказ №${d.id} (${d.client || '—'})?`)) return;
+  const restored = { ...d };
+  delete restored._key; delete restored.deletedTs;
+  delete restored.deletedDate; delete restored.deletedBy;
+  orders.unshift(restored);
+  orders.sort((a, b) => b.id - a.id);
+  saveOrders(restored);
+  fbDb.ref('deletedOrders/' + key).remove();
+  logOrder('restore', restored, `Возвращён из корзины`);
+  renderOrders(); renderMishaOrders();
+  showToast(`Заказ №${d.id} восстановлен`);
+}
+
+// Окончательное удаление из корзины
+function purgeOrder(key) {
+  const d = deletedOrders.find(x => x._key === key);
+  if (!d) return;
+  if (!confirm(`Удалить заказ №${d.id} НАВСЕГДА?\n\nПосле этого восстановить его будет невозможно.`)) return;
+  fbDb.ref('deletedOrders/' + key).remove();
+  showToast(`Заказ №${d.id} удалён окончательно`);
 }
 
 function renderOrders() {

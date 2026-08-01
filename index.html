@@ -1101,7 +1101,16 @@
 
   <!-- ANALYTICS VIEW -->
   <div class="view-analytics" id="view-analytics" style="width:100%;">
-    <div class="section-title">Аналитика</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+      <div class="section-title" style="margin:0;border:none;padding:0;">Аналитика</div>
+      <select class="filter-input" id="analytics-period" onchange="renderAnalytics()" style="max-width:200px;">
+        <option value="month">Этот месяц</option>
+        <option value="prevmonth">Прошлый месяц</option>
+        <option value="90">Последние 90 дней</option>
+        <option value="year">Этот год</option>
+        <option value="all" selected>Всё время</option>
+      </select>
+    </div>
     <div id="analytics-content"></div>
   </div>
 

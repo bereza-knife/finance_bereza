@@ -2296,14 +2296,20 @@ function changeStatus(id, status) {
   if (o.status === 'paid' && status !== 'paid') {
     if (!confirm(`Заказ №${o.id} (${o.client}) уже оплачен.\nВернуть в статус «${STATUS_LABELS[status]}»?`)) return;
   }
-  o.status = status; saveOrders(o); renderOrders(); renderMishaOrders();
+  const was = o.status;
+  o.status = status; saveOrders(o);
+  logOrder('status', o, `${STATUS_LABELS[was]} → ${STATUS_LABELS[status]}`);
+  renderOrders(); renderMishaOrders();
 }
 function nextStatus(id) {
   const o = orders.find(x => x.id === id);
   if (!o) return;
   const next = STATUS_FLOW[o.status];
   if (!next) return;                 // «Оплачен» — дальше не двигаем
-  o.status = next; saveOrders(o); renderOrders(); renderMishaOrders();
+  const was = o.status;
+  o.status = next; saveOrders(o);
+  logOrder('status', o, `${STATUS_LABELS[was]} → ${STATUS_LABELS[next]}`);
+  renderOrders(); renderMishaOrders();
 }
 function deleteOrder(id) {
   const o = orders.find(x => x.id === id);

@@ -2254,6 +2254,7 @@ function saveOrder() {
 
   orders.unshift(order);
   saveOrders(order);
+  logOrder('create', order, `${order.modelName || '—'}${order.steelName ? ' · ' + order.steelName : ''}${order.price ? ' · ' + order.price.toLocaleString('ru') + ' ₽' : ''}`);
   renderOrders();
   showToast(`Заказ №${order.id} создан`);
 

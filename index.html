@@ -2947,6 +2947,7 @@ function saveMishaOrder() {
   const order = { id: orderCounter++, date: new Date().toLocaleDateString('ru'), ...fields(), status: 'new', createdBy: 'misha' };
   orders.unshift(order);
   saveOrders(order);
+  logOrder('create', order, `${order.modelName || '—'}${order.steelName ? ' · ' + order.steelName : ''}${order.price ? ' · ' + order.price.toLocaleString('ru') + ' ₽' : ''}`);
   renderOrders();
   renderMishaOrders();
   showToast(`Заказ №${order.id} создан`);

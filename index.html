@@ -348,6 +348,9 @@
   .fold.open .fold-body { display: block; }
 
   .view-analytics { display: none; padding: 24px; }
+  .analytics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  @media (max-width: 1100px) { .analytics-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 700px)  { .analytics-grid { grid-template-columns: 1fr; } }
   .view-orders { display: flex; flex: 1; }
   .view-warehouse { display: none; padding: 24px; overflow-y: auto; height: calc(100vh - 73px); width: 100%; }
 

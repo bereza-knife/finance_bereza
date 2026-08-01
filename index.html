@@ -1123,6 +1123,11 @@
           <option value="done">Готов</option>
           <option value="paid">Оплачен</option>
         </select>
+        <select class="filter-input" id="filter-payment" onchange="renderOrders()">
+          <option value="">Любая оплата</option>
+          <option value="due">Есть долг</option>
+          <option value="settled">Оплачено полностью</option>
+        </select>
         <button class="export-btn" onclick="exportCSV()">↓ CSV</button>
       </div>
 

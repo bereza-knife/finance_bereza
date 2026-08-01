@@ -2486,7 +2486,17 @@ function renderOrders() {
           <div class="fin-label">Прибыль Лёши</div>
           <div class="fin-value ${profitClass}">${rev ? profit.toLocaleString('ru')+' ₽ ('+margin+'%)' : '—'}</div>
         </div>
-        ${o.prepay?`<div class="fin-item"><div class="fin-label">Предоплата</div><div class="fin-value">${o.prepay.toLocaleString('ru')} ₽</div></div>`:''}
+        ${o.prepay?`<div class="fin-item"><div class="fin-label">Внесено</div><div class="fin-value">${bal.paid.toLocaleString('ru')} ₽</div></div>`:''}
+        ${bal.hasPrice && !bal.settled ? `
+        <div class="fin-item">
+          <div class="fin-label">Остаток к оплате</div>
+          <div class="fin-value" style="color:var(--red);">${bal.due.toLocaleString('ru')} ₽</div>
+        </div>` : ''}
+        ${bal.settled ? `
+        <div class="fin-item">
+          <div class="fin-label">Оплата</div>
+          <div class="fin-value profit">${bal.overpaid ? 'переплата ' + Math.abs(bal.due).toLocaleString('ru') + ' ₽' : '✓ полностью'}</div>
+        </div>` : ''}
       </div>
       <div class="order-actions">
         ${STATUS_FLOW[o.status] ? `<button class="btn btn-sm" onclick="nextStatus(${o.id})">→ ${STATUS_LABELS[STATUS_FLOW[o.status]]}</button>` : ''}

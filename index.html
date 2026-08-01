@@ -1201,6 +1201,36 @@
     <div id="wh-history-list" style="overflow-x:auto;"></div>
   </div>
 
+  <!-- ЖУРНАЛ: корзина + история изменений -->
+  <div class="view-journal" id="view-journal">
+    <div class="section-title" style="margin-bottom:6px;">
+      Корзина <span id="trash-count" style="color:var(--muted);font-size:11px;letter-spacing:1px;"></span>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:14px;">
+      Удалённые заказы хранятся здесь. Их можно вернуть в работу или стереть окончательно.
+    </div>
+    <div id="trash-list" style="margin-bottom:32px;"></div>
+
+    <div class="divider"></div>
+
+    <div class="section-title" style="margin:16px 0 12px;">История изменений</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+      <input class="filter-input" id="log-search" type="text" placeholder="Поиск: № заказа, клиент, что менялось..." oninput="renderJournal()" style="max-width:300px;">
+      <select class="filter-input" id="log-action" onchange="renderJournal()" style="max-width:170px;">
+        <option value="">Все действия</option>
+        <option value="create">Создание</option>
+        <option value="edit">Изменения</option>
+        <option value="status">Смена статуса</option>
+        <option value="delete">Удаление</option>
+        <option value="restore">Восстановление</option>
+      </select>
+      <select class="filter-input" id="log-actor" onchange="renderJournal()" style="max-width:170px;">
+        <option value="">Все пользователи</option>
+      </select>
+    </div>
+    <div id="log-list" style="overflow-x:auto;"></div>
+  </div>
+
 </div>
 
 <div class="toast" id="toast"></div>

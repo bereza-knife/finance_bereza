@@ -2931,7 +2931,12 @@ function saveMishaOrder() {
 
   if (editingMishaOrderId !== null) {
     const idx = orders.findIndex(x => x.id === editingMishaOrderId);
-    if (idx !== -1) orders[idx] = { ...orders[idx], ...fields() };
+    if (idx !== -1) {
+      const before = { ...orders[idx] };
+      orders[idx] = { ...orders[idx], ...fields() };
+      const changes = diffOrders(before, orders[idx]);
+      if (changes) logOrder('edit', orders[idx], changes);
+    }
     saveOrders(orders.find(x => x.id === editingMishaOrderId)); renderOrders(); renderMishaOrders();
     showToast(`Заказ №${editingMishaOrderId} обновлён`);
     cancelMishaEdit();

@@ -2436,6 +2436,7 @@ function purgeOrder(key) {
 function renderOrders() {
   const search = document.getElementById('search-input').value.toLowerCase();
   const statusFilter = document.getElementById('filter-status').value;
+  const payFilter = document.getElementById('filter-payment')?.value || '';
 
   let filtered = orders.filter(o => {
     const matchSearch = !search ||
@@ -2443,7 +2444,12 @@ function renderOrders() {
       o.artikul.toLowerCase().includes(search) ||
       String(o.id).includes(search);
     const matchStatus = !statusFilter || o.status === statusFilter;
-    return matchSearch && matchStatus;
+    let matchPay = true;
+    if (payFilter) {
+      const b = orderBalance(o);
+      matchPay = payFilter === 'due' ? (b.hasPrice && b.due > 0) : b.settled;
+    }
+    return matchSearch && matchStatus && matchPay;
   });
 
   // Stats

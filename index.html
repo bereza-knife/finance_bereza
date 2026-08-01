@@ -3677,7 +3677,7 @@ function logout() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById(USERS[saved].app).style.display = 'block';
     selectedUser = saved;
-    if (USERS[saved].name) {
+    if (USERS[saved].app === 'app-sklad') {
       currentWhEmployee = USERS[saved].name;
       document.getElementById('sklad-emp-title').textContent = 'Склад — ' + USERS[saved].name;
       whRenderEmployee();

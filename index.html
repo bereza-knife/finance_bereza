@@ -2394,6 +2394,25 @@ function leshaRevenue(o) {
   return lp;
 }
 
+// Расчёт по оплатам: сколько заказ стоит, сколько внесено, сколько ещё должны
+function orderBalance(o) {
+  const total = (o.price || 0) + (o.extraPrice || 0);
+  const paid  = (o.prepay || 0) + (o.finalPay || 0);
+  const due   = total - paid;
+  return {
+    total, paid, due,
+    hasPrice: total > 0,
+    settled: total > 0 && due <= 0,   // рассчитались полностью
+    overpaid: due < 0                 // внесли больше суммы заказа
+  };
+}
+
+// Кто сейчас в системе — подписываем действия в журнале
+function currentUserName() {
+  const u = USERS[selectedUser];
+  return (u && u.name) || 'Неизвестно';
+}
+
 // Дата заказа хранится строкой «дд.мм.гггг»
 function parseOrderDate(str) {
   const m = String(str || '').trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);

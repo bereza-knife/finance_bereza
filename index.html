@@ -2928,7 +2928,7 @@ function updateMishaMargin() {
   const price = +document.getElementById('m-price')?.value || 0;
   const el = document.getElementById('m-margin-display');
   if (!el) return;
-  if (!price || !mishaCost) { el.textContent = '—'; el.className = ''; return; }
+  if (!price || !mishaCost) { el.textContent = '—'; el.className = ''; updateDueDisplay('m'); return; }
   const modelId = +document.getElementById('m-model')?.value || 0;
   const isSteak = STEAK_MODELS.includes(modelId);
   const box = document.getElementById('m-cost-box');

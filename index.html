@@ -2055,6 +2055,72 @@ fbDb.ref('counter').on('value', snap => {
 });
 
 // =============================================
+// КОРЗИНА И ЖУРНАЛ ИЗМЕНЕНИЙ ЗАКАЗОВ
+// =============================================
+let deletedOrders = [];   // удалённые заказы (можно восстановить)
+let orderLog = [];        // журнал всех действий с заказами
+
+fbDb.ref('deletedOrders').on('value', snap => {
+  const d = snap.val() || {};
+  deletedOrders = Object.entries(d).map(([k, v]) => ({ ...v, _key: k }))
+    .sort((a, b) => (b.deletedTs || 0) - (a.deletedTs || 0));
+  renderJournal();
+});
+
+fbDb.ref('orderLog').on('value', snap => {
+  const d = snap.val() || {};
+  orderLog = Object.entries(d).map(([k, v]) => ({ ...v, _key: k }))
+    .sort((a, b) => (b.ts || 0) - (a.ts || 0));
+  renderJournal();
+});
+
+const LOG_ACTIONS = {
+  create:  { label: 'Создан',      color: '#5a9e7a' },
+  edit:    { label: 'Изменён',     color: 'var(--accent)' },
+  status:  { label: 'Статус',      color: '#6a9ec0' },
+  delete:  { label: 'Удалён',      color: 'var(--red)' },
+  restore: { label: 'Восстановлен',color: '#5a9e7a' },
+};
+
+// Запись действия в журнал
+function logOrder(action, order, details) {
+  fbDb.ref('orderLog').push({
+    ts: Date.now(),
+    date: new Date().toLocaleString('ru-RU'),
+    orderId: order.id,
+    client: order.client || '',
+    action,
+    actor: currentUserName(),
+    details: details || ''
+  });
+}
+
+// Человекочитаемые названия полей — для описания правок
+const FIELD_LABELS = {
+  client:'Клиент', phone:'Телефон', tg:'Telegram',
+  modelName:'Модель', steelName:'Сталь', handleName:'Материал ручки',
+  price:'Цена продажи', prepay:'Предоплата', finalPay:'Фин. оплата',
+  extraPrice:'Надбавка', commission:'Комиссия', engraving:'Гравировка',
+  cost:'Себестоимость', qty:'Количество', channel:'Канал продаж',
+  note:'Примечание', pin:'ПИН', artikul:'Артикул',
+  prepayDate:'Дата предоплаты', finalDate:'Дата фин. оплаты',
+};
+
+// Сравниваем «до» и «после», описываем только реальные изменения
+function diffOrders(before, after) {
+  const parts = [];
+  Object.keys(FIELD_LABELS).forEach(key => {
+    const a = before[key] ?? '';
+    const b = after[key] ?? '';
+    if (String(a) === String(b)) return;
+    const fmt = v => (v === '' || v === null || v === undefined) ? '—'
+      : (typeof v === 'number' ? v.toLocaleString('ru') : String(v));
+    parts.push(`${FIELD_LABELS[key]}: ${fmt(a)} → ${fmt(b)}`);
+  });
+  return parts.join('; ');
+}
+
+// =============================================
 // EDIT ORDER — LESHA
 // =============================================
 let editingOrderId = null;

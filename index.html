@@ -2528,7 +2528,8 @@ function showView(v) {
   document.getElementById('view-clients').style.display   = v==='clients'   ? 'block' : 'none';
   document.getElementById('view-analytics').style.display = v==='analytics' ? 'block' : 'none';
   document.getElementById('view-warehouse').style.display = v==='warehouse' ? 'block' : 'none';
-  const views = ['orders','prod','clients','analytics','warehouse'];
+  document.getElementById('view-journal').style.display   = v==='journal'   ? 'block' : 'none';
+  const views = ['orders','prod','clients','analytics','warehouse','journal'];
   document.querySelectorAll('#app-lesha .nav .nav-btn').forEach((b,i) => {
     b.classList.toggle('active', views[i] === v);
   });

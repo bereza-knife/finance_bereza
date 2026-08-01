@@ -2449,6 +2449,16 @@ function renderOrders() {
   const avg = paid.length ? Math.round(paid.reduce((s,o)=>s+o.price,0)/paid.length) : 0;
   document.getElementById('stat-avg').textContent = avg.toLocaleString('ru') + ' ₽';
 
+  // Сколько денег ещё не получено по незакрытым заказам
+  const debtors = orders.filter(o => { const b = orderBalance(o); return b.hasPrice && b.due > 0; });
+  const totalDue = debtors.reduce((s, o) => s + orderBalance(o).due, 0);
+  const dueCard = document.getElementById('stat-due-card');
+  if (dueCard) {
+    dueCard.style.display = totalDue > 0 ? 'block' : 'none';
+    document.getElementById('stat-due').textContent = totalDue.toLocaleString('ru') + ' ₽';
+    document.getElementById('stat-due-note').textContent = `по ${debtors.length} заказ${debtors.length===1?'у':debtors.length<5?'ам':'ам'}`;
+  }
+
   const list = document.getElementById('orders-list');
   if (!filtered.length) {
     list.innerHTML = '<div class="empty-state"><div class="icon">◇</div>Заказов нет</div>';

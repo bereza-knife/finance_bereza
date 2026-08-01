@@ -3883,10 +3883,12 @@ whRenderAll();
 // Сворачиваемые блоки: запомнить дефолты и следить за заполнением
 initFoldDefaults();
 syncFolds(false);
-Object.values(FORM_ROOTS).forEach(sel => {
+Object.entries(FORM_ROOTS).forEach(([prefix, sel]) => {
   const root = document.querySelector(sel);
-  if (root) root.addEventListener('input', () => syncFolds(false));
-  if (root) root.addEventListener('change', () => syncFolds(false));
+  if (!root) return;
+  const onChange = () => { syncFolds(false); updateDueDisplay(prefix); };
+  root.addEventListener('input', onChange);
+  root.addEventListener('change', onChange);
 });
 
 markFormClean('f');

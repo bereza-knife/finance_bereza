@@ -2940,6 +2940,7 @@ function updateMishaMargin() {
   const pct = Math.round(mishaProfit / price * 100);
   el.textContent = `${Math.round(mishaProfit).toLocaleString('ru')} ₽ (${pct}%)`;
   el.className = pct >= 40 ? 'margin-good' : pct >= 20 ? 'margin-ok' : 'margin-bad';
+  updateDueDisplay('m');
 }
 
 // =============================================

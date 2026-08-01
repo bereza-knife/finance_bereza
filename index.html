@@ -2456,6 +2456,7 @@ function renderOrders() {
     const rev    = isMisha ? leshaRevenue(o) : o.price;
     const margin = rev ? Math.round(profit/rev*100) : 0;
     const profitClass = profit > 0 ? 'profit' : 'loss';
+    const bal = orderBalance(o);
     return `<div class="order-card">
       <div class="order-card-header">
         <div>

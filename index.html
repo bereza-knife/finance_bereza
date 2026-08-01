@@ -3310,6 +3310,72 @@ function renderProd() {
 }
 
 // =============================================
+// ОТРИСОВКА ЖУРНАЛА И КОРЗИНЫ
+// =============================================
+function renderJournal() {
+  const trashEl = document.getElementById('trash-list');
+  const logEl   = document.getElementById('log-list');
+  if (!trashEl || !logEl) return;
+
+  // --- Корзина ---
+  const cnt = document.getElementById('trash-count');
+  if (cnt) cnt.textContent = deletedOrders.length ? `— ${deletedOrders.length} шт.` : '';
+
+  trashEl.innerHTML = deletedOrders.length ? deletedOrders.map(d => `
+    <div class="trash-item">
+      <div class="trash-info">
+        <div class="trash-num">№${d.id} · ${d.client || '—'}</div>
+        <div class="trash-meta">
+          ${d.modelName || '—'}${d.steelName ? ' · ' + d.steelName : ''}${d.price ? ' · ' + d.price.toLocaleString('ru') + ' ₽' : ''}
+        </div>
+        <div class="trash-meta">Удалил: ${d.deletedBy || '—'} · ${d.deletedDate || ''}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-sm" onclick="restoreOrder('${d._key}')" style="border-color:#2a4a3a;color:#5a9e7a;">↩ Восстановить</button>
+        <button class="btn btn-sm btn-danger" onclick="purgeOrder('${d._key}')">Стереть навсегда</button>
+      </div>
+    </div>`).join('')
+    : `<div style="color:var(--muted);font-size:11px;padding:14px 0;">Корзина пуста.</div>`;
+
+  // --- Фильтр по пользователям (заполняем из данных) ---
+  const actorSel = document.getElementById('log-actor');
+  if (actorSel) {
+    const actors = [...new Set(orderLog.map(l => l.actor).filter(Boolean))].sort();
+    const cur = actorSel.value;
+    actorSel.innerHTML = '<option value="">Все пользователи</option>' +
+      actors.map(a => `<option value="${a}">${a}</option>`).join('');
+    actorSel.value = cur;
+  }
+
+  // --- История изменений ---
+  const q      = (document.getElementById('log-search')?.value || '').toLowerCase();
+  const fAct   = document.getElementById('log-action')?.value || '';
+  const fActor = document.getElementById('log-actor')?.value || '';
+
+  const filtered = orderLog.filter(l => {
+    if (fAct && l.action !== fAct) return false;
+    if (fActor && l.actor !== fActor) return false;
+    if (q) {
+      const hay = `№${l.orderId} ${l.client || ''} ${l.details || ''} ${l.actor || ''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  logEl.innerHTML = filtered.length ? filtered.slice(0, 300).map(l => {
+    const a = LOG_ACTIONS[l.action] || { label: l.action, color: 'var(--muted)' };
+    return `<div class="log-row">
+      <div style="min-width:125px;color:var(--muted);">${l.date || ''}</div>
+      <div style="min-width:95px;"><span class="log-badge" style="border-color:${a.color};color:${a.color};">${a.label}</span></div>
+      <div style="min-width:130px;">№${l.orderId}${l.client ? ' · ' + l.client : ''}</div>
+      <div style="min-width:75px;color:var(--accent2);">${l.actor || ''}</div>
+      <div class="log-details">${l.details || ''}</div>
+    </div>`;
+  }).join('')
+    : `<div style="color:var(--muted);font-size:11px;padding:14px 0;">${orderLog.length ? 'Ничего не найдено по этим условиям.' : 'Пока нет записей. Здесь будут отражаться все действия с заказами.'}</div>`;
+}
+
+// =============================================
 // СВОРАЧИВАЕМЫЕ БЛОКИ ФОРМЫ
 // =============================================
 function toggleFold(head) {

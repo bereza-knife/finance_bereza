@@ -1602,7 +1602,7 @@ const MODELS = {
 
 // STEEL COSTS (blade cost = закупка+эрозия+лазер+закалка+заточка+слесарка+галтовка+расходники+аморт+аренда)
 // Format: {modelId: cost}
-const STEEL_COSTS = {
+let STEEL_COSTS = {
   // AUS10co
   '01': {1:1932,2:2292,3:1460,4:1926,5:1710,6:1685,7:1745,8:1778,9:1698,10:1784,11:1813,12:1827,13:1337,14:1535,15:1825,16:1938,17:1462,18:1470,19:2059,20:1927,21:2591,22:2950,23:3619,24:4429,25:5148,26:5362,27:4365,28:3531,29:3269,30:4069,31:4385,32:2038,33:2836,34:4059,35:4646,36:5643,37:5958,38:3801,39:4690,40:4033,41:2646,42:2883,43:3449,44:3989,45:4670,46:5264,47:4651,48:4419,49:5389,50:2963,51:5075,52:4917,53:6075,54:918,55:1652,56:2112,57:2428,58:3709,59:3996,60:934},
   // 95x18
@@ -1627,7 +1627,7 @@ const STEELS = {
 };
 
 // HANDLE COSTS (шеф / стейк по арт материала)
-const HANDLE_CHEF = {
+let HANDLE_CHEF = {
   '01':2650,'02':2650,'03':2400,'04':2900,'05':2900,'06':3900,'07':3600,
   '08':2400,'09':1900,'10':1900,'11':1900,'12':2700,'13':4050,'14':2750,
   '15':6600,'16':6600,'17':8100,'18':8100,'19':8100,'20':8100,'21':8100,
@@ -1635,7 +1635,7 @@ const HANDLE_CHEF = {
   '29':4150,'30':4150,'31':4150,'32':2450,'33':6950,'34':13950,'35':9950,
   '36':2500,'37':3400,'38':7400,'39':7400,'40':7400,'41':3400
 };
-const HANDLE_STEAK = {
+let HANDLE_STEAK = {
   '01':1370,'02':1370,'03':1165,'04':1520,'05':1520,'06':1845,'07':1845,
   '08':1165,'09':995,'10':995,'11':995,'12':1420,'13':1895,'14':1395,
   '15':2255,'16':2255,'17':2355,'18':2355,'19':2355,'20':2595,'21':2595,
@@ -1656,12 +1656,12 @@ const HANDLE_NAMES = {
   '37':'граб/клен','38':'вулкан','39':'озера','40':'водопад','41':'граб/береза'
 };
 
-const BOLSTER_CHEF = {
+let BOLSTER_CHEF = {
   '01':330,'02':330,'03':1000,'04':3000,'05':1000
 };
 const BOLSTER_NAMES = {'01':'нейзильбер','02':'латунь','03':'мокуме','04':'тимаскус','05':'карбон'};
 
-const INSERT_COSTS = {
+let INSERT_COSTS = {
   '01':2000,'02':2000,'03':2000,'04':2000,'05':2000,'06':2000,'07':2000,
   '08':2000,'09':2000,'10':2000,'11':1000,'12':2000,'13':2000,'14':2000,
   '15':6000,'16':1050
@@ -1674,20 +1674,20 @@ const INSERT_NAMES = {
   '13':'бивень моржа','14':'Мокуме','15':'Тимаскус','16':'искусственная кость'
 };
 
-const SHAPE_COSTS = {
+let SHAPE_COSTS = {
   '03':2500,'04':1300
 };
 const SHAPE_NAMES = {'01':'круг','02':'октагон','03':'евро','04':'крамер'};
 
 // ПИН: листик стоит 240 ₽, без листика — бесплатно
-const PIN_COSTS = { 'листик': 240, 'без листика': 0 };
+let PIN_COSTS = { 'листик': 240, 'без листика': 0 };
 
-const LINER_COSTS = {
+let LINER_COSTS = {
   '01':2000,'02':2000,'03':2000,'04':4000,'05':5000,'06':7000
 };
 const LINER_NAMES = {'01':'латунь','02':'нержавейка','03':'медь','04':'титан','05':'мокуме','06':'тимаскус'};
 
-const VSECHKA_COSTS = {
+let VSECHKA_COSTS = {
   '01':0,'02':0,'03':0,'04':0,'05':0,'06':1000,'07':0,
   '08':0,'09':0,'10':0,'11':0,'12':1000,'13':1000,'14':1000,
   '15':2000,'16':0,'17':0,'18':0,'19':0,'20':3000,'21':3000,
@@ -1695,6 +1695,69 @@ const VSECHKA_COSTS = {
   '29':0,'30':0,'31':0,'32':2000,'33':3000,'34':5000,'35':5000,
   '36':1000
 };
+
+// =============================================
+// ЦЕНЫ ИЗ GOOGLE-ТАБЛИЦЫ
+// Таблица — источник правды: скрипт переносит её в Firebase,
+// сайт забирает оттуда. Значения выше остаются запасным вариантом,
+// если база недоступна или данные не прошли проверку.
+// =============================================
+let pricesUpdatedAt = null;
+
+// Данные должны быть похожи на настоящий прайс, иначе не применяем
+function validPrices(p) {
+  if (!p || typeof p !== 'object') return false;
+  const steel = p.STEEL_COSTS;
+  if (!steel || typeof steel !== 'object') return false;
+  for (const sid of ['01','02','03','04','05','06']) {
+    const t = steel[sid];
+    if (!t || typeof t !== 'object') return false;
+    const vals = Object.values(t).filter(v => typeof v === 'number' && v > 0);
+    if (vals.length < 50) return false;
+  }
+  if (!p.HANDLE_CHEF || Object.keys(p.HANDLE_CHEF).length < 20) return false;
+  return true;
+}
+
+function applyPrices(payload) {
+  const p = payload && payload.data;
+  if (!validPrices(p)) {
+    if (payload) console.warn('Цены из таблицы не прошли проверку — работаем на встроенных');
+    return false;
+  }
+  if (p.STEEL_COSTS)   STEEL_COSTS   = p.STEEL_COSTS;
+  if (p.HANDLE_CHEF)   HANDLE_CHEF   = p.HANDLE_CHEF;
+  if (p.HANDLE_STEAK)  HANDLE_STEAK  = p.HANDLE_STEAK;
+  if (p.BOLSTER_CHEF)  BOLSTER_CHEF  = p.BOLSTER_CHEF;
+  if (p.INSERT_COSTS)  INSERT_COSTS  = p.INSERT_COSTS;
+  if (p.SHAPE_COSTS)   SHAPE_COSTS   = p.SHAPE_COSTS;
+  if (p.LINER_COSTS)   LINER_COSTS   = p.LINER_COSTS;
+  if (p.VSECHKA_COSTS) VSECHKA_COSTS = p.VSECHKA_COSTS;
+  if (p.PIN_COSTS)     PIN_COSTS     = p.PIN_COSTS;
+  pricesUpdatedAt = payload.updatedAt || null;
+  return true;
+}
+
+function renderPriceStamp() {
+  const el = document.getElementById('price-stamp');
+  if (!el) return;
+  if (pricesUpdatedAt) {
+    el.textContent = `Цены из таблицы · обновлены ${pricesUpdatedAt}`;
+    el.style.color = 'var(--muted)';
+  } else {
+    el.textContent = 'Цены встроенные — таблица ещё не подключена';
+    el.style.color = 'var(--accent2)';
+  }
+}
+
+fbDb.ref('prices').on('value', snap => {
+  if (applyPrices(snap.val())) {
+    if (typeof updateAll === 'function') updateAll();
+    if (typeof updateMishaAll === 'function') updateMishaAll();
+  }
+  renderPriceStamp();
+});
+
 const VSECHKA_NAMES = {
   '01':'карел берёза','02':'огненная карел берёза','03':'граб','04':'смолаклен синий',
   '05':'смолаклен красный','06':'аризонка','07':'олива','08':'дуб','09':'падук стейк',

@@ -2525,7 +2525,7 @@ function renderOrders() {
           <div class="fin-value">${o.price ? o.price.toLocaleString('ru')+' ₽' : '—'}</div>
         </div>`}
         <div class="fin-item">
-          <div class="fin-label">Прибыль Лёши</div>
+          <div class="fin-label">Прибыль Алексея</div>
           <div class="fin-value ${profitClass}">${rev ? profit.toLocaleString('ru')+' ₽ ('+margin+'%)' : '—'}</div>
         </div>
         ${o.prepay?`<div class="fin-item"><div class="fin-label">Внесено</div><div class="fin-value">${bal.paid.toLocaleString('ru')} ₽</div></div>`:''}
@@ -2601,7 +2601,7 @@ function showMishaView(v) {
   if (v==='clients') renderMishaClients();
 }
 
-// Прибыль Лёши с заказа
+// Прибыль Алексея с заказа
 function leshaProfit(o) {
   if (o.createdBy !== 'misha') return o.price - o.cost;
   const lp = o.leshaPrice || 0;

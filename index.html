@@ -3639,7 +3639,7 @@ function whAddStock(id) {
   if (!amount) return;
   item.qty = (item.qty || 0) + amount;
   whSaveItems();
-  whLogHistory(id, item, amount, 'Лёша', '');
+  whLogHistory(id, item, amount, 'Алексей', '');
   whRenderFull();
 }
 
@@ -3656,7 +3656,7 @@ function whRemoveStock(id) {
   }
   item.qty = Math.max(0, (item.qty || 0) - amount);
   whSaveItems();
-  whLogHistory(id, item, -amount, 'Лёша', '');
+  whLogHistory(id, item, -amount, 'Алексей', '');
   whRenderFull();
 }
 

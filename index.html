@@ -2913,7 +2913,7 @@ function updateMishaMargin() {
   const isSteak = STEAK_MODELS.includes(modelId);
   const box = document.getElementById('m-cost-box');
   const leshaPrice = box?._leshaPrice || 0;
-  // Стейк: прибыль делится 50/50 от суммы выше leshaPrice. Шеф: вся разница Мише
+  // Стейк: прибыль делится 50/50 от суммы выше leshaPrice. Шеф: вся разница Михаилу
   const mishaProfit = isSteak
     ? Math.max(0, price - leshaPrice) / 2
     : price - leshaPrice;

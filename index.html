@@ -1405,7 +1405,7 @@
       </div>
       <div class="misha-cost-box" id="m-cost-box" style="display:none">
         <div>
-          <div class="misha-cost-label">Цена от Лёши</div>
+          <div class="misha-cost-label">Цена от Алексея</div>
         </div>
         <div class="misha-cost-value" id="m-cost-display">—</div>
       </div>
@@ -3116,7 +3116,7 @@ function renderMishaOrders() {
       ${o.accessories&&Object.keys(o.accessories).length?`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">+ ${Object.entries(o.accessories).map(([id,q])=>ACCESSORIES[id]?`${ACCESSORIES[id].name}${q>1?' ×'+q:''}`:id).join(', ')}</div>`:''}
       ${o.cost?`<div class="order-financials">
         <div class="fin-item">
-          <div class="fin-label">Цена от Лёши</div>
+          <div class="fin-label">Цена от Алексея</div>
           <div class="fin-value">${lp.toLocaleString('ru')} ₽</div>
         </div>
         ${o.price?`<div class="fin-item">

@@ -2041,6 +2041,7 @@ function updateAll() {
   toggleRow('cr-liner', !!linerId, 'c-liner', linerCost);
   toggleRow('cr-vsechka', !!vsechkaId, 'c-vsechka', vsechkaCost);
   toggleRow('cr-shape', !!shapeCost, 'c-shape', shapeCost);
+  toggleRow('cr-pin', !!pinCost, 'c-pin', pinCost);
   toggleRow('cr-qty', qty > 1, 'c-qty', qty);
   if (qty > 1) document.getElementById('c-qty').textContent = `×${qty}`;
   toggleRow('cr-acc', accCost > 0, 'c-acc', accCost);

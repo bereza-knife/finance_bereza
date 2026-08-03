@@ -1751,14 +1751,6 @@ function renderPriceStamp() {
   }
 }
 
-fbDb.ref('prices').on('value', snap => {
-  if (applyPrices(snap.val())) {
-    if (typeof updateAll === 'function') updateAll();
-    if (typeof updateMishaAll === 'function') updateMishaAll();
-  }
-  renderPriceStamp();
-});
-
 const VSECHKA_NAMES = {
   '01':'карел берёза','02':'огненная карел берёза','03':'граб','04':'смолаклен синий',
   '05':'смолаклен красный','06':'аризонка','07':'олива','08':'дуб','09':'падук стейк',

@@ -2185,6 +2185,15 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const fbDb = firebase.database();
 
+// Цены из Google-таблицы (см. блок «ЦЕНЫ ИЗ GOOGLE-ТАБЛИЦЫ» выше)
+fbDb.ref('prices').on('value', snap => {
+  if (applyPrices(snap.val())) {
+    if (typeof updateAll === 'function') updateAll();
+    if (typeof updateMishaAll === 'function') updateMishaAll();
+  }
+  renderPriceStamp();
+});
+
 // =============================================
 // ORDERS
 // =============================================

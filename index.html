@@ -2884,7 +2884,7 @@ function updateMishaAll() {
   document.getElementById('m-artikul-display').textContent = parts.join('/');
 
   // Cost
-  let bladeCost=0, handleCost=0, bolsterCost=0, insertCost=0, linerCost=0, vsechkaCost=0, shapeCost=0;
+  let bladeCost=0, handleCost=0, bolsterCost=0, insertCost=0, linerCost=0, vsechkaCost=0, shapeCost=0, pinCost=0;
   const valid = modelId && steelId && handleId;
   if (valid) {
     const st = STEEL_COSTS[steelId];
@@ -2896,9 +2896,10 @@ function updateMishaAll() {
     if (linerId)   linerCost   = LINER_COSTS[linerId]||0;
     if (vsechkaId) vsechkaCost = VSECHKA_COSTS[vsechkaId]||0;
     if (shapeId && SHAPE_COSTS[shapeId]) shapeCost = SHAPE_COSTS[shapeId];
+    pinCost = PIN_COSTS[document.getElementById('m-pin').value] || 0;
   }
   const qty = Math.max(1, +document.getElementById('m-qty')?.value || 1);
-  const knifeUnit = bladeCost + handleCost + bolsterCost + insertCost + linerCost + vsechkaCost + shapeCost;
+  const knifeUnit = bladeCost + handleCost + bolsterCost + insertCost + linerCost + vsechkaCost + shapeCost + pinCost;
   const accCost   = getAccCost('m');
   mishaCost = knifeUnit * qty + accCost;
 

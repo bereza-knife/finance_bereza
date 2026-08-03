@@ -3593,7 +3593,7 @@ function whAddItem() {
   const item = { name, artikul, category, unit, qty, min };
   whItems[id] = item;
   whSaveItems();
-  if (qty > 0) whLogHistory(id, item, qty, 'Лёша (первичный приход)', '');
+  if (qty > 0) whLogHistory(id, item, qty, 'Алексей (первичный приход)', '');
   whClearForm();
   whRenderFull();
 }

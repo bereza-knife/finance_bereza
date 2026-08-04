@@ -2462,7 +2462,8 @@ function cancelEdit() {
   document.getElementById('f-channel').value = '';
   resetAcc('f');
   currentCost = 0;
-  priceIsAuto = true;                // новая форма — снова подставляем рекомендованную
+  priceIsAuto = true;                // новая форма — снова подставляем рекомендованные
+  retailIsAuto = true;
   updateAll();
   syncFolds(true);
   markFormClean('f');

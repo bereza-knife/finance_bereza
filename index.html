@@ -2131,19 +2131,19 @@ let priceIsAuto = true;   // true — в поле подставленная ц�
 function renderPriceHint(isSteak) {
   const hint = document.getElementById('f-price-hint');
   const rec  = document.getElementById('f-price-rec');
-  const priceEl = document.getElementById('f-price');
-  if (!hint || !rec || !priceEl) return;
+  const lpEl = document.getElementById('f-lesha-price');
+  if (!hint || !rec || !lpEl) return;
 
   if (!recommendedPrice) { hint.style.display = 'none'; return; }
 
-  // Пока цену не трогали руками — держим её равной рекомендованной
+  // Пока цену не трогали руками — держим её равной прайсовой
   if (priceIsAuto) {
-    priceEl.value = recommendedPrice;
+    lpEl.value = recommendedPrice;
   }
 
   hint.style.display = 'block';
-  const note = isSteak ? 'прайс для Михаила, стейк' : 'прайс для Михаила';
-  rec.textContent = `Рекомендуется ${recommendedPrice.toLocaleString('ru')} ₽ — ${note}`;
+  const note = isSteak ? 'по прайсу, стейк — прибыль 50/50' : 'по прайсу';
+  rec.textContent = `${recommendedPrice.toLocaleString('ru')} ₽ ${note}`;
 }
 
 // Пользователь правит цену руками — больше не перезаписываем

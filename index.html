@@ -2481,7 +2481,7 @@ function saveOrder() {
   showToast(`Заказ №${order.id} создан`);
 
   // Reset
-  ['f-client','f-phone','f-tg','f-price','f-prepay','f-note',
+  ['f-client','f-phone','f-tg','f-price','f-lesha-price','f-prepay','f-note',
    'f-engraving','f-pin','f-extra-price','f-commission','f-final-pay',
    'f-prepay-date','f-final-date'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   ['f-model','f-steel','f-handle','f-shape','f-bolster','f-insert','f-liner','f-vsechka','f-channel'].forEach(id => document.getElementById(id).value = '');

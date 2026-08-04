@@ -2184,7 +2184,11 @@ function renderRetailHint() {
   const el   = document.getElementById('f-price');
   if (!hint || !rec || !el) return;
 
-  if (!recommendedRetail) { hint.style.display = 'none'; return; }
+  if (!recommendedRetail) {
+    hint.style.display = 'none';
+    if (retailIsAuto) el.value = '';   // для стейков розницы в прайсе нет
+    return;
+  }
 
   if (retailIsAuto) el.value = recommendedRetail;
 

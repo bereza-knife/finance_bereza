@@ -2107,6 +2107,49 @@ function updateAll() {
   toggleRow('cr-acc', accCost > 0, 'c-acc', accCost);
 
   document.getElementById('c-total').textContent = currentCost ? fmt(currentCost) : '—';
+
+  // Рекомендуемая цена — та же, по которой Алексей отдаёт нож Михаилу
+  const isSteakModel = STEAK_MODELS.includes(modelId);
+  recommendedPrice = valid
+    ? getLeshaKnifePrice(knifeUnitCost, modelId, steelId, isSteakModel) * qty + accCost
+    : 0;
+  renderPriceHint(isSteakModel);
+
+  updateMargin();
+}
+
+// ==== Рекомендуемая цена продажи ====
+let recommendedPrice = 0;
+let priceIsAuto = true;   // true — в поле подставленная цена, её можно обновлять
+
+function renderPriceHint(isSteak) {
+  const hint = document.getElementById('f-price-hint');
+  const rec  = document.getElementById('f-price-rec');
+  const priceEl = document.getElementById('f-price');
+  if (!hint || !rec || !priceEl) return;
+
+  if (!recommendedPrice) { hint.style.display = 'none'; return; }
+
+  // Пока цену не трогали руками — держим её равной рекомендованной
+  if (priceIsAuto) {
+    priceEl.value = recommendedPrice;
+  }
+
+  hint.style.display = 'block';
+  const note = isSteak ? 'прайс для Михаила, стейк' : 'прайс для Михаила';
+  rec.textContent = `Рекомендуется ${recommendedPrice.toLocaleString('ru')} ₽ — ${note}`;
+}
+
+// Пользователь правит цену руками — больше не перезаписываем
+function onPriceEdited() {
+  priceIsAuto = false;
+  updateMargin();
+}
+
+function applyRecommendedPrice() {
+  if (!recommendedPrice) return;
+  document.getElementById('f-price').value = recommendedPrice;
+  priceIsAuto = true;
   updateMargin();
 }
 

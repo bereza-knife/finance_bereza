@@ -2692,8 +2692,8 @@ function renderOrders() {
   // Stats
   const paid = orders.filter(o => o.status === 'paid');
   document.getElementById('stat-count').textContent = orders.length;
-  document.getElementById('stat-revenue').textContent = (paid.reduce((s,o)=>s+o.price,0)).toLocaleString('ru') + ' ₽';
-  document.getElementById('stat-profit').textContent = (paid.reduce((s,o)=>s+(o.price-o.cost),0)).toLocaleString('ru') + ' ₽';
+  document.getElementById('stat-revenue').textContent = (paid.reduce((s,o)=>s+leshaRevenue(o),0)).toLocaleString('ru') + ' ₽';
+  document.getElementById('stat-profit').textContent = (paid.reduce((s,o)=>s+leshaProfit(o),0)).toLocaleString('ru') + ' ₽';
   const avg = paid.length ? Math.round(paid.reduce((s,o)=>s+o.price,0)/paid.length) : 0;
   document.getElementById('stat-avg').textContent = avg.toLocaleString('ru') + ' ₽';
 

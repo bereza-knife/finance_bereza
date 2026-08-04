@@ -2779,11 +2779,12 @@ function renderOrders() {
 // EXPORT CSV
 // =============================================
 function exportCSV() {
-  const headers = ['№','Дата','Клиент','Артикул','Себестоимость','Цена','Прибыль','Маржа%','Статус','Примечание'];
+  const headers = ['№','Дата','Клиент','Артикул','Себестоимость','Цена для Михаила','Цена продажи','Прибыль Алексея','Маржа%','Статус','Примечание'];
   const rows = orders.map(o => {
-    const profit = o.price - o.cost;
-    const margin = o.price ? Math.round(profit/o.price*100) : 0;
-    return [o.id, o.date, o.client, o.artikul, o.cost, o.price, profit, margin+'%', STATUS_LABELS[o.status], o.note||''];
+    const profit = leshaProfit(o);
+    const rev = leshaRevenue(o);
+    const margin = rev ? Math.round(profit/rev*100) : 0;
+    return [o.id, o.date, o.client, o.artikul, o.cost, orderLeshaPrice(o), o.price, profit, margin+'%', STATUS_LABELS[o.status], o.note||''];
   });
   const csv = [headers, ...rows].map(r => r.join(';')).join('\n');
   const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8'});

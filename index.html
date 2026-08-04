@@ -2737,13 +2737,17 @@ function renderOrders() {
           <div class="fin-label">Себестоимость</div>
           <div class="fin-value">${o.cost.toLocaleString('ru')} ₽</div>
         </div>
-        ${isMisha ? `
         <div class="fin-item">
           <div class="fin-label">Цена Михаилу</div>
-          <div class="fin-value">${(o.leshaPrice||0).toLocaleString('ru')} ₽</div>
-        </div>` : `
+          <div class="fin-value">${orderLeshaPrice(o) ? orderLeshaPrice(o).toLocaleString('ru')+' ₽' : '—'}</div>
+        </div>
+        ${!isMisha ? `
         <div class="fin-item">
           <div class="fin-label">Цена продажи</div>
+          <div class="fin-value">${o.price ? o.price.toLocaleString('ru')+' ₽' : '—'}</div>
+        </div>` : `
+        <div class="fin-item">
+          <div class="fin-label">Продал Михаил</div>
           <div class="fin-value">${o.price ? o.price.toLocaleString('ru')+' ₽' : '—'}</div>
         </div>`}
         <div class="fin-item">

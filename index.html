@@ -2378,6 +2378,9 @@ function editOrder(id) {
   document.querySelector('#app-lesha .panel-form').scrollTo({ top: 0, behavior: 'smooth' });
   showView('orders');
   syncFolds(true);   // раскрыть блоки, где есть данные
+  priceIsAuto = false;               // у заказа своя цена — не подменяем
+  document.getElementById('f-price').value = o.price || '';
+  updateMargin();
   markFormClean('f');
 }
 

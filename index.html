@@ -2777,10 +2777,11 @@ function leshaProfit(o) {
   return base;
 }
 
+// Выручка Алексея: то, что реально доходит до него
 function leshaRevenue(o) {
-  if (o.createdBy !== 'misha') return o.price;
-  const lp = o.leshaPrice || 0;
-  if (o.isSteak) return Math.round(lp + Math.max(0, o.price - lp) * 0.5);
+  const lp = orderLeshaPrice(o);
+  if (!lp) return o.price || 0;
+  if (isSteakOrder(o)) return Math.round(lp + Math.max(0, (o.price || 0) - lp) * 0.5);
   return lp;
 }
 

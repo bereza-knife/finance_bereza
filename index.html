@@ -2146,15 +2146,15 @@ function renderPriceHint(isSteak) {
   rec.textContent = `${recommendedPrice.toLocaleString('ru')} ₽ ${note}`;
 }
 
-// Пользователь правит цену руками — больше не перезаписываем
-function onPriceEdited() {
+// Цену для Михаила поправили руками — больше не перезаписываем из прайса
+function onLeshaPriceEdited() {
   priceIsAuto = false;
   updateMargin();
 }
 
 function applyRecommendedPrice() {
   if (!recommendedPrice) return;
-  document.getElementById('f-price').value = recommendedPrice;
+  document.getElementById('f-lesha-price').value = recommendedPrice;
   priceIsAuto = true;
   updateMargin();
 }

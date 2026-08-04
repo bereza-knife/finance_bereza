@@ -2216,11 +2216,22 @@ function applyRecommendedPrice() {
 
 function updateMargin() {
   const price = +document.getElementById('f-price').value || 0;
+  const lp    = +document.getElementById('f-lesha-price').value || 0;
   const el = document.getElementById('margin-display');
-  if (!price || !currentCost) { el.textContent = '—'; el.className = ''; }
+
+  // Считаем так же, как в карточке заказа: шеф — наценка до цены Михаила,
+  // стейк — плюс половина того, что наторговали сверху
+  if (!currentCost || (!price && !lp)) { el.textContent = '—'; el.className = ''; }
   else {
-    const profit = price - currentCost;
-    const pct = Math.round(profit / price * 100);
+    const modelId = +document.getElementById('f-model').value || 0;
+    const profit = leshaProfit({
+      modelId, steelId: document.getElementById('f-steel').value,
+      cost: currentCost, price, leshaPrice: lp,
+      qty: Math.max(1, +document.getElementById('f-qty').value || 1),
+      accCost: getAccCost('f')
+    });
+    const base = lp || price;
+    const pct = base ? Math.round(profit / base * 100) : 0;
     el.textContent = `${profit.toLocaleString('ru')} ₽ (${pct}%)`;
     el.className = pct >= 60 ? 'margin-good' : pct >= 40 ? 'margin-ok' : 'margin-bad';
   }

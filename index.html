@@ -2442,6 +2442,7 @@ function editOrder(id) {
   syncFolds(true);   // раскрыть блоки, где есть данные
   // У сохранённого заказа свои цены — из прайса не подменяем
   priceIsAuto = false;
+  retailIsAuto = false;
   document.getElementById('f-price').value       = o.price || '';
   document.getElementById('f-lesha-price').value = o.leshaPrice || '';
   updateMargin();

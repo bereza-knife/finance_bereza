@@ -2048,7 +2048,7 @@ function updateSetPrice(prefix) {
   if (!price) return;
   const priceEl = document.getElementById(prefix === 'f' ? 'f-price' : 'm-price');
   if (priceEl) { priceEl.value = price; }
-  if (prefix === 'f') { priceIsAuto = false; updateMargin(); } else updateMishaMargin();
+  if (prefix === 'f') { retailIsAuto = false; updateMargin(); } else updateMishaMargin();
 }
 
 function initSetSelects(prefix) {

@@ -2715,8 +2715,8 @@ function renderOrders() {
 
   list.innerHTML = filtered.map(o => {
     const isMisha = o.createdBy === 'misha';
-    const profit = isMisha ? leshaProfit(o) : o.price - o.cost;
-    const rev    = isMisha ? leshaRevenue(o) : o.price;
+    const profit = leshaProfit(o);
+    const rev    = leshaRevenue(o);
     const margin = rev ? Math.round(profit/rev*100) : 0;
     const profitClass = profit > 0 ? 'profit' : 'loss';
     const bal = orderBalance(o);

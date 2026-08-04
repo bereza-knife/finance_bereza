@@ -2747,14 +2747,34 @@ function showMishaView(v) {
 }
 
 // Прибыль Алексея с заказа
+// Стейк определяем по модели — надёжнее сохранённого флага
+function isSteakOrder(o) {
+  if (typeof o.isSteak === 'boolean') return o.isSteak;
+  return STEAK_MODELS.includes(o.modelId);
+}
+
+// Цена для Михаила: сохранённая в заказе или восстановленная из прайса
+// (у заказов, созданных до появления этого поля, его нет)
+function orderLeshaPrice(o) {
+  if (o.leshaPrice) return o.leshaPrice;
+  if (!o.modelId || !o.steelId) return 0;
+  const qty = o.qty || 1;
+  const accCost = o.accCost || 0;
+  const knifeUnit = Math.max(0, ((o.cost || 0) - accCost) / qty);
+  if (!knifeUnit) return 0;
+  return getLeshaKnifePrice(knifeUnit, o.modelId, o.steelId, isSteakOrder(o)) * qty + accCost;
+}
+
+// Заработок Алексея: шеф — наценка до цены Михаила;
+// стейк — та же наценка плюс половина того, что наторговали сверху
 function leshaProfit(o) {
-  if (o.createdBy !== 'misha') return o.price - o.cost;
-  const lp = o.leshaPrice || 0;
-  if (o.isSteak) {
-    return Math.round((lp - o.cost) + Math.max(0, o.price - lp) * 0.5);
-  } else {
-    return lp - o.cost;
+  const lp = orderLeshaPrice(o);
+  if (!lp) return (o.price || 0) - (o.cost || 0);   // данных не хватает — считаем как раньше
+  const base = lp - (o.cost || 0);
+  if (isSteakOrder(o)) {
+    return Math.round(base + Math.max(0, (o.price || 0) - lp) * 0.5);
   }
+  return base;
 }
 
 function leshaRevenue(o) {

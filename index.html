@@ -2162,7 +2162,11 @@ function renderPriceHint(isSteak) {
   const lpEl = document.getElementById('f-lesha-price');
   if (!hint || !rec || !lpEl) return;
 
-  if (!recommendedPrice) { hint.style.display = 'none'; return; }
+  if (!recommendedPrice) {
+    hint.style.display = 'none';
+    if (priceIsAuto) lpEl.value = '';   // не оставляем цену от прошлого ножа
+    return;
+  }
 
   // Пока цену не трогали руками — держим её равной прайсовой
   if (priceIsAuto) {

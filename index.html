@@ -2144,9 +2144,11 @@ function updateAll() {
   updateMargin();
 }
 
-// ==== Рекомендуемая цена продажи ====
-let recommendedPrice = 0;
-let priceIsAuto = true;   // true — в поле подставленная цена, её можно обновлять
+// ==== Рекомендованные цены ====
+let recommendedPrice = 0;   // цена для Михаила (прайс дилера)
+let recommendedRetail = 0;  // цена продажи (розница)
+let priceIsAuto = true;     // цену для Михаила ещё не трогали руками
+let retailIsAuto = true;    // цену продажи ещё не трогали руками
 
 function renderPriceHint(isSteak) {
   const hint = document.getElementById('f-price-hint');
@@ -2166,9 +2168,36 @@ function renderPriceHint(isSteak) {
   rec.textContent = `${recommendedPrice.toLocaleString('ru')} ₽ ${note}`;
 }
 
+function renderRetailHint() {
+  const hint = document.getElementById('f-retail-hint');
+  const rec  = document.getElementById('f-retail-rec');
+  const el   = document.getElementById('f-price');
+  if (!hint || !rec || !el) return;
+
+  if (!recommendedRetail) { hint.style.display = 'none'; return; }
+
+  if (retailIsAuto) el.value = recommendedRetail;
+
+  hint.style.display = 'block';
+  rec.textContent = `${recommendedRetail.toLocaleString('ru')} ₽ рекомендованная розница`;
+}
+
 // Цену для Михаила поправили руками — больше не перезаписываем из прайса
 function onLeshaPriceEdited() {
   priceIsAuto = false;
+  updateMargin();
+}
+
+// Цену продажи поправили руками — больше не подставляем
+function onRetailPriceEdited() {
+  retailIsAuto = false;
+  updateMargin();
+}
+
+function applyRetailPrice() {
+  if (!recommendedRetail) return;
+  document.getElementById('f-price').value = recommendedRetail;
+  retailIsAuto = true;
   updateMargin();
 }
 

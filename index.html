@@ -2141,6 +2141,12 @@ function updateAll() {
     : 0;
   renderPriceHint(isSteakModel);
 
+  // Рекомендованная розница — из прайса продаж (есть только для шеф-ножей)
+  const retailUnit = (valid && !isSteakModel && RETAIL_PRICE[steelId])
+    ? (RETAIL_PRICE[steelId][modelId] || 0) : 0;
+  recommendedRetail = retailUnit ? retailUnit * qty : 0;
+  renderRetailHint();
+
   updateMargin();
 }
 

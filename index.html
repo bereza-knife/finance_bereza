@@ -2553,7 +2553,8 @@ function saveOrder() {
   document.getElementById('c-handle').textContent = '—';
   document.getElementById('margin-display').textContent = '—';
   currentCost = 0;
-  priceIsAuto = true;                // после создания — снова подставляем рекомендованную
+  priceIsAuto = true;                // после создания — снова подставляем рекомендованные
+  retailIsAuto = true;
   syncFolds(true);
   markFormClean('f');
 }

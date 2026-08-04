@@ -996,14 +996,20 @@
         </div>
       </div>
 
+      <!-- Цена, по которой изделие уходит Михаилу — подставляется из прайса -->
+      <div class="form-group">
+        <label class="form-label">Цена для Михаила (₽)</label>
+        <input class="form-control" id="f-lesha-price" type="number" placeholder="0" oninput="onLeshaPriceEdited()">
+        <div id="f-price-hint" style="display:none;font-size:9px;letter-spacing:1px;color:var(--muted);margin-top:5px;">
+          <span id="f-price-rec"></span>
+          <span onclick="applyRecommendedPrice()" style="color:var(--accent);cursor:pointer;text-decoration:underline;margin-left:6px;">подставить</span>
+        </div>
+      </div>
+
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Цена продажи (₽)</label>
-          <input class="form-control" id="f-price" type="number" placeholder="0" oninput="onPriceEdited()">
-          <div id="f-price-hint" style="display:none;font-size:9px;letter-spacing:1px;color:var(--muted);margin-top:5px;">
-            <span id="f-price-rec"></span>
-            <span onclick="applyRecommendedPrice()" style="color:var(--accent);cursor:pointer;text-decoration:underline;margin-left:6px;">подставить</span>
-          </div>
+          <input class="form-control" id="f-price" type="number" placeholder="0" oninput="updateMargin()">
         </div>
         <div class="form-group">
           <label class="form-label">Предоплата (₽)</label>

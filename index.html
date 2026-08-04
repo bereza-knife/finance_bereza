@@ -2440,6 +2440,7 @@ function saveOrder() {
     accessories: getAccData('f'),
     accCost:    getAccCost('f'),
     artikul, cost: currentCost, price, prepay,
+    leshaPrice: +document.getElementById('f-lesha-price').value || 0,
     channel:    document.getElementById('f-channel').value,
     engraving:  +document.getElementById('f-engraving').value || 0,
     pin:        document.getElementById('f-pin').value || '',

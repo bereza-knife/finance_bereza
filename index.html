@@ -1999,7 +1999,7 @@ function getAccCost(prefix) {
   Object.keys(ACCESSORIES).forEach(id => {
     const cb = document.getElementById(prefix + '-acc-' + id);
     if (cb && cb.checked) {
-      const qty = +(document.getElementById(prefix + '-acc-qty-' + id)?.value || 1);
+      const qty = Math.max(1, Math.round(+document.getElementById(prefix + '-acc-qty-' + id)?.value) || 1);
       total += ACCESSORIES[id].cost * qty;
     }
   });
@@ -2011,7 +2011,7 @@ function getAccData(prefix) {
   Object.keys(ACCESSORIES).forEach(id => {
     const cb = document.getElementById(prefix + '-acc-' + id);
     if (cb && cb.checked)
-      data[id] = +(document.getElementById(prefix + '-acc-qty-' + id)?.value || 1);
+      data[id] = Math.max(1, Math.round(+document.getElementById(prefix + '-acc-qty-' + id)?.value) || 1);
   });
   return data;
 }
@@ -2107,11 +2107,11 @@ function updateAll() {
     pinCost = PIN_COSTS[document.getElementById('f-pin').value] || 0;
   }
 
-  const qty = Math.max(1, +document.getElementById('f-qty')?.value || 1);
+  const qty = Math.max(1, Math.round(+document.getElementById('f-qty')?.value) || 1);
   const knifeUnitCost = bladeCost + handleCost + bolsterCost + insertCost + linerCost + vsechkaCost + shapeCost + pinCost;
   const knifeTotalCost = knifeUnitCost * qty;
   const accCost = getAccCost('f');
-  currentCost = knifeTotalCost + accCost;
+  currentCost = Math.round(knifeTotalCost + accCost);
 
   const fmt = v => v.toLocaleString('ru') + ' ₽';
 
@@ -2235,7 +2235,7 @@ function updateMargin() {
     const profit = leshaProfit({
       modelId, steelId: document.getElementById('f-steel').value,
       cost: currentCost, price, leshaPrice: lp,
-      qty: Math.max(1, +document.getElementById('f-qty').value || 1),
+      qty: Math.max(1, Math.round(+document.getElementById('f-qty').value) || 1),
       accCost: getAccCost('f')
     });
     const base = lp || price;
@@ -2273,29 +2273,8 @@ function updateDueDisplay(prefix) {
 // =============================================
 // GOOGLE SHEETS SYNC
 // =============================================
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyHcZNRKdFQyUFEIwi64QLSrifbTOHM2fYQMhBglM8Unb8gzHUjo8SFr2ZfD9TlvYiL/exec';
-
-function syncToSheets(order) {
-  const accCostTotal = Object.entries(order.accessories || {}).reduce((sum, [id, qty]) => {
-    return sum + (ACCESSORIES[id] ? ACCESSORIES[id].cost * qty : 0);
-  }, 0);
-  const accText = Object.entries(order.accessories || {})
-    .map(([id, q]) => ACCESSORIES[id] ? `${ACCESSORIES[id].name}${q > 1 ? ' ×' + q : ''}` : id)
-    .join(', ');
-
-  const payload = {
-    ...order,
-    accCost: accCostTotal,
-    accessoriesText: accText,
-    shapeName: SHAPE_NAMES[order.shapeId] || '',
-  };
-
-  fetch(SHEETS_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    body: new URLSearchParams({ data: JSON.stringify(payload) })
-  }).catch(e => console.warn('Sheets sync:', e));
-}
+// Заказы уезжают в Google-таблицу не отсюда: скрипт в самой таблице
+// читает их из Firebase раз в 5 минут (функция syncFromFirebase).
 
 // =============================================
 // FIREBASE
@@ -2389,7 +2368,8 @@ function logOrder(action, order, details) {
 const FIELD_LABELS = {
   client:'Клиент', phone:'Телефон', tg:'Telegram',
   modelName:'Модель', steelName:'Сталь', handleName:'Материал ручки',
-  price:'Цена продажи', prepay:'Предоплата', finalPay:'Фин. оплата',
+  price:'Цена продажи', leshaPrice:'Цена для Михаила',
+  prepay:'Предоплата', finalPay:'Фин. оплата',
   extraPrice:'Надбавка', commission:'Комиссия', engraving:'Гравировка',
   cost:'Себестоимость', qty:'Количество', channel:'Канал продаж',
   note:'Примечание', pin:'ПИН', artikul:'Артикул',
@@ -2515,7 +2495,7 @@ function saveOrder() {
     linerId:   document.getElementById('f-liner').value,
     vsechkaId: document.getElementById('f-vsechka').value,
     shapeId:   document.getElementById('f-shape').value,
-    qty:        Math.max(1, +document.getElementById('f-qty').value || 1),
+    qty:        Math.max(1, Math.round(+document.getElementById('f-qty').value) || 1),
     accessories: getAccData('f'),
     accCost:    getAccCost('f'),
     artikul, cost: currentCost, price, prepay,
@@ -2586,7 +2566,6 @@ function saveOrders(syncOrder) {
   fbDb.ref('counter').set(orderCounter);
   localStorage.setItem('bn_orders', JSON.stringify(orders));
   localStorage.setItem('bn_counter', orderCounter);
-  if (syncOrder) syncToSheets(syncOrder);
 }
 
 // paid — финальный статус, дальше цепочка не идёт (защита от случайного сброса)
@@ -3134,10 +3113,10 @@ function updateMishaAll() {
     if (shapeId && SHAPE_COSTS[shapeId]) shapeCost = SHAPE_COSTS[shapeId];
     pinCost = PIN_COSTS[document.getElementById('m-pin').value] || 0;
   }
-  const qty = Math.max(1, +document.getElementById('m-qty')?.value || 1);
+  const qty = Math.max(1, Math.round(+document.getElementById('m-qty')?.value) || 1);
   const knifeUnit = bladeCost + handleCost + bolsterCost + insertCost + linerCost + vsechkaCost + shapeCost + pinCost;
   const accCost   = getAccCost('m');
-  mishaCost = knifeUnit * qty + accCost;
+  mishaCost = Math.round(knifeUnit * qty + accCost);
 
   const box = document.getElementById('m-cost-box');
   const isSteak = STEAK_MODELS.includes(modelId);
@@ -3270,7 +3249,7 @@ function saveMishaOrder() {
     linerId:   document.getElementById('m-liner').value,
     vsechkaId: document.getElementById('m-vsechka').value,
     shapeId:   document.getElementById('m-shape').value,
-    qty:        Math.max(1, +document.getElementById('m-qty').value || 1),
+    qty:        Math.max(1, Math.round(+document.getElementById('m-qty').value) || 1),
     accessories: getAccData('m'),
     accCost:    getAccCost('m'),
     artikul, cost: mishaCost,

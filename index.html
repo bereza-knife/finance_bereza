@@ -3346,9 +3346,9 @@ function renderMishaOrders() {
   if (!list) return;
   if (!filtered.length) { list.innerHTML = '<div class="empty-state"><div class="icon">◇</div>Заказов нет</div>'; return; }
   list.innerHTML = filtered.map(o => {
-    const lp = o.leshaPrice || 0;
+    const lp = orderLeshaPrice(o);
     const mishaProfit = o.price
-      ? (o.isSteak ? Math.max(0, o.price - lp) / 2 : o.price - lp)
+      ? (isSteakOrder(o) ? Math.max(0, o.price - lp) / 2 : o.price - lp)
       : 0;
     const mishaPct = o.price ? Math.round(mishaProfit / o.price * 100) : 0;
     const profitCls = mishaPct >= 40 ? 'profit' : mishaPct >= 20 ? '' : 'loss';

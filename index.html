@@ -2520,6 +2520,7 @@ function saveOrder() {
     accCost:    getAccCost('f'),
     artikul, cost: currentCost, price, prepay,
     leshaPrice: +document.getElementById('f-lesha-price').value || 0,
+    isSteak:    STEAK_MODELS.includes(modelId),
     channel:    document.getElementById('f-channel').value,
     engraving:  +document.getElementById('f-engraving').value || 0,
     pin:        document.getElementById('f-pin').value || '',

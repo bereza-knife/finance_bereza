@@ -4207,7 +4207,7 @@ function checkPin() {
       if (code === 'auth/too-many-requests') msg = 'Слишком много попыток — подождите пару минут';
       else if (code === 'auth/network-request-failed') msg = 'Нет связи с сервером';
       else if (code === 'auth/user-not-found' || code === 'auth/invalid-credential' || code === 'auth/wrong-password') msg = 'Неверный PIN';
-      else if (code === 'auth/operation-not-allowed') msg = 'Вход не настроен в Firebase';
+      else if (code === 'auth/operation-not-allowed' || code === 'auth/configuration-not-found') msg = 'Вход ещё не включён в Firebase';
       else msg = 'Ошибка входа: ' + code;
       document.getElementById('pin-error').textContent = msg;
       document.getElementById('pin-label').textContent = 'Введите PIN';

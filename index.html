@@ -754,6 +754,8 @@
       <div class="pin-dot" id="dot-1"></div>
       <div class="pin-dot" id="dot-2"></div>
       <div class="pin-dot" id="dot-3"></div>
+      <div class="pin-dot" id="dot-4"></div>
+      <div class="pin-dot" id="dot-5"></div>
     </div>
     <div class="pin-keypad">
       <button class="pin-key" onclick="pinInput('1')">1</button>
@@ -2293,13 +2295,15 @@ firebase.initializeApp(firebaseConfig);
 const fbDb = firebase.database();
 
 // Цены из Google-таблицы (см. блок «ЦЕНЫ ИЗ GOOGLE-ТАБЛИЦЫ» выше)
-fbDb.ref('prices').on('value', snap => {
-  if (applyPrices(snap.val())) {
-    if (typeof updateAll === 'function') updateAll();
-    if (typeof updateMishaAll === 'function') updateMishaAll();
-  }
-  renderPriceStamp();
-});
+function listenPrices() {
+  fbDb.ref('prices').on('value', snap => {
+    if (applyPrices(snap.val())) {
+      if (typeof updateAll === 'function') updateAll();
+      if (typeof updateMishaAll === 'function') updateMishaAll();
+    }
+    renderPriceStamp();
+  });
+}
 
 // =============================================
 // ORDERS
@@ -2309,20 +2313,24 @@ let orders = JSON.parse(localStorage.getItem('bn_orders') || '[]');
 let orderCounter = +localStorage.getItem('bn_counter') || 1;
 
 // Реальный-тайм синк: любое изменение с любого устройства → обновляет UI
-fbDb.ref('orders').on('value', snap => {
-  const data = snap.val();
-  orders = data ? Object.values(data).sort((a,b) => b.id - a.id) : [];
-  localStorage.setItem('bn_orders', JSON.stringify(orders));
-  renderOrders();
-  renderMishaOrders();
-});
-fbDb.ref('counter').on('value', snap => {
-  const val = snap.val();
-  if (val && val > orderCounter) {
-    orderCounter = val;
-    localStorage.setItem('bn_counter', orderCounter);
-  }
-});
+function listenOrders() {
+  fbDb.ref('orders').on('value', snap => {
+    const data = snap.val();
+    orders = data ? Object.values(data).sort((a,b) => b.id - a.id) : [];
+    localStorage.setItem('bn_orders', JSON.stringify(orders));
+    renderOrders();
+    renderMishaOrders();
+  });
+}
+function listenCounter() {
+  fbDb.ref('counter').on('value', snap => {
+    const val = snap.val();
+    if (val && val > orderCounter) {
+      orderCounter = val;
+      localStorage.setItem('bn_counter', orderCounter);
+    }
+  });
+}
 
 // =============================================
 // КОРЗИНА И ЖУРНАЛ ИЗМЕНЕНИЙ ЗАКАЗОВ
@@ -2330,19 +2338,23 @@ fbDb.ref('counter').on('value', snap => {
 let deletedOrders = [];   // удалённые заказы (можно восстановить)
 let orderLog = [];        // журнал всех действий с заказами
 
-fbDb.ref('deletedOrders').on('value', snap => {
-  const d = snap.val() || {};
-  deletedOrders = Object.entries(d).map(([k, v]) => ({ ...v, _key: k }))
-    .sort((a, b) => (b.deletedTs || 0) - (a.deletedTs || 0));
-  renderJournal();
-});
+function listenDeletedOrders() {
+  fbDb.ref('deletedOrders').on('value', snap => {
+    const d = snap.val() || {};
+    deletedOrders = Object.entries(d).map(([k, v]) => ({ ...v, _key: k }))
+      .sort((a, b) => (b.deletedTs || 0) - (a.deletedTs || 0));
+    renderJournal();
+  });
+}
 
-fbDb.ref('orderLog').on('value', snap => {
-  const d = snap.val() || {};
-  orderLog = Object.entries(d).map(([k, v]) => ({ ...v, _key: k }))
-    .sort((a, b) => (b.ts || 0) - (a.ts || 0));
-  renderJournal();
-});
+function listenOrderLog() {
+  fbDb.ref('orderLog').on('value', snap => {
+    const d = snap.val() || {};
+    orderLog = Object.entries(d).map(([k, v]) => ({ ...v, _key: k }))
+      .sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    renderJournal();
+  });
+}
 
 const LOG_ACTIONS = {
   create:  { label: 'Создан',      color: '#5a9e7a' },
@@ -3460,10 +3472,12 @@ const PROD_STAGES = [
 
 // { [orderId]: { stage, deadline, comment } }
 let _prodCache = JSON.parse(localStorage.getItem('bk_prod') || '{}');
-fbDb.ref('prod').on('value', snap => {
-  _prodCache = snap.val() || {};
-  localStorage.setItem('bk_prod', JSON.stringify(_prodCache));
-});
+function listenProd() {
+  fbDb.ref('prod').on('value', snap => {
+    _prodCache = snap.val() || {};
+    localStorage.setItem('bk_prod', JSON.stringify(_prodCache));
+  });
+}
 function loadProdData() { return _prodCache; }
 function saveProdData(d) {
   _prodCache = d;
@@ -3745,17 +3759,21 @@ const WH_CATEGORIES = {
 let whItems = JSON.parse(localStorage.getItem('bn_wh_items') || '{}');
 let whHistory = JSON.parse(localStorage.getItem('bn_wh_history') || '[]');
 
-fbDb.ref('warehouse/items').on('value', snap => {
-  whItems = snap.val() || {};
-  localStorage.setItem('bn_wh_items', JSON.stringify(whItems));
-  whRenderAll();
-});
-fbDb.ref('warehouse/history').on('value', snap => {
-  const val = snap.val() || {};
-  whHistory = Object.entries(val).map(([key, v]) => ({ ...v, _key: key })).sort((a,b) => b.ts - a.ts);
-  localStorage.setItem('bn_wh_history', JSON.stringify(whHistory));
-  whRenderAll();
-});
+function listenWarehouseItems() {
+  fbDb.ref('warehouse/items').on('value', snap => {
+    whItems = snap.val() || {};
+    localStorage.setItem('bn_wh_items', JSON.stringify(whItems));
+    whRenderAll();
+  });
+}
+function listenWarehouseHistory() {
+  fbDb.ref('warehouse/history').on('value', snap => {
+    const val = snap.val() || {};
+    whHistory = Object.entries(val).map(([key, v]) => ({ ...v, _key: key })).sort((a,b) => b.ts - a.ts);
+    localStorage.setItem('bn_wh_history', JSON.stringify(whHistory));
+    whRenderAll();
+  });
+}
 
 function whSaveItems() {
   fbDb.ref('warehouse/items').set(whItems);
@@ -4107,13 +4125,16 @@ markFormClean('m');
 // =============================================
 // AUTH
 // =============================================
+// Пользователи. PIN-кодов здесь нет — они хранятся в Firebase Authentication.
+// Почта — просто идентификатор учётной записи, на неё ничего не приходит.
 const USERS = {
-  lesha: { pin: '7820', app: 'app-lesha', name: 'Алексей' },
-  misha: { pin: '7777', app: 'app-misha', name: 'Михаил' },
-  sklad_matvey: { pin: '1111', app: 'app-sklad', name: 'Матвей' },
-  sklad_dmitry:   { pin: '2222', app: 'app-sklad', name: 'Дмитрий' },
-  sklad_alexandr: { pin: '3333', app: 'app-sklad', name: 'Александр' }
+  lesha:          { email: 'alexey@bereza-knife.crm',         app: 'app-lesha', name: 'Алексей' },
+  misha:          { email: 'mikhail@bereza-knife.crm',        app: 'app-misha', name: 'Михаил' },
+  sklad_matvey:   { email: 'sklad.matvey@bereza-knife.crm',   app: 'app-sklad', name: 'Матвей' },
+  sklad_dmitry:   { email: 'sklad.dmitry@bereza-knife.crm',   app: 'app-sklad', name: 'Дмитрий' },
+  sklad_alexandr: { email: 'sklad.alexandr@bereza-knife.crm', app: 'app-sklad', name: 'Александр' }
 };
+const PIN_LENGTH = 6;
 
 // Текущий сотрудник склада (для записи расхода)
 let currentWhEmployee = '';
@@ -4126,6 +4147,11 @@ function showSkladEmployees() {
 
 let selectedUser = null;
 let pinBuffer = '';
+let signingIn = false;
+
+function roleByEmail(email) {
+  return Object.keys(USERS).find(k => USERS[k].email === email) || null;
+}
 
 function selectUser(role) {
   selectedUser = role;
@@ -4139,80 +4165,124 @@ function selectUser(role) {
 }
 
 function pinInput(digit) {
-  if (!selectedUser || pinBuffer.length >= 4) return;
+  if (!selectedUser || signingIn || pinBuffer.length >= PIN_LENGTH) return;
   pinBuffer += digit;
   updateDots();
-  if (pinBuffer.length === 4) {
-    setTimeout(checkPin, 120);
-  }
+  if (pinBuffer.length === PIN_LENGTH) setTimeout(checkPin, 120);
 }
 
 function pinDel() {
+  if (signingIn) return;
   pinBuffer = pinBuffer.slice(0, -1);
   updateDots();
   document.getElementById('pin-error').textContent = '';
 }
 
 function pinClear() {
+  if (signingIn) return;
   pinBuffer = '';
   updateDots();
   document.getElementById('pin-error').textContent = '';
 }
 
 function updateDots() {
-  for (let i = 0; i < 4; i++) {
-    document.getElementById('dot-' + i).classList.toggle('filled', i < pinBuffer.length);
+  for (let i = 0; i < PIN_LENGTH; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d) d.classList.toggle('filled', i < pinBuffer.length);
   }
 }
 
+// Проверяем PIN через Firebase Authentication
 function checkPin() {
   const user = USERS[selectedUser];
-  if (pinBuffer === user.pin) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById(user.app).style.display = 'block';
-    sessionStorage.setItem('bk_role', selectedUser);
-    if (user.app === 'app-sklad') {
-      currentWhEmployee = user.name;
-      document.getElementById('sklad-emp-title').textContent = 'Склад — ' + user.name;
-      whEmpCategory = null;
-      whEmpItemId = null;
-      whRenderEmployee();
-    }
-  } else {
-    document.getElementById('pin-error').textContent = 'Неверный PIN';
-    pinBuffer = '';
-    updateDots();
+  if (!user) return;
+  signingIn = true;
+  document.getElementById('pin-label').textContent = 'Проверяем…';
+  document.getElementById('pin-error').textContent = '';
+
+  firebase.auth().signInWithEmailAndPassword(user.email, pinBuffer)
+    .catch(err => {
+      const code = err && err.code || '';
+      let msg = 'Неверный PIN';
+      if (code === 'auth/too-many-requests') msg = 'Слишком много попыток — подождите пару минут';
+      else if (code === 'auth/network-request-failed') msg = 'Нет связи с сервером';
+      else if (code === 'auth/user-not-found' || code === 'auth/invalid-credential' || code === 'auth/wrong-password') msg = 'Неверный PIN';
+      else if (code === 'auth/operation-not-allowed') msg = 'Вход не настроен в Firebase';
+      else msg = 'Ошибка входа: ' + code;
+      document.getElementById('pin-error').textContent = msg;
+      document.getElementById('pin-label').textContent = 'Введите PIN';
+    })
+    .finally(() => {
+      signingIn = false;
+      pinBuffer = '';
+      updateDots();
+    });
+}
+
+// ---- Подписки на данные: только после входа, только нужные роли ----
+const OFFICE_LISTENERS    = () => { listenPrices(); listenOrders(); listenCounter(); listenDeletedOrders(); listenOrderLog(); listenProd(); listenWarehouseItems(); listenWarehouseHistory(); };
+const WAREHOUSE_LISTENERS = () => { listenWarehouseItems(); listenWarehouseHistory(); };
+const ALL_PATHS = ['prices','orders','counter','deletedOrders','orderLog','prod','warehouse/items','warehouse/history'];
+
+function startDataSync(role) {
+  const app = USERS[role].app;
+  if (app === 'app-sklad') WAREHOUSE_LISTENERS(); else OFFICE_LISTENERS();
+}
+
+function stopDataSync() {
+  ALL_PATHS.forEach(p => fbDb.ref(p).off());
+}
+
+function showAppFor(role) {
+  const user = USERS[role];
+  document.getElementById('login-screen').style.display = 'none';
+  Object.values(USERS).forEach(u => document.getElementById(u.app).style.display = 'none');
+  document.getElementById(user.app).style.display = 'block';
+  selectedUser = role;
+  if (user.app === 'app-sklad') {
+    currentWhEmployee = user.name;
+    document.getElementById('sklad-emp-title').textContent = 'Склад — ' + user.name;
+    whEmpCategory = null;
+    whEmpItemId = null;
+    whRenderEmployee();
   }
 }
 
-function logout() {
-  sessionStorage.removeItem('bk_role');
-  Object.values(USERS).forEach(u => {
-    document.getElementById(u.app).style.display = 'none';
-  });
+function showLoginScreen() {
+  Object.values(USERS).forEach(u => document.getElementById(u.app).style.display = 'none');
   document.getElementById('login-screen').style.display = 'flex';
   selectedUser = null;
+  currentWhEmployee = '';
   pinBuffer = '';
   updateDots();
   document.querySelectorAll('.user-card').forEach(c => c.classList.remove('selected'));
   document.getElementById('pin-wrap').classList.remove('visible');
   document.getElementById('pin-error').textContent = '';
+  document.getElementById('sklad-employees').style.display = 'none';
 }
 
-// Восстановить сессию
-(function() {
-  const saved = sessionStorage.getItem('bk_role');
-  if (saved && USERS[saved]) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById(USERS[saved].app).style.display = 'block';
-    selectedUser = saved;
-    if (USERS[saved].app === 'app-sklad') {
-      currentWhEmployee = USERS[saved].name;
-      document.getElementById('sklad-emp-title').textContent = 'Склад — ' + USERS[saved].name;
-      whRenderEmployee();
-    }
+function logout() {
+  if (isFormDirty('f') || isFormDirty('m')) {
+    if (!confirm('В форме есть несохранённые данные. Выйти и потерять их?')) return;
   }
-})();
+  firebase.auth().signOut();
+}
+
+// Firebase сам помнит вход между перезагрузками.
+// Здесь единственное место, где решается, что показать.
+firebase.auth().onAuthStateChanged(fbUser => {
+  stopDataSync();
+  if (!fbUser) { showLoginScreen(); return; }
+  const role = roleByEmail(fbUser.email);
+  if (!role) {
+    // Учётка есть в Firebase, но не привязана к роли в CRM
+    firebase.auth().signOut();
+    document.getElementById('pin-error').textContent = 'Учётная запись не привязана к CRM';
+    return;
+  }
+  showAppFor(role);
+  startDataSync(role);
+});
 </script>
 </body>
 </html>

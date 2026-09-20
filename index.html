@@ -2845,12 +2845,15 @@ function showView(v) {
 }
 
 function showMishaView(v) {
-  document.getElementById('m-view-orders').style.display  = v==='orders'  ? 'flex'  : 'none';
-  document.getElementById('m-view-clients').style.display = v==='clients' ? 'block' : 'none';
+  document.getElementById('m-view-orders').style.display    = v==='orders'    ? 'flex'  : 'none';
+  document.getElementById('m-view-clients').style.display   = v==='clients'   ? 'block' : 'none';
+  document.getElementById('m-view-analytics').style.display = v==='analytics' ? 'block' : 'none';
+  const views = ['orders','clients','analytics'];
   document.querySelectorAll('#app-misha .nav .nav-btn').forEach((b,i) => {
-    b.classList.toggle('active', (i===0&&v==='orders')||(i===1&&v==='clients'));
+    b.classList.toggle('active', views[i] === v);
   });
   if (v==='clients') renderMishaClients();
+  if (v==='analytics') renderMishaAnalytics();
 }
 
 // Прибыль Алексея с заказа
@@ -3500,6 +3503,267 @@ function renderMishaClients() {
         }</div></div>
       </div>
     </div>`).join('');
+}
+
+// =============================================
+// АНАЛИТИКА МИХАИЛА
+// Только его заказы. Работает с ценами продажи и ценой от Алексея —
+// ничего другого здесь не считается и не выводится.
+// =============================================
+
+// Заработок Михаила с заказа: шеф — вся наценка, стейк — половина
+function mishaProfitOf(o) {
+  const lp = orderLeshaPrice(o);
+  const p = o.price || 0;
+  if (!lp || !p) return 0;
+  return isSteakOrder(o) ? Math.max(0, p - lp) / 2 : p - lp;
+}
+
+// Понедельник 00:00 той недели, куда попадает дата
+function weekStart(d) {
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  x.setDate(x.getDate() - ((x.getDay() + 6) % 7));
+  return x;
+}
+function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+
+function mPeriodRange(period, now = new Date()) {
+  if (period === 'week')     { const from = weekStart(now); return { from, to: addDays(from, 7), label: 'эта неделя' }; }
+  if (period === 'prevweek') { const to = weekStart(now);   return { from: addDays(to, -7), to, label: 'прошлая неделя' }; }
+  return periodRange(period, now);
+}
+function mPreviousRange(period, now = new Date()) {
+  if (period === 'week')     { const to = weekStart(now); return { from: addDays(to, -7), to }; }
+  if (period === 'prevweek') { const to = addDays(weekStart(now), -7); return { from: addDays(to, -7), to }; }
+  return previousRange(period, now);
+}
+function mInRange(list, range) {
+  if (!range) return list.slice();
+  return list.filter(o => { const d = parseOrderDate(o.date); return d && d >= range.from && d < range.to; });
+}
+
+function mTotals(list) {
+  const paid = list.filter(o => o.status === 'paid');
+  const revenue = paid.reduce((s, o) => s + (o.price || 0), 0);
+  const profit  = paid.reduce((s, o) => s + mishaProfitOf(o), 0);
+  const count = list.length, paidCount = paid.length;
+  let due = 0, debtors = 0;
+  list.forEach(o => { const b = orderBalance(o); if (b.hasPrice && b.due > 0) { due += b.due; debtors++; } });
+  return {
+    revenue, profit, count, paidCount, due, debtors,
+    avgCheck:  paidCount ? Math.round(revenue / paidCount) : 0,
+    marginPct: revenue ? Math.round(profit / revenue * 100) : 0,
+    convPct:   count ? Math.round(paidCount / count * 100) : 0,
+    knives:    list.reduce((s, o) => s + (o.qty || 1), 0)
+  };
+}
+
+// Последние N недель: заказы, выручка, прибыль по каждой
+function mWeeklySeries(list, weeks = 8, now = new Date()) {
+  const first = addDays(weekStart(now), -7 * (weeks - 1));
+  const out = [];
+  for (let i = 0; i < weeks; i++) {
+    const from = addDays(first, 7 * i), to = addDays(from, 7);
+    const inW = mInRange(list, { from, to });
+    const paid = inW.filter(o => o.status === 'paid');
+    out.push({
+      label: from.toLocaleDateString('ru', { day: '2-digit', month: '2-digit' }),
+      count: inW.length,
+      revenue: paid.reduce((s, o) => s + (o.price || 0), 0),
+      profit:  paid.reduce((s, o) => s + mishaProfitOf(o), 0),
+      isCurrent: i === weeks - 1
+    });
+  }
+  return out;
+}
+
+const fmtRub = v => Math.round(v).toLocaleString('ru') + ' ₽';
+const fmtShort = v => v >= 1000 ? (Math.round(v / 100) / 10).toLocaleString('ru') + 'к' : String(Math.round(v));
+
+// Стрелка динамики относительно прошлого периода
+function mDelta(now, was, suffix = '') {
+  if (was === null || was === undefined) return '';
+  if (!was) return now ? `<span style="color:#5a9e7a">▲ новое</span>` : `<span style="color:var(--muted)">—</span>`;
+  const pct = Math.round((now - was) / was * 100);
+  if (pct === 0) return `<span style="color:var(--muted)">= как раньше</span>`;
+  const up = pct > 0;
+  return `<span style="color:${up ? '#5a9e7a' : 'var(--red)'}">${up ? '▲' : '▼'} ${Math.abs(pct)}%${suffix}</span>`;
+}
+
+// Вертикальные столбцы (одна серия), скруглён только верх, подписи у максимума и последнего
+function svgBars(series, key, unit = '₽') {
+  const W = 640, H = 150, padT = 18, padB = 22, gap = 3, r = 3;
+  const n = series.length;
+  const max = Math.max(1, ...series.map(s => s[key]));
+  const bw = (W - gap * (n - 1)) / n;
+  const maxIdx = series.reduce((m, s, i) => (s[key] > series[m][key] ? i : m), 0);
+  let bars = '', labels = '', axis = '';
+  series.forEach((s, i) => {
+    const v = s[key];
+    const h = v > 0 ? Math.max(2, Math.round((H - padT - padB) * v / max)) : 0;
+    const x = i * (bw + gap), y = H - padB - h, base = H - padB;
+    const fill = s.isCurrent ? '#c8a96e' : '#8b6d3f';
+    const path = h > 0
+      ? `M${x},${base} V${y + r} a${r},${r} 0 0 1 ${r},-${r} H${x + bw - r} a${r},${r} 0 0 1 ${r},${r} V${base} Z`
+      : '';
+    bars += `<g class="m-bar"><title>Неделя с ${s.label}: ${fmtRub(v)}${unit === '₽' ? '' : ''} · заказов ${s.count}</title>
+      <rect x="${x}" y="${padT}" width="${bw}" height="${H - padT - padB}" fill="transparent"/>
+      ${path ? `<path d="${path}" fill="${fill}"/>` : ''}</g>`;
+    if (v > 0 && (i === maxIdx || s.isCurrent))
+      labels += `<text x="${x + bw / 2}" y="${y - 5}" text-anchor="middle" font-size="10" fill="#e8dcc8">${fmtShort(v)}</text>`;
+    axis += `<text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle" font-size="9" fill="#6b5f52">${s.label}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" style="display:block;overflow:visible">
+    <line x1="0" y1="${H - padB}" x2="${W}" y2="${H - padB}" stroke="#2a2420"/>${bars}${labels}${axis}</svg>`;
+}
+
+// Горизонтальные полоски по категориям
+function hbars(rows) {
+  if (!rows.length) return `<div style="color:var(--muted);font-size:11px;padding:8px 0;">Нет данных</div>`;
+  const max = Math.max(1, ...rows.map(r => r.value));
+  return rows.map(r => `<div class="hbar-row">
+    <div class="hbar-label" title="${r.label}">${r.label}</div>
+    <div class="hbar-track"><div class="hbar-fill" style="width:${Math.max(2, Math.round(r.value / max * 100))}%"></div></div>
+    <div class="hbar-val">${r.text}${r.sub ? `<span class="hbar-sub">${r.sub}</span>` : ''}</div>
+  </div>`).join('');
+}
+
+function groupBy(list, keyFn) {
+  const m = {};
+  list.forEach(o => { const k = keyFn(o) || '—'; (m[k] = m[k] || []).push(o); });
+  return m;
+}
+
+function renderMishaAnalytics() {
+  const el = document.getElementById('m-analytics-content');
+  if (!el) return;
+  const period = document.getElementById('m-analytics-period')?.value || 'month';
+  const all = mishaOrders();
+  const range = mPeriodRange(period);
+  const list = mInRange(all, range);
+  const cur = mTotals(list);
+  const prevRange = mPreviousRange(period);
+  const prev = prevRange ? mTotals(mInRange(all, prevRange)) : null;
+  const rangeNote = range
+    ? `${range.from.toLocaleDateString('ru')} — ${addDays(range.to, -1).toLocaleDateString('ru')}`
+    : 'за всё время';
+  const cmpNote = prev ? (period.includes('week') ? 'к прошлой неделе' : period.includes('month') ? 'к прошлому месяцу' : 'к прошлому периоду') : '';
+
+  // ---- KPI ----
+  const kpi = (label, value, deltaHtml, note) => `<div class="m-kpi">
+    <div class="k-label">${label}</div>
+    <div class="k-value">${value}</div>
+    <div class="k-delta">${deltaHtml || (note ? `<span style="color:var(--muted)">${note}</span>` : '')}</div>
+  </div>`;
+  const kpis = [
+    kpi('Выручка', fmtRub(cur.revenue), prev && mDelta(cur.revenue, prev.revenue), 'по оплаченным'),
+    kpi('Моя прибыль', fmtRub(cur.profit), prev && mDelta(cur.profit, prev.profit)),
+    kpi('Средний чек', fmtRub(cur.avgCheck), prev && mDelta(cur.avgCheck, prev.avgCheck)),
+    kpi('Заказов', `${cur.count}`, prev && mDelta(cur.count, prev.count), `${cur.knives} нож${cur.knives % 10 === 1 && cur.knives % 100 !== 11 ? '' : 'ей'}`),
+    kpi('Оплачено', `${cur.convPct}%`, prev ? `<span style="color:var(--muted)">было ${prev.convPct}%</span>` : '', `${cur.paidCount} из ${cur.count}`),
+    kpi('Маржа', `${cur.marginPct}%`, prev ? `<span style="color:var(--muted)">было ${prev.marginPct}%</span>` : '', 'прибыль / выручка'),
+  ].join('');
+
+  const dueBlock = cur.due > 0 ? `<div class="m-kpi" style="border-color:#4a2a25;">
+    <div class="k-label">Ждём оплаты</div>
+    <div class="k-value" style="color:var(--red)">${fmtRub(cur.due)}</div>
+    <div class="k-delta"><span style="color:var(--muted)">по ${cur.debtors} заказ${cur.debtors === 1 ? 'у' : 'ам'}</span></div>
+  </div>` : '';
+
+  // ---- Недели ----
+  const weeks = mWeeklySeries(all, 8);
+  const lastW = weeks[weeks.length - 1], prevW = weeks[weeks.length - 2];
+  const weekNote = `Эта неделя: ${fmtRub(lastW.revenue)}, ${lastW.count} заказ${lastW.count === 1 ? '' : lastW.count < 5 && lastW.count > 0 ? 'а' : 'ов'} · ${mDelta(lastW.revenue, prevW.revenue, ' к прошлой')}`;
+
+  // ---- Каналы ----
+  const byCh = groupBy(list, o => o.channel || 'Не указан');
+  const chRows = Object.entries(byCh).map(([ch, os]) => {
+    const t = mTotals(os);
+    return { label: ch, value: t.revenue, text: fmtRub(t.revenue), sub: `${os.length} шт · ${cur.revenue ? Math.round(t.revenue / cur.revenue * 100) : 0}%` };
+  }).sort((a, b) => b.value - a.value);
+
+  // ---- Статусы (воронка) ----
+  const stRows = Object.entries(STATUS_LABELS).map(([k, v]) => {
+    const n = list.filter(o => o.status === k).length;
+    return { label: v, value: n, text: `${n}`, sub: cur.count ? `${Math.round(n / cur.count * 100)}%` : '' };
+  });
+
+  // ---- Модели ----
+  const byModel = groupBy(list, o => o.modelName);
+  const modelRows = Object.entries(byModel).map(([m, os]) => {
+    const t = mTotals(os);
+    return { label: m, value: os.reduce((s, o) => s + (o.qty || 1), 0), text: `${os.reduce((s, o) => s + (o.qty || 1), 0)} шт`, sub: t.revenue ? fmtRub(t.revenue) : '' };
+  }).sort((a, b) => b.value - a.value).slice(0, 8);
+
+  // ---- Стали ----
+  const bySteel = groupBy(list, o => o.steelName);
+  const steelRows = Object.entries(bySteel).map(([s, os]) => ({
+    label: s, value: os.length, text: `${os.length} шт`, sub: cur.count ? `${Math.round(os.length / cur.count * 100)}%` : ''
+  })).sort((a, b) => b.value - a.value);
+
+  // ---- Шеф / стейк ----
+  const chef = list.filter(o => !isSteakOrder(o)), steak = list.filter(o => isSteakOrder(o));
+  const typeRows = [
+    { label: 'Шеф-ножи', value: mTotals(chef).revenue, text: fmtRub(mTotals(chef).revenue), sub: `${chef.length} шт` },
+    { label: 'Стейки',   value: mTotals(steak).revenue, text: fmtRub(mTotals(steak).revenue), sub: `${steak.length} шт` },
+  ];
+
+  // ---- Клиенты ----
+  const byClient = groupBy(all, o => o.client);
+  const clientsAll = Object.entries(byClient);
+  const repeat = clientsAll.filter(([, os]) => os.length > 1).length;
+  const topClients = clientsAll.map(([c, os]) => {
+    const t = mTotals(os);
+    return { name: c, orders: os.length, revenue: t.revenue, profit: t.profit, last: os.map(o => parseOrderDate(o.date)).filter(Boolean).sort((a, b) => b - a)[0] };
+  }).sort((a, b) => b.revenue - a.revenue).slice(0, 8);
+
+  // ---- Должники ----
+  const debtors = all.filter(o => { const b = orderBalance(o); return b.hasPrice && b.due > 0; })
+    .map(o => ({ o, due: orderBalance(o).due })).sort((a, b) => b.due - a.due);
+
+  el.innerHTML = `
+    <div style="font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:12px;">${rangeNote}${cmpNote ? ' · стрелки — ' + cmpNote : ''}</div>
+
+    <div class="m-kpi-grid">${kpis}${dueBlock}</div>
+
+    <div class="m-section">
+      <div class="m-section-title">Выручка по неделям · последние 8 недель</div>
+      ${svgBars(weeks, 'revenue')}
+      <div style="font-size:10.5px;color:var(--muted);margin-top:8px;">${weekNote}</div>
+    </div>
+
+    <div class="m-grid2">
+      <div class="m-section"><div class="m-section-title">Каналы продаж · по выручке</div>${hbars(chRows)}</div>
+      <div class="m-section"><div class="m-section-title">Статусы заказов</div>${hbars(stRows)}</div>
+    </div>
+
+    <div class="m-grid2">
+      <div class="m-section"><div class="m-section-title">Топ моделей · по количеству</div>${hbars(modelRows)}</div>
+      <div class="m-section">
+        <div class="m-section-title">Марки стали</div>${hbars(steelRows)}
+        <div class="m-section-title" style="margin-top:16px;">Шеф / стейк · по выручке</div>${hbars(typeRows)}
+      </div>
+    </div>
+
+    <div class="m-section">
+      <div class="m-section-title">Клиенты · за всё время</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">
+        Всего ${clientsAll.length} · повторных ${repeat} (${clientsAll.length ? Math.round(repeat / clientsAll.length * 100) : 0}%)
+      </div>
+      ${topClients.length ? `<table class="m-table">
+        <tr><th>Клиент</th><th>Заказов</th><th>Выручка</th><th>Прибыль</th><th>Последний</th></tr>
+        ${topClients.map(c => `<tr><td>${c.name}</td><td>${c.orders}</td><td>${fmtRub(c.revenue)}</td><td>${fmtRub(c.profit)}</td><td>${c.last ? c.last.toLocaleDateString('ru') : '—'}</td></tr>`).join('')}
+      </table>` : `<div style="color:var(--muted);font-size:11px;">Пока нет клиентов</div>`}
+    </div>
+
+    ${debtors.length ? `<div class="m-section" style="border-color:#4a2a25;">
+      <div class="m-section-title">Ждём оплаты · ${fmtRub(debtors.reduce((s, d) => s + d.due, 0))}</div>
+      <table class="m-table">
+        <tr><th>№</th><th>Клиент</th><th>Изделие</th><th>Цена</th><th>Внесено</th><th>Остаток</th></tr>
+        ${debtors.map(({ o, due }) => `<tr><td>№${o.id}</td><td>${o.client}</td><td>${o.modelName || '—'}</td><td>${fmtRub(o.price)}</td><td>${fmtRub((o.prepay || 0) + (o.finalPay || 0))}</td><td style="color:var(--red)">${fmtRub(due)}</td></tr>`).join('')}
+      </table>
+    </div>` : ''}
+  `;
 }
 
 // =============================================

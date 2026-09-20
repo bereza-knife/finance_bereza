@@ -1587,6 +1587,30 @@
 
     <!-- СПИСОК ЗАКАЗОВ -->
     <div class="panel-orders">
+      <div class="stats-row" id="m-stats-row">
+        <div class="stat-card">
+          <div class="s-label">Заказов всего</div>
+          <div class="s-value" id="m-stat-count">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Выручка</div>
+          <div class="s-value" id="m-stat-revenue">0 ₽</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Моя прибыль</div>
+          <div class="s-value" id="m-stat-profit">0 ₽</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Средний чек</div>
+          <div class="s-value" id="m-stat-avg">0 ₽</div>
+        </div>
+        <div class="stat-card" id="m-stat-due-card" style="display:none;">
+          <div class="s-label">Ждём оплаты</div>
+          <div class="s-value" id="m-stat-due" style="color:var(--red);">0 ₽</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px;" id="m-stat-due-note"></div>
+        </div>
+      </div>
+
       <div class="orders-filters">
         <input class="filter-input" id="m-search" type="text" placeholder="Поиск по клиенту, артикулу..." oninput="renderMishaOrders()">
         <select class="filter-input" id="m-filter-status" onchange="renderMishaOrders()">

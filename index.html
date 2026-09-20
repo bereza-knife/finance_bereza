@@ -1320,12 +1320,18 @@
         </div>
         <div class="form-group">
           <label class="form-label">Телефон</label>
-          <input class="form-control" id="m-phone" type="text" placeholder="+7">
+          <input class="form-control" id="m-phone" type="tel" placeholder="+7 (___) ___-__-__" onfocus="phoneFocus(this)" oninput="phoneFormat(this)">
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Telegram</label>
-        <input class="form-control" id="m-tg" type="text" placeholder="@username">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Telegram</label>
+          <input class="form-control" id="m-tg" type="text" placeholder="@username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Почта</label>
+          <input class="form-control" id="m-email" type="email" placeholder="client@mail.ru">
+        </div>
       </div>
       <div class="divider"></div>
       <div class="form-group">
@@ -3050,6 +3056,11 @@ function showToast(msg) {
 // =============================================
 // MISHA — INIT SELECTS (без цен в лейблах)
 // =============================================
+// Списки по алфавиту (кроме моделей — их удобнее искать по номеру артикула)
+function sortedEntries(obj) {
+  return Object.entries(obj).sort((a, b) => a[1].localeCompare(b[1], 'ru'));
+}
+
 function initMishaSelects() {
   const modelSel = document.getElementById('m-model');
   for (const [id, name] of Object.entries(MODELS)) {
@@ -3057,29 +3068,29 @@ function initMishaSelects() {
     modelSel.appendChild(new Option(`${String(id).padStart(3,'0')} — ${name}${isSteak?' [СТЕЙК]':' [ШЕФ]'}`, id));
   }
   const steelSel = document.getElementById('m-steel');
-  for (const [id, name] of Object.entries(STEELS)) steelSel.appendChild(new Option(name, id));
+  for (const [id, name] of sortedEntries(STEELS)) steelSel.appendChild(new Option(name, id));
 
   const handleSel = document.getElementById('m-handle');
-  for (const [id, name] of Object.entries(HANDLE_NAMES)) handleSel.appendChild(new Option(name, id));
+  for (const [id, name] of sortedEntries(HANDLE_NAMES)) handleSel.appendChild(new Option(name, id));
 
   const shapeSel = document.getElementById('m-shape');
   ['круг','октагон','евро','крамер'].forEach((n,i) => shapeSel.appendChild(new Option(n, String(i+1).padStart(2,'0'))));
 
   const bolsterSel = document.getElementById('m-bolster');
   bolsterSel.appendChild(new Option('— нет —', ''));
-  for (const [id, name] of Object.entries(BOLSTER_NAMES)) bolsterSel.appendChild(new Option(name, id));
+  for (const [id, name] of sortedEntries(BOLSTER_NAMES)) bolsterSel.appendChild(new Option(name, id));
 
   const insertSel = document.getElementById('m-insert');
   insertSel.appendChild(new Option('— нет —', ''));
-  for (const [id, name] of Object.entries(INSERT_NAMES)) insertSel.appendChild(new Option(name, id));
+  for (const [id, name] of sortedEntries(INSERT_NAMES)) insertSel.appendChild(new Option(name, id));
 
   const linerSel = document.getElementById('m-liner');
   linerSel.appendChild(new Option('— нет —', ''));
-  for (const [id, name] of Object.entries(LINER_NAMES)) linerSel.appendChild(new Option(name, id));
+  for (const [id, name] of sortedEntries(LINER_NAMES)) linerSel.appendChild(new Option(name, id));
 
   const vsechkaSel = document.getElementById('m-vsechka');
   vsechkaSel.appendChild(new Option('— нет —', ''));
-  for (const [id, name] of Object.entries(VSECHKA_NAMES)) vsechkaSel.appendChild(new Option(name, id));
+  for (const [id, name] of sortedEntries(VSECHKA_NAMES)) vsechkaSel.appendChild(new Option(name, id));
 }
 
 // =============================================

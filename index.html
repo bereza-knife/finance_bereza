@@ -813,12 +813,18 @@
         </div>
         <div class="form-group">
           <label class="form-label">Телефон</label>
-          <input class="form-control" id="f-phone" type="text" placeholder="+7">
+          <input class="form-control" id="f-phone" type="tel" placeholder="+7 (___) ___-__-__" onfocus="phoneFocus(this)" oninput="phoneFormat(this)">
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Telegram</label>
-        <input class="form-control" id="f-tg" type="text" placeholder="@username">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Telegram</label>
+          <input class="form-control" id="f-tg" type="text" placeholder="@username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Почта</label>
+          <input class="form-control" id="f-email" type="email" placeholder="client@mail.ru">
+        </div>
       </div>
 
       <div class="divider"></div>

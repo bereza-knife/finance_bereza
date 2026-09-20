@@ -348,6 +348,30 @@
   .fold-body { display: none; padding-bottom: 6px; }
   .fold.open .fold-body { display: block; }
 
+  /* ===== АНАЛИТИКА МИХАИЛА ===== */
+  .m-kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .m-kpi { background: var(--surface); border: 1px solid var(--border); padding: 13px 14px; }
+  .m-kpi .k-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .m-kpi .k-value { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--accent); margin-top: 4px; line-height: 1.1; }
+  .m-kpi .k-delta { font-size: 10px; margin-top: 5px; min-height: 12px; }
+  .m-section { background: var(--surface); border: 1px solid var(--border); padding: 16px; margin-bottom: 16px; }
+  .m-section-title { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .m-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .m-grid2 .m-section { margin-bottom: 16px; }
+  .hbar-row { display: grid; grid-template-columns: 140px 1fr 130px; gap: 10px; align-items: center; padding: 5px 0; font-size: 11px; }
+  .hbar-label { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hbar-track { height: 8px; background: #221d17; border-radius: 2px; overflow: hidden; }
+  .hbar-fill { height: 100%; background: var(--accent2); border-radius: 2px; transition: width 0.3s; }
+  .hbar-row:hover .hbar-fill { background: var(--accent); }
+  .hbar-val { text-align: right; color: var(--text); white-space: nowrap; }
+  .hbar-sub { color: var(--muted); margin-left: 6px; font-size: 10px; }
+  .m-bar:hover path { fill: #e0c48a; }
+  .m-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .m-table th { text-align: left; font-weight: normal; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding: 4px 8px 6px 0; border-bottom: 1px solid var(--border); }
+  .m-table td { padding: 6px 8px 6px 0; border-bottom: 1px solid var(--border); color: var(--text); }
+  .m-table tr:last-child td { border-bottom: none; }
+  @media (max-width: 800px) { .m-grid2 { grid-template-columns: 1fr; } .hbar-row { grid-template-columns: 110px 1fr 110px; } }
+
   .view-analytics { display: none; padding: 24px; }
   .analytics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
   @media (max-width: 1100px) { .analytics-grid { grid-template-columns: 1fr 1fr; } }

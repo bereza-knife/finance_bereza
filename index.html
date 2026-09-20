@@ -1587,6 +1587,23 @@
     <div class="clients-grid" id="m-clients-grid"></div>
   </div>
 
+  <!-- АНАЛИТИКА МИХАИЛА -->
+  <div id="m-view-analytics" style="display:none;padding:24px;overflow-y:auto;height:calc(100vh - 73px);width:100%;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px;">
+      <div class="section-title" style="margin:0;border:none;padding:0;">Аналитика</div>
+      <select class="filter-input" id="m-analytics-period" onchange="renderMishaAnalytics()" style="max-width:210px;">
+        <option value="week">Эта неделя</option>
+        <option value="prevweek">Прошлая неделя</option>
+        <option value="month" selected>Этот месяц</option>
+        <option value="prevmonth">Прошлый месяц</option>
+        <option value="90">Последние 90 дней</option>
+        <option value="year">Этот год</option>
+        <option value="all">Всё время</option>
+      </select>
+    </div>
+    <div id="m-analytics-content"></div>
+  </div>
+
 </div>
 </div><!-- /app-misha -->
 

@@ -1307,6 +1307,7 @@
     <div class="nav">
       <button class="nav-btn active" onclick="showMishaView('orders')">Заказы</button>
       <button class="nav-btn" onclick="showMishaView('clients')">Клиенты</button>
+      <button class="nav-btn" onclick="showMishaView('analytics')">Аналитика</button>
     </div>
     <button class="logout-btn" onclick="logout()">Выйти</button>
   </div>
@@ -2430,6 +2431,7 @@ function editOrder(id) {
   document.getElementById('f-client').value  = o.client || '';
   document.getElementById('f-phone').value   = o.phone  || '';
   document.getElementById('f-tg').value      = o.tg     || '';
+  document.getElementById('f-email').value   = o.email  || '';
   document.getElementById('f-model').value   = o.modelId || '';
   document.getElementById('f-steel').value   = o.steelId || '';
   document.getElementById('f-handle').value  = o.handleId || '';
@@ -2478,7 +2480,7 @@ function cancelEdit() {
   document.getElementById('form-title').textContent = 'Новый заказ';
   document.getElementById('f-submit-btn').textContent = '＋ Создать заказ';
   document.getElementById('f-cancel-edit').style.display = 'none';
-  ['f-client','f-phone','f-tg','f-price','f-lesha-price','f-prepay','f-note'].forEach(id => document.getElementById(id).value = '');
+  ['f-client','f-phone','f-tg','f-email','f-price','f-lesha-price','f-prepay','f-note'].forEach(id => document.getElementById(id).value = '');
   ['f-model','f-steel','f-handle','f-shape','f-bolster','f-insert','f-liner','f-vsechka'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-qty').value = 1;
   document.getElementById('f-set-type').value = '';
@@ -2512,6 +2514,7 @@ function saveOrder() {
   const leshaFields = () => ({
     client, phone: document.getElementById('f-phone').value,
     tg: document.getElementById('f-tg').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
     modelId, modelName: MODELS[modelId],
     steelId, steelName: STEELS[steelId],
     handleId, handleName: HANDLE_NAMES[handleId],
@@ -2565,7 +2568,7 @@ function saveOrder() {
   showToast(`Заказ №${order.id} создан`);
 
   // Reset
-  ['f-client','f-phone','f-tg','f-price','f-lesha-price','f-prepay','f-note',
+  ['f-client','f-phone','f-tg','f-email','f-price','f-lesha-price','f-prepay','f-note',
    'f-engraving','f-pin','f-extra-price','f-commission','f-final-pay',
    'f-prepay-date','f-final-date'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   ['f-model','f-steel','f-handle','f-shape','f-bolster','f-insert','f-liner','f-vsechka','f-channel'].forEach(id => document.getElementById(id).value = '');
@@ -2733,7 +2736,7 @@ function renderOrders() {
         </div>
         <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status]}</span>
       </div>
-      <div class="order-client">${o.client}${o.phone?' · '+o.phone:''}${o.tg?' · <span style="color:#6a9ec0">'+o.tg+'</span>':''}</div>
+      <div class="order-client">${o.client}${o.phone?' · '+o.phone:''}${o.tg?' · <span style="color:#6a9ec0">'+o.tg+'</span>':''}${o.email?' · <span style="color:var(--muted)">'+o.email+'</span>':''}</div>
       <div class="order-artikul">${o.artikul}${(o.qty&&o.qty>1)?` <span style="color:var(--accent2)">×${o.qty}</span>`:''}</div>
       ${o.note?`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">✎ ${o.note}</div>`:''}
       ${o.accessories&&Object.keys(o.accessories).length?`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">+ ${Object.entries(o.accessories).map(([id,q])=>ACCESSORIES[id]?`${ACCESSORIES[id].name}${q>1?' ×'+q:''}`:id).join(', ')}</div>`:''}
@@ -3196,6 +3199,7 @@ function editMishaOrder(id) {
   document.getElementById('m-client').value  = o.client || '';
   document.getElementById('m-phone').value   = o.phone  || '';
   document.getElementById('m-tg').value      = o.tg     || '';
+  document.getElementById('m-email').value   = o.email  || '';
   document.getElementById('m-model').value   = o.modelId || '';
   document.getElementById('m-steel').value   = o.steelId || '';
   document.getElementById('m-handle').value  = o.handleId || '';
@@ -3235,7 +3239,7 @@ function cancelMishaEdit() {
   document.getElementById('m-form-title').textContent = 'Новый заказ';
   document.getElementById('m-submit-btn').textContent = '＋ Создать заказ';
   document.getElementById('m-cancel-edit').style.display = 'none';
-  ['m-client','m-phone','m-tg','m-price','m-prepay','m-note'].forEach(id => document.getElementById(id).value = '');
+  ['m-client','m-phone','m-tg','m-email','m-price','m-prepay','m-note'].forEach(id => document.getElementById(id).value = '');
   ['m-model','m-steel','m-handle','m-shape','m-bolster','m-insert','m-liner','m-vsechka'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('m-qty').value = 1;
   document.getElementById('m-set-type').value = '';
@@ -3271,6 +3275,7 @@ function saveMishaOrder() {
   const mishaFields = () => ({
     client, phone: document.getElementById('m-phone').value,
     tg: document.getElementById('m-tg').value.trim(),
+    email: document.getElementById('m-email').value.trim(),
     modelId, modelName: MODELS[modelId],
     steelId, steelName: STEELS[steelId],
     handleId, handleName: HANDLE_NAMES[handleId],
@@ -3321,7 +3326,7 @@ function saveMishaOrder() {
   renderMishaOrders();
   showToast(`Заказ №${order.id} создан`);
 
-  ['m-client','m-phone','m-tg','m-price','m-prepay','m-note',
+  ['m-client','m-phone','m-tg','m-email','m-price','m-prepay','m-note',
    'm-engraving','m-pin','m-extra-price','m-commission','m-final-pay',
    'm-prepay-date','m-final-date'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('m-margin-display').textContent = '—';
@@ -3342,10 +3347,15 @@ function saveMishaOrder() {
 // =============================================
 // MISHA — RENDER ORDERS (без цен)
 // =============================================
+// Заказы Михаила — только те, что он оформил сам
+function mishaOrders() {
+  return orders.filter(o => o.createdBy === 'misha');
+}
+
 function renderMishaOrders() {
   const search = (document.getElementById('m-search')?.value || '').toLowerCase();
   const statusFilter = document.getElementById('m-filter-status')?.value || '';
-  const filtered = orders.filter(o => {
+  const filtered = mishaOrders().filter(o => {
     const ms = !search || o.client.toLowerCase().includes(search) ||
       o.artikul.toLowerCase().includes(search) || String(o.id).includes(search);
     const ss = !statusFilter || o.status === statusFilter;
@@ -3369,7 +3379,7 @@ function renderMishaOrders() {
         </div>
         <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status]}</span>
       </div>
-      <div class="order-client">${o.client}${o.phone?' · '+o.phone:''}${o.tg?' · <span style="color:#6a9ec0">'+o.tg+'</span>':''}</div>
+      <div class="order-client">${o.client}${o.phone?' · '+o.phone:''}${o.tg?' · <span style="color:#6a9ec0">'+o.tg+'</span>':''}${o.email?' · <span style="color:var(--muted)">'+o.email+'</span>':''}</div>
       <div class="order-artikul">${o.artikul}${(o.qty&&o.qty>1)?` <span style="color:var(--accent2)">×${o.qty}</span>`:''}</div>
       ${o.note?`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">✎ ${o.note}</div>`:''}
       ${o.accessories&&Object.keys(o.accessories).length?`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">+ ${Object.entries(o.accessories).map(([id,q])=>ACCESSORIES[id]?`${ACCESSORIES[id].name}${q>1?' ×'+q:''}`:id).join(', ')}</div>`:''}
@@ -3405,15 +3415,16 @@ function renderMishaOrders() {
 // =============================================
 // CLIENTS
 // =============================================
-function buildClientsData() {
+function buildClientsData(source) {
   const map = {};
-  orders.forEach(o => {
+  (source || orders).forEach(o => {
     const key = o.client;
-    if (!map[key]) map[key] = { name: o.client, phone: o.phone||'', tg: o.tg||'', orders: [], lastDate: '' };
+    if (!map[key]) map[key] = { name: o.client, phone: o.phone||'', tg: o.tg||'', email: o.email||'', orders: [], lastDate: '' };
     map[key].orders.push(o);
     // Обновляем контактные данные (берём последние непустые)
     if (o.phone) map[key].phone = o.phone;
     if (o.tg)    map[key].tg    = o.tg;
+    if (o.email) map[key].email = o.email;
   });
   // Сортируем заказы по id desc, берём дату последнего
   Object.values(map).forEach(c => {
@@ -3428,7 +3439,7 @@ function renderClients() {
   const search = (document.getElementById('clients-search')?.value||'').toLowerCase();
   const clients = buildClientsData().filter(c =>
     !search || c.name.toLowerCase().includes(search) ||
-    c.phone.includes(search) || c.tg.toLowerCase().includes(search)
+    c.phone.includes(search) || c.tg.toLowerCase().includes(search) || (c.email||'').toLowerCase().includes(search)
   );
   const grid = document.getElementById('clients-grid');
   if (!clients.length) { grid.innerHTML = '<div style="color:var(--muted);font-size:11px;">Клиентов нет</div>'; return; }
@@ -3437,6 +3448,7 @@ function renderClients() {
       <div class="client-name">${c.name}</div>
       ${c.phone?`<div class="client-row">📞 <span>${c.phone}</span></div>`:''}
       ${c.tg?`<div class="client-row">✈ <span class="client-tag">${c.tg}</span></div>`:''}
+      ${c.email?`<div class="client-row">✉ <span>${c.email}</span></div>`:''}
       <div class="client-row">Последний заказ: <span>${c.lastDate||'—'}</span></div>
       <div class="client-stats">
         <div class="client-stat"><div class="cs-label">Заказов</div><div class="cs-value">${c.orders.length}</div></div>
@@ -3450,9 +3462,9 @@ function renderClients() {
 
 function renderMishaClients() {
   const search = (document.getElementById('m-clients-search')?.value||'').toLowerCase();
-  const clients = buildClientsData().filter(c =>
+  const clients = buildClientsData(mishaOrders()).filter(c =>
     !search || c.name.toLowerCase().includes(search) ||
-    c.phone.includes(search) || c.tg.toLowerCase().includes(search)
+    c.phone.includes(search) || c.tg.toLowerCase().includes(search) || (c.email||'').toLowerCase().includes(search)
   );
   const grid = document.getElementById('m-clients-grid');
   if (!grid) return;
@@ -3462,6 +3474,7 @@ function renderMishaClients() {
       <div class="client-name">${c.name}</div>
       ${c.phone?`<div class="client-row">📞 <span>${c.phone}</span></div>`:''}
       ${c.tg?`<div class="client-row">✈ <span class="client-tag">${c.tg}</span></div>`:''}
+      ${c.email?`<div class="client-row">✉ <span>${c.email}</span></div>`:''}
       <div class="client-row">Последний заказ: <span>${c.lastDate||'—'}</span></div>
       <div class="client-stats">
         <div class="client-stat"><div class="cs-label">Заказов</div><div class="cs-value">${c.orders.length}</div></div>

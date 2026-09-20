@@ -3419,6 +3419,24 @@ function renderMishaOrders() {
     const ss = !statusFilter || o.status === statusFilter;
     return ms && ss;
   });
+  // Сводка сверху — по всем заказам, цифры Михаила
+  const paidAll = orders.filter(o => o.status === 'paid');
+  const mRevenue = paidAll.reduce((s, o) => s + (o.price || 0), 0);
+  const mProfit  = paidAll.reduce((s, o) => s + mishaProfitOf(o), 0);
+  const setT = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setT('m-stat-count', orders.length);
+  setT('m-stat-revenue', mRevenue.toLocaleString('ru') + ' ₽');
+  setT('m-stat-profit', Math.round(mProfit).toLocaleString('ru') + ' ₽');
+  setT('m-stat-avg', (paidAll.length ? Math.round(mRevenue / paidAll.length) : 0).toLocaleString('ru') + ' ₽');
+  let mDue = 0, mDebtors = 0;
+  orders.forEach(o => { const b = orderBalance(o); if (b.hasPrice && b.due > 0) { mDue += b.due; mDebtors++; } });
+  const dueCard = document.getElementById('m-stat-due-card');
+  if (dueCard) {
+    dueCard.style.display = mDue > 0 ? 'block' : 'none';
+    setT('m-stat-due', mDue.toLocaleString('ru') + ' ₽');
+    setT('m-stat-due-note', `по ${mDebtors} заказ${mDebtors === 1 ? 'у' : 'ам'}`);
+  }
+
   const list = document.getElementById('m-orders-list');
   if (!list) return;
   if (!filtered.length) { list.innerHTML = '<div class="empty-state"><div class="icon">◇</div>Заказов нет</div>'; return; }

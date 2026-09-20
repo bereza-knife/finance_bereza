@@ -2790,15 +2790,10 @@ function renderOrders() {
           <div class="fin-label">Цена Михаилу</div>
           <div class="fin-value">${orderLeshaPrice(o) ? orderLeshaPrice(o).toLocaleString('ru')+' ₽' : '—'}</div>
         </div>
-        ${!isMisha ? `
         <div class="fin-item">
           <div class="fin-label">Цена продажи</div>
           <div class="fin-value">${o.price ? o.price.toLocaleString('ru')+' ₽' : '—'}</div>
-        </div>` : `
-        <div class="fin-item">
-          <div class="fin-label">Продал Михаил</div>
-          <div class="fin-value">${o.price ? o.price.toLocaleString('ru')+' ₽' : '—'}</div>
-        </div>`}
+        </div>
         <div class="fin-item">
           <div class="fin-label">Прибыль Алексея</div>
           <div class="fin-value ${profitClass}">${rev ? profit.toLocaleString('ru')+' ₽ ('+margin+'%)' : '—'}</div>
@@ -3391,15 +3386,10 @@ function saveMishaOrder() {
 // =============================================
 // MISHA — RENDER ORDERS (без цен)
 // =============================================
-// Заказы Михаила — только те, что он оформил сам
-function mishaOrders() {
-  return orders.filter(o => o.createdBy === 'misha');
-}
-
 function renderMishaOrders() {
   const search = (document.getElementById('m-search')?.value || '').toLowerCase();
   const statusFilter = document.getElementById('m-filter-status')?.value || '';
-  const filtered = mishaOrders().filter(o => {
+  const filtered = orders.filter(o => {
     const ms = !search || o.client.toLowerCase().includes(search) ||
       o.artikul.toLowerCase().includes(search) || String(o.id).includes(search);
     const ss = !statusFilter || o.status === statusFilter;
@@ -3506,7 +3496,7 @@ function renderClients() {
 
 function renderMishaClients() {
   const search = (document.getElementById('m-clients-search')?.value||'').toLowerCase();
-  const clients = buildClientsData(mishaOrders()).filter(c =>
+  const clients = buildClientsData().filter(c =>
     !search || c.name.toLowerCase().includes(search) ||
     c.phone.includes(search) || c.tg.toLowerCase().includes(search) || (c.email||'').toLowerCase().includes(search)
   );
@@ -3531,8 +3521,8 @@ function renderMishaClients() {
 
 // =============================================
 // АНАЛИТИКА МИХАИЛА
-// Только его заказы. Работает с ценами продажи и ценой от Алексея —
-// ничего другого здесь не считается и не выводится.
+// Все заказы — продажи общие. Считается только от цены продажи и цены
+// от Алексея: заработок Михаила — это разница между ними (стейк — половина).
 // =============================================
 
 // Заработок Михаила с заказа: шеф — вся наценка, стейк — половина
@@ -3662,7 +3652,7 @@ function renderMishaAnalytics() {
   const el = document.getElementById('m-analytics-content');
   if (!el) return;
   const period = document.getElementById('m-analytics-period')?.value || 'month';
-  const all = mishaOrders();
+  const all = orders.slice();
   const range = mPeriodRange(period);
   const list = mInRange(all, range);
   const cur = mTotals(list);

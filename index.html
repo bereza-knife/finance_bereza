@@ -270,14 +270,14 @@
   .status-paid { border-color: #2a3a1a; color: #8ab87a; background: #111a0d; }
 
   .order-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
-  /* Удаление — отодвинуто вправо и крупнее, чтобы не попасть по нему случайно */
+  /* Удаление — отодвинуто вправо, чтобы не попасть по нему случайно, но хорошо читается */
   .btn-delete {
     margin-left: auto;
     padding: 7px 13px;
-    opacity: 0.55;
+    opacity: 0.9;
     transition: opacity 0.2s, background 0.2s;
   }
-  .btn-delete:hover { opacity: 1; }
+  .btn-delete:hover { opacity: 1; background: #2a1512; }
 
   .empty-state {
     text-align: center; padding: 60px 20px; color: var(--muted);

@@ -1319,8 +1319,6 @@
 
 </div>
 
-<div class="toast" id="toast"></div>
-
 </div><!-- /app-lesha -->
 
 <!-- ===================== MISHA'S INTERFACE ===================== -->
@@ -2697,7 +2695,7 @@ function deleteOrder(id) {
     `Изделие: ${o.modelName || '—'}${o.steelName ? ' · ' + o.steelName : ''}`,
     o.price ? `Цена: ${o.price.toLocaleString('ru')} ₽` : null,
     '',
-    'Отменить это действие будет нельзя.'
+    'Заказ попадёт в корзину — восстановить его сможет Алексей.'
   ].filter(x => x !== null).join('\n');
   if (!confirm(info)) return;
   // Не стираем безвозвратно — переносим в корзину, откуда можно восстановить
@@ -3483,6 +3481,7 @@ function renderMishaOrders() {
           ${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}
         </select>
         <button class="btn btn-sm" onclick="editMishaOrder(${o.id})" style="border-color:#2a4a3a;color:#5a9e7a;">✎ Редакт.</button>
+        <button class="btn btn-sm btn-danger btn-delete" onclick="deleteOrder(${o.id})" title="Удалить заказ №${o.id}">✕ Удалить</button>
       </div>
     </div>`;
   }).join('');
@@ -4674,5 +4673,8 @@ firebase.auth().onAuthStateChanged(fbUser => {
   startDataSync(role);
 });
 </script>
+
+<!-- Уведомления — общие для всех кабинетов -->
+<div class="toast" id="toast"></div>
 </body>
 </html>

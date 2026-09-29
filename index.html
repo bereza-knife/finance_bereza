@@ -1917,6 +1917,19 @@
 </div>
 
 <script>
+// ---- Тема оформления: тёмная (по умолчанию) / молочно-бежевая светлая ----
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.querySelectorAll('.theme-toggle-input').forEach(cb => { cb.checked = (theme === 'dark'); });
+  try { localStorage.setItem('bn_theme', theme); } catch (e) {}
+}
+function setTheme(theme) { applyTheme(theme); }
+(function () {
+  let saved = 'dark';
+  try { saved = localStorage.getItem('bn_theme') || 'dark'; } catch (e) {}
+  applyTheme(saved);
+})();
+
 // =============================================
 // DATA: MODELS & STEEL COSTS
 // =============================================

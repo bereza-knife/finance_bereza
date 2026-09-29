@@ -252,7 +252,7 @@
     color: var(--accent); margin-top: 4px;
   }
   /* смысловая окраска значений: прибыль зелёная, как и везде в карточках заказов */
-  .s-value.money-profit, .k-value.money-profit { color: #5a9e7a; }
+  .s-value.money-profit, .k-value.money-profit { color: var(--green); }
 
   /* ORDER CARDS */
   .order-card {
@@ -276,7 +276,7 @@
   }
   .fin-item .fin-label { color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; }
   .fin-item .fin-value { color: var(--text); }
-  .fin-item .fin-value.profit { color: #5a9e7a; }
+  .fin-item .fin-value.profit { color: var(--green); }
   .fin-item .fin-value.loss { color: var(--red); }
 
   .wh-item {
@@ -295,7 +295,7 @@
     border-bottom: 1px solid var(--border); flex-wrap: wrap; align-items: center;
   }
   .wh-history-row .wh-h-date { color: var(--muted); min-width: 90px; }
-  .wh-history-row .wh-h-plus { color: #5a9e7a; }
+  .wh-history-row .wh-h-plus { color: var(--green); }
   .wh-history-row .wh-h-minus { color: var(--red); }
   .wh-history-row .wh-h-comment { color: var(--muted); flex: 1; }
 
@@ -516,7 +516,7 @@
   .prod-stat .ps-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
   .prod-stat .ps-value { font-family: 'Cormorant Garamond', serif; font-size: 26px; color: var(--accent); margin-top: 4px; }
   .prod-stat .ps-value.danger { color: var(--red); }
-  .prod-stat .ps-value.ok { color: #5a9e7a; }
+  .prod-stat .ps-value.ok { color: var(--green); }
 
   .prod-grid { display: grid; grid-template-columns: 1fr 360px; gap: 20px; }
 
@@ -2545,11 +2545,11 @@ function listenOrderLog() {
 }
 
 const LOG_ACTIONS = {
-  create:  { label: 'Создан',      color: '#5a9e7a' },
+  create:  { label: 'Создан',      color: 'var(--green)' },
   edit:    { label: 'Изменён',     color: 'var(--accent)' },
-  status:  { label: 'Статус',      color: '#6a9ec0' },
+  status:  { label: 'Статус',      color: 'var(--blue)' },
   delete:  { label: 'Удалён',      color: 'var(--red)' },
-  restore: { label: 'Восстановлен',color: '#5a9e7a' },
+  restore: { label: 'Восстановлен',color: 'var(--green)' },
 };
 
 // Запись действия в журнал
@@ -2911,7 +2911,7 @@ function renderOrders() {
         </div>
         <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status]}</span>
       </div>
-      <div class="order-client">${o.client}${o.phone?' · '+o.phone:''}${o.tg?' · <span style="color:#6a9ec0">'+o.tg+'</span>':''}${o.email?' · <span style="color:var(--muted)">'+o.email+'</span>':''}</div>
+      <div class="order-client">${o.client}${o.phone?' · '+o.phone:''}${o.tg?' · <span style="color:var(--blue)">'+o.tg+'</span>':''}${o.email?' · <span style="color:var(--muted)">'+o.email+'</span>':''}</div>
       <div class="order-artikul">${o.artikul}${(o.qty&&o.qty>1)?` <span style="color:var(--accent2)">×${o.qty}</span>`:''}</div>
       ${o.note?`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">✎ ${o.note}</div>`:''}
       ${o.accessories&&Object.keys(o.accessories).length?`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">+ ${Object.entries(o.accessories).map(([id,q])=>ACCESSORIES[id]?`${ACCESSORIES[id].name}${q>1?' ×'+q:''}`:id).join(', ')}</div>`:''}
@@ -2950,7 +2950,7 @@ function renderOrders() {
           <option value="">Статус...</option>
           ${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}
         </select>
-        <button class="btn btn-sm" onclick="editOrder(${o.id})" style="border-color:#2a4a3a;color:#5a9e7a;">✎ Редакт.</button>
+        <button class="btn btn-sm" onclick="editOrder(${o.id})" style="border-color:#2a4a3a;color:var(--green);">✎ Редакт.</button>
         <button class="btn-delete" onclick="deleteOrder(${o.id})" title="Удалить заказ №${o.id}">
           <span class="bd-text">Удалить</span>
           <span class="bd-icon"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></span>
@@ -3138,11 +3138,11 @@ function renderAnalytics() {
   // Стрелка динамики: рост/падение относительно прошлого периода
   const delta = (now, was) => {
     if (prev === null) return '';
-    if (!was) return now ? `<span style="color:#5a9e7a;font-size:10px;"> ▲ новое</span>` : '';
+    if (!was) return now ? `<span style="color:var(--green);font-size:10px;"> ▲ новое</span>` : '';
     const pct = Math.round((now - was) / was * 100);
     if (pct === 0) return `<span style="color:var(--muted);font-size:10px;"> = без изменений</span>`;
     const up = pct > 0;
-    return `<span style="color:${up ? '#5a9e7a' : 'var(--red)'};font-size:10px;"> ${up ? '▲' : '▼'} ${Math.abs(pct)}%</span>`;
+    return `<span style="color:${up ? 'var(--green)' : 'var(--red)'};font-size:10px;"> ${up ? '▲' : '▼'} ${Math.abs(pct)}%</span>`;
   };
 
   // Заказы без корректной даты — не попадают в фильтр по периоду
@@ -3568,7 +3568,7 @@ function renderMishaOrders() {
         </div>
         <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status]}</span>
       </div>
-      <div class="order-client">${o.client}${o.phone?' · '+o.phone:''}${o.tg?' · <span style="color:#6a9ec0">'+o.tg+'</span>':''}${o.email?' · <span style="color:var(--muted)">'+o.email+'</span>':''}</div>
+      <div class="order-client">${o.client}${o.phone?' · '+o.phone:''}${o.tg?' · <span style="color:var(--blue)">'+o.tg+'</span>':''}${o.email?' · <span style="color:var(--muted)">'+o.email+'</span>':''}</div>
       <div class="order-artikul">${o.artikul}${(o.qty&&o.qty>1)?` <span style="color:var(--accent2)">×${o.qty}</span>`:''}</div>
       ${o.note?`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">✎ ${o.note}</div>`:''}
       ${o.accessories&&Object.keys(o.accessories).length?`<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">+ ${Object.entries(o.accessories).map(([id,q])=>ACCESSORIES[id]?`${ACCESSORIES[id].name}${q>1?' ×'+q:''}`:id).join(', ')}</div>`:''}
@@ -3595,7 +3595,7 @@ function renderMishaOrders() {
           <option value="">Статус...</option>
           ${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}
         </select>
-        <button class="btn btn-sm" onclick="editMishaOrder(${o.id})" style="border-color:#2a4a3a;color:#5a9e7a;">✎ Редакт.</button>
+        <button class="btn btn-sm" onclick="editMishaOrder(${o.id})" style="border-color:#2a4a3a;color:var(--green);">✎ Редакт.</button>
         <button class="btn-delete" onclick="deleteOrder(${o.id})" title="Удалить заказ №${o.id}">
           <span class="bd-text">Удалить</span>
           <span class="bd-icon"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></span>
@@ -3756,11 +3756,11 @@ const fmtShort = v => v >= 1000 ? (Math.round(v / 100) / 10).toLocaleString('ru'
 // Стрелка динамики относительно прошлого периода
 function mDelta(now, was, suffix = '') {
   if (was === null || was === undefined) return '';
-  if (!was) return now ? `<span style="color:#5a9e7a">▲ новое</span>` : `<span style="color:var(--muted)">—</span>`;
+  if (!was) return now ? `<span style="color:var(--green)">▲ новое</span>` : `<span style="color:var(--muted)">—</span>`;
   const pct = Math.round((now - was) / was * 100);
   if (pct === 0) return `<span style="color:var(--muted)">= как раньше</span>`;
   const up = pct > 0;
-  return `<span style="color:${up ? '#5a9e7a' : 'var(--red)'}">${up ? '▲' : '▼'} ${Math.abs(pct)}%${suffix}</span>`;
+  return `<span style="color:${up ? 'var(--green)' : 'var(--red)'}">${up ? '▲' : '▼'} ${Math.abs(pct)}%${suffix}</span>`;
 }
 
 // Вертикальные столбцы (одна серия), скруглён только верх, подписи у максимума и последнего
@@ -3774,13 +3774,13 @@ function svgBars(series, key, unit = '₽') {
   let bars = '', labels = '', axis = '', grid = '';
   [0.25, 0.5, 0.75].forEach(f => {
     const gy = padT + plotH * (1 - f);
-    grid += `<line x1="0" y1="${gy}" x2="${W}" y2="${gy}" stroke="#221d17" stroke-dasharray="2,3"/>`;
+    grid += `<line x1="0" y1="${gy}" x2="${W}" y2="${gy}" stroke="var(--line)" stroke-dasharray="2,3"/>`;
   });
   series.forEach((s, i) => {
     const v = s[key];
     const h = v > 0 ? Math.max(2, Math.round(plotH * v / max)) : 0;
     const x = i * (bw + gap), y = H - padB - h, base = H - padB;
-    const fill = s.isCurrent ? 'url(#barCurrent)' : '#8b6d3f';
+    const fill = s.isCurrent ? 'url(#barCurrent)' : 'var(--accent2)';
     const path = h > 0
       ? `M${x},${base} V${y + r} a${r},${r} 0 0 1 ${r},-${r} H${x + bw - r} a${r},${r} 0 0 1 ${r},${r} V${base} Z`
       : '';
@@ -3788,14 +3788,14 @@ function svgBars(series, key, unit = '₽') {
       <rect x="${x}" y="${padT}" width="${bw}" height="${plotH}" fill="transparent"/>
       ${path ? `<path d="${path}" fill="${fill}"/>` : ''}</g>`;
     if (v > 0 && (i === maxIdx || s.isCurrent))
-      labels += `<text x="${x + bw / 2}" y="${y - 5}" text-anchor="middle" font-size="10" fill="#e8dcc8">${fmtShort(v)}</text>`;
-    axis += `<text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle" font-size="9" fill="#6b5f52">${s.label}</text>`;
+      labels += `<text x="${x + bw / 2}" y="${y - 5}" text-anchor="middle" font-size="10" fill="var(--text)">${fmtShort(v)}</text>`;
+    axis += `<text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle" font-size="9" fill="var(--muted)">${s.label}</text>`;
   });
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" style="display:block;overflow:visible">
     <defs><linearGradient id="barCurrent" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#e0c48a"/><stop offset="100%" stop-color="#c8a96e"/>
+      <stop offset="0%" stop-color="var(--accent-light)"/><stop offset="100%" stop-color="var(--accent)"/>
     </linearGradient></defs>
-    ${grid}<line x1="0" y1="${H - padB}" x2="${W}" y2="${H - padB}" stroke="#2a2420"/>${bars}${labels}${axis}</svg>`;
+    ${grid}<line x1="0" y1="${H - padB}" x2="${W}" y2="${H - padB}" stroke="var(--border)"/>${bars}${labels}${axis}</svg>`;
 }
 
 // Горизонтальные полоски по категориям
@@ -3959,7 +3959,7 @@ const PROD_STAGES = [
   { id: 'fitting',  label: 'Слесарка',        color: '#7a9e5a' },
   { id: 'sharpening',label: 'Заточка',        color: '#c8a96e' },
   { id: 'tumbling', label: 'Галтовка',        color: '#9e5a7a' },
-  { id: 'assembly', label: 'Сборка / Финиш',  color: '#5a9e7a' },
+  { id: 'assembly', label: 'Сборка / Финиш',  color: 'var(--green)' },
 ];
 
 // { [orderId]: { stage, deadline, comment } }
@@ -4122,7 +4122,7 @@ function renderJournal() {
         <div class="trash-meta">Удалил: ${d.deletedBy || '—'} · ${d.deletedDate || ''}</div>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="btn btn-sm" onclick="restoreOrder('${d._key}')" style="border-color:#2a4a3a;color:#5a9e7a;">↩ Восстановить</button>
+        <button class="btn btn-sm" onclick="restoreOrder('${d._key}')" style="border-color:#2a4a3a;color:var(--green);">↩ Восстановить</button>
         <button class="btn btn-sm btn-danger" onclick="purgeOrder('${d._key}')">Стереть навсегда</button>
       </div>
     </div>`).join('')
@@ -4463,7 +4463,7 @@ function whRenderFull() {
       </div>
       <div class="wh-item-qty ${low ? 'low' : ''}">${it.qty} ${it.unit}</div>
       <div class="wh-item-actions">
-        <button class="btn btn-sm" onclick="whAddStock('${id}')" style="border-color:#2a4a3a;color:#5a9e7a;">+ Приход</button>
+        <button class="btn btn-sm" onclick="whAddStock('${id}')" style="border-color:#2a4a3a;color:var(--green);">+ Приход</button>
         <button class="btn btn-sm" onclick="whRemoveStock('${id}')" style="border-color:var(--red);color:var(--red);">− Расход</button>
         <button class="btn btn-sm" onclick="whEditItem('${id}')" style="border-color:#4a3a10;color:var(--accent);">✎</button>
         <button class="btn btn-sm btn-danger" onclick="whDeleteItem('${id}')">✕</button>

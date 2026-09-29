@@ -272,14 +272,37 @@
   .status-paid { border-color: #2a3a1a; color: #8ab87a; background: #111a0d; }
 
   .order-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
-  /* Удаление — отодвинуто вправо, чтобы не попасть по нему случайно, но хорошо читается */
+  /* Удаление — отодвинуто вправо, чтобы не попасть по нему случайно; при наведении раскрывается в иконку */
   .btn-delete {
+    position: relative;
     margin-left: auto;
-    padding: 7px 13px;
-    opacity: 0.9;
-    transition: opacity 0.2s, background 0.2s;
+    padding: 0;
+    border: 1px solid #4a1a17;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    font-family: inherit;
+    transition: background 0.2s, border-color 0.2s;
   }
-  .btn-delete:hover { opacity: 1; background: #2a1512; }
+  .btn-delete .bd-text {
+    padding: 7px 34px 7px 13px;
+    color: var(--danger);
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase; white-space: nowrap;
+    transition: color 0.2s;
+  }
+  .btn-delete .bd-icon {
+    position: absolute; top: 0; right: 0; bottom: 0; width: 28px;
+    border-left: 1px solid #4a1a17;
+    display: flex; align-items: center; justify-content: center;
+    transition: width 0.2s ease, border-color 0.2s;
+  }
+  .btn-delete svg { width: 13px; height: 13px; fill: var(--danger); transition: transform 0.15s; }
+  .btn-delete:hover { background: #2a0e0c; border-color: var(--danger); }
+  .btn-delete:hover .bd-text { color: transparent; }
+  .btn-delete:hover .bd-icon { width: 100%; border-left-color: transparent; }
+  .btn-delete:active .bd-icon svg { transform: scale(0.85); }
 
   .empty-state {
     text-align: center; padding: 60px 20px; color: var(--muted);

@@ -3716,14 +3716,14 @@ function renderMishaAnalytics() {
   const cmpNote = prev ? (period.includes('week') ? 'к прошлой неделе' : period.includes('month') ? 'к прошлому месяцу' : 'к прошлому периоду') : '';
 
   // ---- KPI ----
-  const kpi = (label, value, deltaHtml, note) => `<div class="m-kpi">
+  const kpi = (label, value, deltaHtml, note, cls = '') => `<div class="m-kpi">
     <div class="k-label">${label}</div>
-    <div class="k-value">${value}</div>
+    <div class="k-value${cls ? ' ' + cls : ''}">${value}</div>
     <div class="k-delta">${deltaHtml || (note ? `<span style="color:var(--muted)">${note}</span>` : '')}</div>
   </div>`;
   const kpis = [
     kpi('Выручка', fmtRub(cur.revenue), prev && mDelta(cur.revenue, prev.revenue), 'по оплаченным'),
-    kpi('Моя прибыль', fmtRub(cur.profit), prev && mDelta(cur.profit, prev.profit)),
+    kpi('Моя прибыль', fmtRub(cur.profit), prev && mDelta(cur.profit, prev.profit), '', 'money-profit'),
     kpi('Средний чек', fmtRub(cur.avgCheck), prev && mDelta(cur.avgCheck, prev.avgCheck)),
     kpi('Заказов', `${cur.count}`, prev && mDelta(cur.count, prev.count), `${cur.knives} нож${cur.knives % 10 === 1 && cur.knives % 100 !== 11 ? '' : 'ей'}`),
     kpi('Оплачено', `${cur.convPct}%`, prev ? `<span style="color:var(--muted)">было ${prev.convPct}%</span>` : '', `${cur.paidCount} из ${cur.count}`),

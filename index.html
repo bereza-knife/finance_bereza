@@ -756,6 +756,34 @@
   }
   .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
 
+  /* Переключатель темы — https://uiverse.io/rishichawda, адаптирован под палитру мастерской */
+  #theme-toggle-button {
+    width: 52px; height: 28px;
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  #theme-toggle-button input#toggle { opacity: 0; width: 0; height: 0; position: absolute; }
+  #theme-toggle-button svg { display: block; width: 100%; height: 100%; }
+  #container, #patches, #stars, #button, #sun, #moon, #cloud {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 0.25s;
+  }
+  #sun { opacity: 1; }
+  #moon { opacity: 0; }
+  #cloud { opacity: 1; }
+  #stars { opacity: 0; }
+  #patches { opacity: 1; }
+  #toggle:checked + svg #container { fill: #17130e; }
+  #toggle:checked + svg #button { transform: translate(28px, 2.333px); }
+  #toggle:checked + svg #sun { opacity: 0; }
+  #toggle:checked + svg #moon { opacity: 1; }
+  #toggle:checked + svg #cloud { opacity: 0; }
+  #toggle:checked + svg #stars { opacity: 1; }
+  #toggle:checked + svg #patches { opacity: 0; }
+
   /* placeholder dashboards */
   .placeholder-wrap {
     display: flex; flex-direction: column;

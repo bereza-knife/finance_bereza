@@ -13,6 +13,8 @@
   :root {
     --bg: #0e0c0a;
     --surface: #171410;
+    --surface2: #1a1510;
+    --line: #1e1a16;
     --border: #2a2420;
     --accent: #c8a96e;
     --accent2: #8b6d3f;
@@ -21,6 +23,40 @@
     --danger: #c0392b;
     --success: #2d6a4f;
     --red: #e07b54;
+    --green: #5a9e7a;
+    --olive: #8ab87a;
+    --blue: #6a9ec0;
+    --tint-blue-bg: #0d1a26;    --tint-blue-border: #2a4a6a;
+    --tint-gold-bg: #1a1408;    --tint-gold-border: #4a3a10;
+    --tint-green-bg: #0d1f18;   --tint-green-border: #1a3a28;
+    --tint-olive-bg: #111a0d;   --tint-olive-border: #2a3a1a;
+    --tint-red-bg: #1a0e0c;     --tint-red-border: #4a1a17;
+    --tint-red-hover: #2a0e0c;
+  }
+
+  /* Светлая тема — молочно-бежевая */
+  :root[data-theme="light"] {
+    --bg: #ece3d0;
+    --surface: #fbf7ee;
+    --surface2: #f3ecdb;
+    --line: #e6dbc2;
+    --border: #ddd0b3;
+    --accent: #8a6a2e;
+    --accent2: #6b4f22;
+    --text: #2a2118;
+    --muted: #8a7a63;
+    --danger: #b23a2a;
+    --success: #2d6a4f;
+    --red: #b8542f;
+    --green: #2f7a55;
+    --olive: #4f7a35;
+    --blue: #3d6f95;
+    --tint-blue-bg: #e4eef6;    --tint-blue-border: #bcd4e6;
+    --tint-gold-bg: #f4e9d2;    --tint-gold-border: #ddc38c;
+    --tint-green-bg: #e3f0e7;   --tint-green-border: #b9dcc4;
+    --tint-olive-bg: #eaf1dd;   --tint-olive-border: #c7dba9;
+    --tint-red-bg: #f8e7e1;     --tint-red-border: #e3b6a5;
+    --tint-red-hover: #f1d6cb;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,6 +67,7 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
     min-height: 100vh;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
 
   /* HEADER */

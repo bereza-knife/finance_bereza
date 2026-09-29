@@ -4648,6 +4648,8 @@ function checkPin() {
   signingIn = true;
   document.getElementById('pin-label').textContent = 'Проверяем…';
   document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-keypad').style.display = 'none';
+  document.getElementById('login-loader').classList.add('active');
 
   firebase.auth().signInWithEmailAndPassword(user.email, pinBuffer)
     .catch(err => {
@@ -4662,6 +4664,8 @@ function checkPin() {
       document.getElementById('pin-label').textContent = 'Введите PIN';
     })
     .finally(() => {
+      document.getElementById('pin-keypad').style.display = '';
+      document.getElementById('login-loader').classList.remove('active');
       signingIn = false;
       pinBuffer = '';
       updateDots();

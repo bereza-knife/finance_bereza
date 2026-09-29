@@ -204,16 +204,18 @@
   select.filter-input { cursor: pointer; max-width: 160px; }
 
   .stats-row {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;
   }
   .stat-card {
-    background: var(--surface); border: 1px solid var(--border); padding: 14px;
+    background: var(--surface); border: 1px solid var(--border); padding: 15px 16px;
   }
   .stat-card .s-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
   .stat-card .s-value {
     font-family: 'Cormorant Garamond', serif; font-size: 22px;
     color: var(--accent); margin-top: 4px;
   }
+  /* смысловая окраска значений: прибыль зелёная, как и везде в карточках заказов */
+  .s-value.money-profit, .k-value.money-profit { color: #5a9e7a; }
 
   /* ORDER CARDS */
   .order-card {

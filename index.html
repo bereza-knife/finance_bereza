@@ -869,6 +869,11 @@
     .wh-item-actions { width: 100%; flex-wrap: wrap; }
   }
 </style>
+<script>
+  try {
+    if (localStorage.getItem('bn_theme') === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  } catch (e) {}
+</script>
 </head>
 <body>
 

@@ -4812,6 +4812,13 @@ const USERS = {
   sklad_dmitry:   { email: 'sklad.dmitry@bereza-knife.crm',   app: 'app-sklad', name: 'Дмитрий' },
   sklad_alexandr: { email: 'sklad.alexandr@bereza-knife.crm', app: 'app-sklad', name: 'Александр' }
 };
+
+// Временно закрытые кабинеты: ключ из USERS → текст заглушки вместо PIN-клавиатуры.
+// Чтобы открыть обратно — убрать строку.
+const CLOSED_USERS = {
+  lesha: 'Кабинет временно закрыт на техработы'
+};
+
 const PIN_LENGTH = 6;
 
 // Текущий сотрудник склада (для записи расхода)

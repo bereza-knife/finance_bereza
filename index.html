@@ -4839,14 +4839,19 @@ function roleByEmail(email) {
 }
 
 function selectUser(role) {
-  selectedUser = role;
+  const closedMsg = CLOSED_USERS[role];
+  // null блокирует pinInput — ввод PIN невозможен, даже если открыть клавиатуру через devtools
+  selectedUser = closedMsg ? null : role;
+
   document.querySelectorAll('.user-card').forEach(c => c.classList.remove('selected'));
   document.getElementById('card-' + role).classList.add('selected');
   document.getElementById('pin-wrap').classList.add('visible');
-  document.getElementById('pin-label').textContent = 'Введите PIN';
+  document.getElementById('pin-dots').style.display   = closedMsg ? 'none' : '';
+  document.getElementById('pin-keypad').style.display = closedMsg ? 'none' : '';
+  document.getElementById('pin-label').textContent = closedMsg || 'Введите PIN';
+  document.getElementById('pin-error').textContent = '';
   pinBuffer = '';
   updateDots();
-  document.getElementById('pin-error').textContent = '';
 }
 
 function pinInput(digit) {

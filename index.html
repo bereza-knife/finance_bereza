@@ -1456,7 +1456,10 @@
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0;">
       <div class="section-title" style="margin:0;">Остатки на складе</div>
-      <input class="filter-input" id="wh-search" type="text" placeholder="Поиск по названию, артикулу..." oninput="whRenderFull()" style="max-width:280px;">
+      <div style="display:flex;gap:10px;align-items:center;">
+        <input class="filter-input" id="wh-search" type="text" placeholder="Поиск по названию, артикулу..." oninput="whRenderFull()" style="max-width:280px;">
+        <button class="export-btn" onclick="whExportItems()">↓ CSV</button>
+      </div>
     </div>
     <div id="wh-items-list"></div>
 

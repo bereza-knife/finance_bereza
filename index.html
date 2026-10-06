@@ -4723,13 +4723,14 @@ function whEmpSubmit() {
   }
   const comment = (document.getElementById('emp-comment')?.value || '').trim();
   const itemId = whEmpItemId;
-  item.qty = Math.max(0, (item.qty || 0) - amount);
-  whSaveItems();
-  whLogHistory(itemId, item, -amount, currentWhEmployee, comment);
-  alert('Записан расход: ' + item.name + ' −' + amount + ' ' + item.unit);
-  whEmpItemId = null;
-  whEmpCategory = null;
-  whRenderEmployee();
+  whApplyDelta(itemId, -amount, (err, applied) => {
+    if (err) { alert('Не удалось записать расход. Проверь интернет и попробуй ещё раз.'); return; }
+    whLogHistory(itemId, item, applied, currentWhEmployee, comment);
+    alert('Записан расход: ' + item.name + ' ' + applied + ' ' + item.unit);
+    whEmpItemId = null;
+    whEmpCategory = null;
+    whRenderEmployee();
+  });
 }
 
 function whRenderEmployee() {

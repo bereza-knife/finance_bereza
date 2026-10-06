@@ -4636,6 +4636,7 @@ function whRemoveStock(id) {
   }
   whApplyDelta(id, -amount, (err, applied) => {
     if (err) { showToast('Не удалось записать расход — проверь связь'); return; }
+    if (!applied) { showToast('«' + item.name + '» уже на нуле — списывать нечего'); return; }
     whLogHistory(id, item, applied, 'Алексей', '');
   });
 }

@@ -4595,10 +4595,10 @@ function whRemoveStock(id) {
   if (amount > (item.qty || 0)) {
     if (!confirm('На складе только ' + (item.qty||0) + ' ' + item.unit + '. Списать всё равно (остаток станет 0)?')) return;
   }
-  item.qty = Math.max(0, (item.qty || 0) - amount);
-  whSaveItems();
-  whLogHistory(id, item, -amount, 'Алексей', '');
-  whRenderFull();
+  whApplyDelta(id, -amount, (err, applied) => {
+    if (err) { showToast('Не удалось записать расход — проверь связь'); return; }
+    whLogHistory(id, item, applied, 'Алексей', '');
+  });
 }
 
 function whDeleteItem(id) {

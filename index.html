@@ -4578,10 +4578,10 @@ function whAddStock(id) {
   if (amountStr === null) return;
   const amount = Math.abs(+amountStr) || 0;
   if (!amount) return;
-  item.qty = (item.qty || 0) + amount;
-  whSaveItems();
-  whLogHistory(id, item, amount, 'Алексей', '');
-  whRenderFull();
+  whApplyDelta(id, amount, (err, applied) => {
+    if (err) { showToast('Не удалось записать приход — проверь связь'); return; }
+    whLogHistory(id, item, applied, 'Алексей', '');
+  });
 }
 
 // Ручная корректировка расхода (Алексей)

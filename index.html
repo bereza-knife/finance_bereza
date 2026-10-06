@@ -4490,6 +4490,41 @@ function whLogHistory(itemId, item, delta, employee, comment) {
   fbDb.ref('warehouse/history').push(entry);
 }
 
+// Экранирование по RFC 4180 — комментарии к расходу пишутся свободным текстом
+// и могут содержать «;» или перенос строки, который иначе разъедет таблицу.
+function csvCell(v) {
+  const s = String(v ?? '');
+  return /[";\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function whDownloadCSV(headers, rows, name) {
+  const csv = [headers, ...rows].map(r => r.map(csvCell).join(';')).join('\r\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name + '_' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function whExportItems() {
+  const rows = Object.values(whItems).map(it => [
+    it.category || '', it.artikul || '', it.name || '', it.qty || 0,
+    it.unit || '', it.min || 0, (it.min > 0 && it.qty <= it.min) ? 'да' : ''
+  ]);
+  whDownloadCSV(['Категория','Артикул','Название','Остаток','Ед.','Минимум','Ниже минимума'],
+                rows, 'bereza_sklad_ostatki');
+}
+
+function whExportHistory() {
+  const rows = whHistory.map(h => [
+    h.date || '', h.category || '', h.artikul || '', h.item || '',
+    h.employee || '', h.delta, h.unit || '', h.comment || ''
+  ]);
+  whDownloadCSV(['Дата','Категория','Артикул','Название','Сотрудник','Кол-во','Ед.','Комментарий'],
+                rows, 'bereza_sklad_istoriya');
+}
+
 // Кол-во позиций ниже минимума
 function whLowStockCount() {
   return Object.values(whItems).filter(it => it.min > 0 && it.qty <= it.min).length;

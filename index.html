@@ -4453,9 +4453,24 @@ function listenWarehouseHistory() {
   });
 }
 
-function whSaveItems() {
-  fbDb.ref('warehouse/items').set(whItems);
-  localStorage.setItem('bn_wh_items', JSON.stringify(whItems));
+// Запись одной позиции. Раньше здесь перезаписывался весь справочник целиком,
+// и одновременная операция с другого устройства терялась без следа.
+function whSaveItem(id, item) {
+  fbDb.ref('warehouse/items/' + id).set(item);
+}
+
+// Изменение остатка транзакцией: Firebase пересчитывает значение на сервере,
+// поэтому одновременные списания складываются, а не затирают друг друга.
+// В done приходит фактически применённая дельта — по модулю меньше запрошенной,
+// если на складе не хватило остатка.
+function whApplyDelta(id, delta, done) {
+  let applied = 0;
+  fbDb.ref('warehouse/items/' + id + '/qty').transaction(cur => {
+    const before = cur || 0;
+    const after = Math.max(0, before + delta);
+    applied = after - before;
+    return after;
+  }, (err, committed) => done(err || (committed ? null : new Error('conflict')), applied));
 }
 
 // Запись операции в историю (id, категория, артикул, название, сотрудник, дата, кол-во, комментарий)

@@ -4524,7 +4524,7 @@ function whAddItem() {
   if (whEditingId) {
     // Редактирование существующей позиции (без изменения истории)
     whItems[whEditingId] = { name, artikul, category, unit, qty, min };
-    whSaveItems();
+    whSaveItem(whEditingId, whItems[whEditingId]);
     whCancelEdit();
     whRenderFull();
     return;
@@ -4533,7 +4533,7 @@ function whAddItem() {
   const id = 'i_' + Date.now();
   const item = { name, artikul, category, unit, qty, min };
   whItems[id] = item;
-  whSaveItems();
+  whSaveItem(id, item);
   if (qty > 0) whLogHistory(id, item, qty, 'Алексей (первичный приход)', '');
   whClearForm();
   whRenderFull();

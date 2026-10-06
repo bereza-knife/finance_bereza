@@ -4615,12 +4615,11 @@ function whRevertOp(key) {
   const h = whHistory.find(x => x._key === key);
   if (!h) return;
   if (!confirm('Отменить операцию: ' + h.item + ' ' + (h.delta>0?'+':'') + h.delta + ' ' + (h.unit||'') + '?\nОстаток будет скорректирован обратно.')) return;
-  const item = h.itemId && whItems[h.itemId];
-  if (item) {
-    item.qty = Math.max(0, (item.qty || 0) - h.delta); // откат: вычитаем дельту
-    whSaveItems();
-  }
-  fbDb.ref('warehouse/history/' + key).remove();
+  if (!h.itemId || !whItems[h.itemId]) { fbDb.ref('warehouse/history/' + key).remove(); return; }
+  whApplyDelta(h.itemId, -h.delta, err => {   // откат: вычитаем дельту
+    if (err) { showToast('Не удалось отменить операцию — проверь связь'); return; }
+    fbDb.ref('warehouse/history/' + key).remove();
+  });
 }
 
 function whRenderFull() {

@@ -4764,6 +4764,7 @@ function whEmpSubmit() {
   const itemId = whEmpItemId;
   whApplyDelta(itemId, -amount, (err, applied) => {
     if (err) { alert('Не удалось записать расход. Проверь интернет и попробуй ещё раз.'); return; }
+    if (!applied) { alert('«' + item.name + '» уже на нуле — списывать нечего.'); return; }
     whLogHistory(itemId, item, applied, currentWhEmployee, comment);
     alert('Записан расход: ' + item.name + ' ' + applied + ' ' + item.unit);
     whEmpItemId = null;

@@ -1454,9 +1454,9 @@
 
     <div class="divider"></div>
 
-    <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0;">
-      <div class="section-title" style="margin:0;">Остатки на складе</div>
-      <div style="display:flex;gap:10px;align-items:center;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0;">
+      <div class="section-title" style="margin:0;white-space:nowrap;">Остатки на складе</div>
+      <div style="display:flex;gap:10px;align-items:center;flex:1;justify-content:flex-end;">
         <input class="filter-input" id="wh-search" type="text" placeholder="Поиск по названию, артикулу..." oninput="whRenderFull()" style="max-width:280px;">
         <button class="export-btn" onclick="whExportItems()">↓ CSV</button>
       </div>

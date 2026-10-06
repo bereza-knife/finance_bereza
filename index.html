@@ -4606,7 +4606,7 @@ function whDeleteItem(id) {
   if (!item) return;
   if (!confirm('Удалить позицию «' + item.name + '» со склада?')) return;
   delete whItems[id];
-  whSaveItems();
+  fbDb.ref('warehouse/items/' + id).remove();
   whRenderFull();
 }
 

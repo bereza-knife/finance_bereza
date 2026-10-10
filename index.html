@@ -4792,10 +4792,10 @@ function whRenderEmployee() {
   if (!whEmpCategory) {
     root.innerHTML = `<div class="section-title" style="margin-bottom:16px;">Выберите категорию</div>
       <div class="wh-cat-grid">` +
-      Object.entries(WH_CATEGORIES).map(([cat, items]) => `
+      Object.entries(WH_CATEGORIES).map(([cat, meta]) => `
         <div class="wh-cat-card" onclick="whEmpSelectCategory('${cat}')">
           <div class="wh-cat-name">${cat}</div>
-          <div class="wh-cat-hint">${items.join(' · ')}</div>
+          <div class="wh-cat-hint">${meta.hint.join(' · ')}</div>
         </div>`).join('') +
       `</div>`;
     return;

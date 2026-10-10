@@ -4546,6 +4546,18 @@ function whLogHistory(itemId, item, delta, employee, comment) {
 // ============ МАССОВЫЙ ИМПОРТ ============
 let whBulkParsed = null;
 
+const whNorm = s => (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+
+// Модель и сталь ищем по названию в справочниках заказов, чтобы склад
+// говорил с заказами на одном языке, а не завёл свою параллельную нумерацию.
+const WH_MODEL_BY_NAME = Object.fromEntries(Object.entries(MODELS).map(([id, n]) => [whNorm(n), +id]));
+const WH_STEEL_BY_NAME = Object.fromEntries(Object.entries(STEELS).map(([code, n]) => [whNorm(n), code]));
+
+function whClassify(modelId) {
+  if (!modelId) return '';
+  return STEAK_MODELS.includes(modelId) ? 'стейк' : 'шеф';
+}
+
 function whToggleBulk() {
   const box = document.getElementById('wh-bulk-box');
   const open = box.style.display === 'none';

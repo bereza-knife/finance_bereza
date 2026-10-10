@@ -4862,8 +4862,11 @@ function whRenderFull() {
   const catF   = document.getElementById('wh-cat-filter')?.value || '';
   const stockF = document.getElementById('wh-stock-filter')?.value || '';
 
+  const kindF = document.getElementById('wh-kind-filter')?.value || '';
+
   const entries = Object.entries(whItems).filter(([id, it]) => {
     if (catF && it.category !== catF) return false;
+    if (kindF && it.kind !== kindF) return false;
     const qty = it.qty || 0;
     if (stockF === 'low'  && !(it.min > 0 && qty <= it.min)) return false;
     if (stockF === 'zero' && qty !== 0) return false;

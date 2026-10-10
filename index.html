@@ -4664,6 +4664,9 @@ function whBulkApply() {
   rows.forEach((r, i) => {
     const item = { name: r.name, artikul: r.artikul, category: r.category,
                    unit: r.unit, qty: r.qty, min: r.min };
+    if (r.model)   item.model   = r.model;
+    if (r.variant) item.variant = r.variant;
+    if (r.kind)    item.kind    = r.kind;
     updates['items/i_' + (Date.now() + i)] = item;
   });
   fbDb.ref('warehouse').update(updates, err => {

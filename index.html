@@ -1504,7 +1504,11 @@
 
     <div class="divider" style="margin-top:32px;"></div>
 
-    <div class="section-title" style="margin:16px 0;">История операций</div>
+    <div class="section-title" style="margin:16px 0;">
+      История операций
+      <button class="btn btn-sm" onclick="whToggleHistory()" id="wh-hist-toggle" style="margin-left:10px;">развернуть</button>
+    </div>
+    <div id="wh-hist-box" style="display:none;">
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
       <input class="filter-input" id="wh-hist-search" type="text" placeholder="Поиск: название, категория, комментарий..." oninput="whRenderFull()" style="max-width:280px;">
       <select class="filter-input" id="wh-hist-emp" onchange="whRenderFull()" style="max-width:180px;">

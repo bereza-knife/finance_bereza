@@ -4817,16 +4817,35 @@ function whRenderEmployee() {
   const root = document.getElementById('sklad-emp-body');
   if (!root) return;
 
-  // Шаг 1 — выбор категории
+  // Шаг 1 — поиск по всему складу или выбор категории
   if (!whEmpCategory) {
-    root.innerHTML = `<div class="section-title" style="margin-bottom:16px;">Выберите категорию</div>
-      <div class="wh-cat-grid">` +
-      Object.entries(WH_CATEGORIES).map(([cat, meta]) => `
-        <div class="wh-cat-card" onclick="whEmpSelectCategory('${cat}')">
-          <div class="wh-cat-name">${cat}</div>
-          <div class="wh-cat-hint">${meta.hint.join(' · ')}</div>
-        </div>`).join('') +
-      `</div>`;
+    const q = whEmpSearch.trim().toLowerCase();
+    const found = q ? Object.entries(whItems).filter(([id, it]) =>
+      (it.name || '').toLowerCase().includes(q) ||
+      (it.artikul || '').toLowerCase().includes(q) ||
+      (it.category || '').toLowerCase().includes(q)) : [];
+
+    root.innerHTML = `
+      <input class="form-control" id="emp-search" type="text" placeholder="Поиск по всему складу: название или артикул"
+             value="${whEmpSearch.replace(/"/g, '&quot;')}" oninput="whEmpOnSearch(this.value)" style="margin-bottom:18px;">` +
+      (q
+        ? `<div class="section-title" style="margin-bottom:16px;">Найдено: ${found.length}</div>` +
+          (found.length ? found.map(([id, it]) => `
+            <div class="wh-item" onclick="whEmpSelectItem('${id}')" style="cursor:pointer;">
+              <div>
+                <div class="wh-item-name">${it.name}${it.artikul ? ' <span style="color:var(--muted);font-size:11px;">арт. '+it.artikul+'</span>' : ''}</div>
+                <div class="wh-item-cat">${it.category}</div>
+              </div>
+              <div class="wh-item-qty">${it.qty} ${it.unit}</div>
+            </div>`).join('')
+            : `<div style="color:var(--muted);padding:20px 0;">Ничего не нашлось. Проверь написание или выбери категорию — очисти поиск.</div>`)
+        : `<div class="section-title" style="margin-bottom:16px;">Выберите категорию</div>
+           <div class="wh-cat-grid">` +
+          Object.entries(WH_CATEGORIES).map(([cat, meta]) => `
+            <div class="wh-cat-card" onclick="whEmpSelectCategory('${cat}')">
+              <div class="wh-cat-name">${cat}</div>
+              <div class="wh-cat-hint">${meta.hint.join(' · ')}</div>
+            </div>`).join('') + `</div>`);
     return;
   }
 

@@ -1491,6 +1491,11 @@
           <option value="zero">Закончились</option>
           <option value="has">Есть в наличии</option>
         </select>
+        <select class="filter-input" id="wh-kind-filter" onchange="whRenderFull()" style="max-width:130px;">
+          <option value="">Шеф и стейк</option>
+          <option value="шеф">Только шеф</option>
+          <option value="стейк">Только стейк</option>
+        </select>
         <button class="export-btn" onclick="whExportItems()">↓ CSV</button>
       </div>
     </div>

@@ -4648,7 +4648,7 @@ function whBulkPreview() {
     if (!base) { problems.push(`Строка ${i+1}: нет названия`); return; }
 
     const variant = hasVariant ? cols[1] : '';
-    const qty = parseFloat((hasVariant ? cols[2] : cols[1] || '0').replace(',', '.'));
+    const qty = whNum(hasVariant ? cols[2] : cols[1]);
     if (isNaN(qty)) { problems.push(`Строка ${i+1}: «${base}» — не разобрал количество`); return; }
 
     const name = variant ? `${base} · ${variant}` : base;

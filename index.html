@@ -4777,6 +4777,15 @@ function whRenderFull() {
 // ============ СОТРУДНИК: только расход ============
 let whEmpCategory = null;
 let whEmpItemId = null;
+let whEmpSearch = '';
+
+// Перерисовка пересоздаёт поле ввода, поэтому возвращаем фокус и каретку на место
+function whEmpOnSearch(value) {
+  whEmpSearch = value;
+  whRenderEmployee();
+  const el = document.getElementById('emp-search');
+  if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+}
 
 function whEmpSelectCategory(cat) {
   whEmpCategory = cat;

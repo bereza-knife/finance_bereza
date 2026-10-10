@@ -4431,12 +4431,27 @@ window.addEventListener('beforeunload', e => {
 // WAREHOUSE
 // =============================================
 // Категории и подсказки (что входит в каждую)
+// Категории склада. Списки справа — только подсказка на карточке у сотрудника,
+// на данные не влияют. Префикс идёт в автоартикул при массовом импорте.
 const WH_CATEGORIES = {
-  'Расходники':      ['Клей', 'Диски / бор', 'Полировочные круги', 'Паста'],
-  'Материалы':       ['Сталь (граммы)', 'Материал ручек', 'Доски для коробок', 'Больстеры', 'Пины'],
-  'Полуфабрикат':    ['Клинки', 'Вилки', 'Тесаки'],
-  'Готовые изделия': ['Ножи', 'Вилки', 'Коробки', 'ПОД'],
+  'КЛИНКИ':           { prefix: 'BL', hint: ['Клинки', 'Вилки', 'Тесаки'] },
+  'РУКОЯТЬ':          { prefix: 'HD', hint: ['Материал ручек', 'Больстеры', 'Вставки', 'Лайнеры', 'Пины'] },
+  'СЫРЬЕ':            { prefix: 'RW', hint: ['Сталь', 'Доски', 'Заготовки'] },
+  'ГОТОВАЯ УПАКОВКА': { prefix: 'PK', hint: ['Коробки', 'ПОД', 'Чехлы'] },
+  'РАСХОДНИКИ':       { prefix: 'RS', hint: ['Ленты', 'Наждачная бумага', 'Скотч', 'Клей', 'Диски'] },
 };
+const WH_CAT_NAMES = Object.keys(WH_CATEGORIES);
+
+// Заполняем выпадающие списки категорий из одного источника
+function whInitCategorySelects() {
+  const opts = WH_CAT_NAMES.map(c => `<option value="${c}">${c}</option>`).join('');
+  const form = document.getElementById('wh-category');
+  if (form) form.innerHTML = opts;
+  const filter = document.getElementById('wh-cat-filter');
+  if (filter) filter.innerHTML = '<option value="">Все категории</option>' + opts;
+  const bulk = document.getElementById('wh-bulk-cat');
+  if (bulk) bulk.innerHTML = opts;
+}
 
 let whItems = JSON.parse(localStorage.getItem('bn_wh_items') || '{}');
 let whHistory = JSON.parse(localStorage.getItem('bn_wh_history') || '[]');

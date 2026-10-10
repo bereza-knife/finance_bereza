@@ -4686,8 +4686,29 @@ function whRenderFull() {
   if (!listEl || !histEl) return;
 
   const search = (document.getElementById('wh-search').value || '').toLowerCase();
-  const entries = Object.entries(whItems).filter(([id, it]) =>
-    it.name.toLowerCase().includes(search) || (it.artikul || '').toLowerCase().includes(search));
+  const catF   = document.getElementById('wh-cat-filter')?.value || '';
+  const stockF = document.getElementById('wh-stock-filter')?.value || '';
+
+  const entries = Object.entries(whItems).filter(([id, it]) => {
+    if (catF && it.category !== catF) return false;
+    const qty = it.qty || 0;
+    if (stockF === 'low'  && !(it.min > 0 && qty <= it.min)) return false;
+    if (stockF === 'zero' && qty !== 0) return false;
+    if (stockF === 'has'  && qty <= 0)  return false;
+    if (!search) return true;
+    return (it.name || '').toLowerCase().includes(search)
+        || (it.artikul || '').toLowerCase().includes(search)
+        || (it.category || '').toLowerCase().includes(search);
+  }).sort((a, b) => (a[1].artikul || '').localeCompare(b[1].artikul || '', 'ru')
+                 || (a[1].name || '').localeCompare(b[1].name || '', 'ru'));
+
+  const countEl = document.getElementById('wh-items-count');
+  if (countEl) {
+    const total = Object.keys(whItems).length;
+    countEl.textContent = entries.length === total
+      ? `Позиций: ${total}`
+      : `Показано ${entries.length} из ${total}`;
+  }
 
   listEl.innerHTML = entries.length ? entries.map(([id, it]) => {
     const low = it.min > 0 && it.qty <= it.min;

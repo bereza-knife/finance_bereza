@@ -4891,7 +4891,7 @@ function whRenderFull() {
     return `<div class="wh-item ${low ? 'low' : ''}">
       <div>
         <div class="wh-item-name">${it.name}${it.artikul ? ' <span style="color:var(--muted);font-size:11px;">арт. '+it.artikul+'</span>' : ''}${low ? ' <span style="color:var(--red);font-size:10px;">⚠ мало</span>' : ''}</div>
-        <div class="wh-item-cat">${it.category} · мин. ${it.min} ${it.unit}</div>
+        <div class="wh-item-cat">${it.category}${it.kind ? ' · ' + it.kind : ''} · мин. ${it.min} ${it.unit}</div>
       </div>
       <div class="wh-item-qty ${low ? 'low' : ''}">${it.qty} ${it.unit}</div>
       <div class="wh-item-actions">

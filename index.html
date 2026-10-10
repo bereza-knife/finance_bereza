@@ -1451,11 +1451,19 @@
 
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0;">
       <div class="section-title" style="margin:0;white-space:nowrap;">Остатки на складе</div>
-      <div style="display:flex;gap:10px;align-items:center;flex:1;justify-content:flex-end;">
+      <div style="display:flex;gap:10px;align-items:center;flex:1;justify-content:flex-end;flex-wrap:wrap;">
         <input class="filter-input" id="wh-search" type="text" placeholder="Поиск по названию, артикулу..." oninput="whRenderFull()" style="max-width:280px;">
+        <select class="filter-input" id="wh-cat-filter" onchange="whRenderFull()" style="max-width:190px;"></select>
+        <select class="filter-input" id="wh-stock-filter" onchange="whRenderFull()" style="max-width:170px;">
+          <option value="">Любой остаток</option>
+          <option value="low">Ниже минимума</option>
+          <option value="zero">Закончились</option>
+          <option value="has">Есть в наличии</option>
+        </select>
         <button class="export-btn" onclick="whExportItems()">↓ CSV</button>
       </div>
     </div>
+    <div id="wh-items-count" style="color:var(--muted);font-size:11px;margin-bottom:10px;"></div>
     <div id="wh-items-list"></div>
 
     <div class="divider" style="margin-top:32px;"></div>

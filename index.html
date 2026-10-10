@@ -4588,24 +4588,54 @@ function whBulkPreview() {
   const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
   if (!lines.length) { out.innerHTML = '<div style="color:var(--muted);">Пусто — вставь таблицу.</div>'; return; }
 
+  const prefix = WH_CATEGORIES[cat].prefix;
   const existingNames = new Set(Object.values(whItems).map(it => (it.name || '').toLowerCase()));
-  let num = whNextArtikulNum(WH_CATEGORIES[cat].prefix);
-  const rows = [], problems = [];
+  let num = whNextArtikulNum(prefix);
+  const rows = [], problems = [], notes = new Set();
 
   lines.forEach((line, i) => {
     // Из Excel приходит таб; на всякий случай принимаем и 2+ пробела
     const cols = line.split(/\t|\s{2,}/).map(c => c.trim()).filter(c => c !== '');
-    const name = cols[0] || '';
-    // Заголовок таблицы: во второй колонке не число
-    if (i === 0 && cols.length >= 2 && isNaN(parseFloat(cols[1].replace(',', '.')))) return;
-    if (!name) { problems.push(`Строка ${i+1}: нет названия`); return; }
-    const qty = parseFloat((cols[1] || '0').replace(',', '.'));
-    if (isNaN(qty)) { problems.push(`Строка ${i+1}: «${name}» — не разобрал количество`); return; }
-    const dup = existingNames.has(name.toLowerCase());
-    if (dup) problems.push(`Строка ${i+1}: «${name}» — такая позиция уже есть на складе, пропущу`);
-    else rows.push({ name, qty, unit: cols[2] || 'шт', category: cat, min,
-                     artikul: WH_CATEGORIES[cat].prefix + '-' + String(num++).padStart(2, '0') });
+    if (!cols.length) return;
+    const num2 = parseFloat((cols[1] || '').replace(',', '.'));
+
+    // Формат определяем по второй колонке: число → «название/кол-во/ед.изм»,
+    // текст → «название/вариант(сталь)/кол-во». Переключатель не нужен.
+    const hasVariant = cols.length >= 3 && isNaN(num2);
+    if (i === 0 && cols.length >= 2 && isNaN(num2) && !hasVariant) return;        // заголовок 2-колоночной
+    if (i === 0 && hasVariant && isNaN(parseFloat((cols[2] || '').replace(',', '.')))) return; // заголовок 3-колоночной
+
+    const base = cols[0];
+    if (!base) { problems.push(`Строка ${i+1}: нет названия`); return; }
+
+    const variant = hasVariant ? cols[1] : '';
+    const qty = parseFloat((hasVariant ? cols[2] : cols[1] || '0').replace(',', '.'));
+    if (isNaN(qty)) { problems.push(`Строка ${i+1}: «${base}» — не разобрал количество`); return; }
+
+    const name = variant ? `${base} · ${variant}` : base;
+    if (existingNames.has(name.toLowerCase())) {
+      problems.push(`Строка ${i+1}: «${name}» — уже есть на складе, пропущу`); return;
+    }
+
+    const row = { name, qty, category: cat, min,
+                  unit: hasVariant ? 'шт' : (cols[2] || 'шт') };
+
+    if (variant) {
+      const modelId = WH_MODEL_BY_NAME[whNorm(base)];
+      const steel   = WH_STEEL_BY_NAME[whNorm(variant)];
+      row.model = base; row.variant = variant; row.kind = whClassify(modelId);
+      if (!modelId) notes.add(`«${base}» — нет в справочнике моделей, артикул будет без кода модели`);
+      if (!steel)   notes.add(`«${variant}» — нет в справочнике сталей, артикул будет без кода стали`);
+      row.artikul = (modelId && steel)
+        ? `${prefix}-${String(modelId).padStart(3,'0')}-${steel}`
+        : `${prefix}-${String(num++).padStart(2,'0')}`;
+    } else {
+      row.artikul = `${prefix}-${String(num++).padStart(2,'0')}`;
+    }
+    rows.push(row);
   });
+
+  problems.push(...notes);
 
   out.innerHTML =
     (problems.length ? `<div style="border:1px solid var(--tint-red-border);background:var(--tint-red-bg);padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.7;">

@@ -4624,9 +4624,10 @@ function whBulkPreview() {
   const rows = [], problems = [], notes = new Set();
 
   lines.forEach((line, i) => {
-    // Из Excel приходит таб; на всякий случай принимаем и 2+ пробела
-    const cols = line.split(/\t|\s{2,}/).map(c => c.trim()).filter(c => c !== '');
-    if (!cols.length) return;
+    // Из Excel приходит таб; на всякий случай принимаем и 2+ пробела.
+    // Пустые ячейки НЕ выбрасываем: иначе строка с потерянным названием
+    // сдвинется на колонку, и сталь молча станет названием позиции.
+    const cols = line.split(/\t|\s{2,}/).map(c => c.trim());
     const num2 = parseFloat((cols[1] || '').replace(',', '.'));
 
     // Формат определяем по второй колонке: число → «название/кол-во/ед.изм»,

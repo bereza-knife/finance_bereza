@@ -4636,13 +4636,13 @@ function whBulkPreview() {
     // Пустые ячейки НЕ выбрасываем: иначе строка с потерянным названием
     // сдвинется на колонку, и сталь молча станет названием позиции.
     const cols = line.split(/\t|\s{2,}/).map(c => c.trim());
-    const num2 = parseFloat((cols[1] || '').replace(',', '.'));
+    const num2 = whNum(cols[1]);
 
     // Формат определяем по второй колонке: число → «название/кол-во/ед.изм»,
     // текст → «название/вариант(сталь)/кол-во». Переключатель не нужен.
     const hasVariant = cols.length >= 3 && isNaN(num2);
-    if (i === 0 && cols.length >= 2 && isNaN(num2) && !hasVariant) return;        // заголовок 2-колоночной
-    if (i === 0 && hasVariant && isNaN(parseFloat((cols[2] || '').replace(',', '.')))) return; // заголовок 3-колоночной
+    if (i === 0 && cols.length >= 2 && isNaN(num2) && !hasVariant) return;   // заголовок 2-колоночной
+    if (i === 0 && hasVariant && isNaN(whNum(cols[2]))) return;              // заголовок 3-колоночной
 
     const base = cols[0];
     if (!base) { problems.push(`Строка ${i+1}: нет названия`); return; }

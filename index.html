@@ -4717,10 +4717,11 @@ function whDownloadCSV(headers, rows, name) {
 
 function whExportItems() {
   const rows = Object.values(whItems).map(it => [
-    it.category || '', it.artikul || '', it.name || '', it.qty || 0,
+    it.category || '', it.kind || '', it.artikul || '', it.name || '',
+    it.model || '', it.variant || '', it.qty || 0,
     it.unit || '', it.min || 0, (it.min > 0 && it.qty <= it.min) ? 'да' : ''
   ]);
-  whDownloadCSV(['Категория','Артикул','Название','Остаток','Ед.','Минимум','Ниже минимума'],
+  whDownloadCSV(['Категория','Тип','Артикул','Название','Модель','Сталь/вариант','Остаток','Ед.','Минимум','Ниже минимума'],
                 rows, 'bereza_sklad_ostatki');
 }
 

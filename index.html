@@ -4615,7 +4615,9 @@ function whBulkPreview() {
   whBulkParsed = null;
   applyBtn.style.display = 'none';
 
-  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  // Строку целиком не обрезаем — ведущий таб несёт пустую первую колонку,
+  // а это признак строки с потерянным названием. Пробелы снимаем уже по ячейкам.
+  const lines = raw.split('\n').map(l => l.replace(/\r$/, '')).filter(l => l.trim() !== '');
   if (!lines.length) { out.innerHTML = '<div style="color:var(--muted);">Пусто — вставь таблицу.</div>'; return; }
 
   const prefix = WH_CATEGORIES[cat].prefix;

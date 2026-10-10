@@ -2529,9 +2529,11 @@ function updateAll() {
   const fmt = v => v.toLocaleString('ru') + ' ₽';
 
   const bladeEl = document.getElementById('c-blade');
-  const noSteelPrice = valid && !steelHasCosts(steelId);
-  bladeEl.textContent = bladeCost ? fmt(bladeCost) : (noSteelPrice ? 'нет цены' : '—');
-  bladeEl.style.color = noSteelPrice ? 'var(--red)' : '';
+  // Ноль здесь всегда означает «цены нет в таблице» — настоящих нулевых клинков не бывает.
+  // Показываем это явно, иначе заказ уйдёт с заниженной себестоимостью незаметно.
+  const noBladePrice = valid && !bladeCost;
+  bladeEl.textContent = bladeCost ? fmt(bladeCost) : (noBladePrice ? 'нет цены' : '—');
+  bladeEl.style.color = noBladePrice ? 'var(--red)' : '';
   document.getElementById('c-handle').textContent = handleCost ? fmt(handleCost) : '—';
 
   const toggleRow = (id, show, valId, val) => {

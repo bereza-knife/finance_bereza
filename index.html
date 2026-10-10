@@ -4543,6 +4543,97 @@ function whLogHistory(itemId, item, delta, employee, comment) {
   fbDb.ref('warehouse/history').push(entry);
 }
 
+// ============ МАССОВЫЙ ИМПОРТ ============
+let whBulkParsed = null;
+
+function whToggleBulk() {
+  const box = document.getElementById('wh-bulk-box');
+  const open = box.style.display === 'none';
+  box.style.display = open ? 'block' : 'none';
+  document.getElementById('wh-bulk-toggle').textContent = open ? 'свернуть' : 'развернуть';
+}
+
+// Следующий свободный номер артикула внутри категории: продолжаем нумерацию,
+// а не начинаем с единицы, иначе повторный импорт создаст дубли артикулов.
+function whNextArtikulNum(prefix) {
+  const re = new RegExp('^' + prefix + '-(\\d+)$');
+  const used = Object.values(whItems)
+    .map(it => (it.artikul || '').match(re))
+    .filter(Boolean)
+    .map(m => +m[1]);
+  return used.length ? Math.max(...used) + 1 : 1;
+}
+
+function whBulkPreview() {
+  const cat = document.getElementById('wh-bulk-cat').value;
+  const min = +document.getElementById('wh-bulk-min').value || 0;
+  const raw = document.getElementById('wh-bulk-data').value;
+  const out = document.getElementById('wh-bulk-preview');
+  const applyBtn = document.getElementById('wh-bulk-apply');
+  whBulkParsed = null;
+  applyBtn.style.display = 'none';
+
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  if (!lines.length) { out.innerHTML = '<div style="color:var(--muted);">Пусто — вставь таблицу.</div>'; return; }
+
+  const existingNames = new Set(Object.values(whItems).map(it => (it.name || '').toLowerCase()));
+  let num = whNextArtikulNum(WH_CATEGORIES[cat].prefix);
+  const rows = [], problems = [];
+
+  lines.forEach((line, i) => {
+    // Из Excel приходит таб; на всякий случай принимаем и 2+ пробела
+    const cols = line.split(/\t|\s{2,}/).map(c => c.trim()).filter(c => c !== '');
+    const name = cols[0] || '';
+    // Заголовок таблицы: во второй колонке не число
+    if (i === 0 && cols.length >= 2 && isNaN(parseFloat(cols[1].replace(',', '.')))) return;
+    if (!name) { problems.push(`Строка ${i+1}: нет названия`); return; }
+    const qty = parseFloat((cols[1] || '0').replace(',', '.'));
+    if (isNaN(qty)) { problems.push(`Строка ${i+1}: «${name}» — не разобрал количество`); return; }
+    const dup = existingNames.has(name.toLowerCase());
+    if (dup) problems.push(`Строка ${i+1}: «${name}» — такая позиция уже есть на складе, пропущу`);
+    else rows.push({ name, qty, unit: cols[2] || 'шт', category: cat, min,
+                     artikul: WH_CATEGORIES[cat].prefix + '-' + String(num++).padStart(2, '0') });
+  });
+
+  out.innerHTML =
+    (problems.length ? `<div style="border:1px solid var(--tint-red-border);background:var(--tint-red-bg);padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.7;">
+        ${problems.map(p => '• ' + p).join('<br>')}
+      </div>` : '') +
+    (rows.length ? `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">К импорту: ${rows.length}</div>` +
+      rows.map(r => `<div class="wh-history-row">
+        <div style="min-width:80px;color:var(--accent);">${r.artikul}</div>
+        <div style="min-width:220px;">${r.name}</div>
+        <div style="min-width:80px;">${r.qty} ${r.unit}</div>
+        <div style="min-width:120px;color:var(--muted);">${r.category}</div>
+      </div>`).join('')
+      : '<div style="color:var(--muted);">Импортировать нечего.</div>');
+
+  if (rows.length) { whBulkParsed = rows; applyBtn.style.display = 'inline-block';
+                     applyBtn.textContent = `Импортировать ${rows.length}`; }
+}
+
+function whBulkApply() {
+  if (!whBulkParsed || !whBulkParsed.length) return;
+  const rows = whBulkParsed;
+  if (!confirm(`Добавить на склад ${rows.length} позиций?`)) return;
+
+  const updates = {};
+  rows.forEach((r, i) => {
+    const item = { name: r.name, artikul: r.artikul, category: r.category,
+                   unit: r.unit, qty: r.qty, min: r.min };
+    updates['items/i_' + (Date.now() + i)] = item;
+  });
+  fbDb.ref('warehouse').update(updates, err => {
+    if (err) { showToast('Импорт не прошёл — проверь связь'); return; }
+    rows.forEach(r => whLogHistory('', r, r.qty, 'Алексей (импорт)', 'первичный ввод'));
+    showToast(`Импортировано позиций: ${rows.length}`);
+    document.getElementById('wh-bulk-data').value = '';
+    document.getElementById('wh-bulk-preview').innerHTML = '';
+    document.getElementById('wh-bulk-apply').style.display = 'none';
+    whBulkParsed = null;
+  });
+}
+
 // Экранирование по RFC 4180 — комментарии к расходу пишутся свободным текстом
 // и могут содержать «;» или перенос строки, который иначе разъедет таблицу.
 function csvCell(v) {

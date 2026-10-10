@@ -4568,6 +4568,14 @@ function whClassify(modelId) {
   return STEAK_MODELS.includes(modelId) ? 'стейк' : 'шеф';
 }
 
+function whToggleHistory() {
+  const box = document.getElementById('wh-hist-box');
+  const open = box.style.display === 'none';
+  box.style.display = open ? 'block' : 'none';
+  document.getElementById('wh-hist-toggle').textContent = open ? 'свернуть' : 'развернуть';
+  if (open) whRenderFull();
+}
+
 function whToggleBulk() {
   const box = document.getElementById('wh-bulk-box');
   const open = box.style.display === 'none';

@@ -4570,6 +4570,12 @@ let whBulkParsed = null;
 
 const whNorm = s => (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
 
+// Ячейка считается числом, только если она число целиком.
+// parseFloat («95x18») вернул бы 95 — марка стали молча стала бы количеством.
+const whNum = s => /^-?\d+(?:[.,]\d+)?$/.test((s || '').trim())
+  ? parseFloat(String(s).trim().replace(',', '.'))
+  : NaN;
+
 // Модель и сталь ищем по названию в справочниках заказов, чтобы склад
 // говорил с заказами на одном языке, а не завёл свою параллельную нумерацию.
 const WH_MODEL_BY_NAME = Object.fromEntries(Object.entries(MODELS).map(([id, n]) => [whNorm(n), +id]));

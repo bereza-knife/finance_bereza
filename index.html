@@ -4643,9 +4643,10 @@ function whBulkPreview() {
       </div>` : '') +
     (rows.length ? `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">К импорту: ${rows.length}</div>` +
       rows.map(r => `<div class="wh-history-row">
-        <div style="min-width:80px;color:var(--accent);">${r.artikul}</div>
+        <div style="min-width:110px;color:var(--accent);">${r.artikul}</div>
         <div style="min-width:220px;">${r.name}</div>
         <div style="min-width:80px;">${r.qty} ${r.unit}</div>
+        <div style="min-width:60px;color:var(--muted);">${r.kind || ''}</div>
         <div style="min-width:120px;color:var(--muted);">${r.category}</div>
       </div>`).join('')
       : '<div style="color:var(--muted);">Импортировать нечего.</div>');

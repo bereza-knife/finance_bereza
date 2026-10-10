@@ -2522,7 +2522,10 @@ function updateAll() {
 
   const fmt = v => v.toLocaleString('ru') + ' ₽';
 
-  document.getElementById('c-blade').textContent = bladeCost ? fmt(bladeCost) : '—';
+  const bladeEl = document.getElementById('c-blade');
+  const noSteelPrice = valid && !steelHasCosts(steelId);
+  bladeEl.textContent = bladeCost ? fmt(bladeCost) : (noSteelPrice ? 'нет цены' : '—');
+  bladeEl.style.color = noSteelPrice ? 'var(--red)' : '';
   document.getElementById('c-handle').textContent = handleCost ? fmt(handleCost) : '—';
 
   const toggleRow = (id, show, valId, val) => {

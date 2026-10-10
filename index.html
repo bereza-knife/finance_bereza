@@ -1449,6 +1449,37 @@
 
     <div class="divider"></div>
 
+    <div class="section-title" style="margin:16px 0 10px;">
+      Массовый импорт
+      <button class="btn btn-sm" onclick="whToggleBulk()" id="wh-bulk-toggle" style="margin-left:10px;">развернуть</button>
+    </div>
+    <div id="wh-bulk-box" style="display:none;">
+      <div style="color:var(--muted);font-size:11px;line-height:1.6;margin-bottom:12px;">
+        Вставь таблицу из Excel — три колонки: <b>название</b>, <b>количество</b>, <b>ед. изм.</b>
+        Строка-заголовок распознаётся и пропускается. Артикулы проставятся автоматически по префиксу категории.
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px;">
+        <div class="form-group" style="flex:1;min-width:180px;margin:0;">
+          <label class="form-label">Категория для всех строк</label>
+          <select class="form-control" id="wh-bulk-cat"></select>
+        </div>
+        <div class="form-group" style="flex:1;min-width:120px;margin:0;">
+          <label class="form-label">Мин. остаток для всех</label>
+          <input class="form-control" id="wh-bulk-min" type="number" value="0">
+        </div>
+      </div>
+      <textarea class="form-control" id="wh-bulk-data" rows="8"
+                placeholder="ЛЕНТА КУБИТРОН P36&#9;9&#9;шт&#10;КЛЕЙ AKFIX&#9;17&#9;шт"
+                style="font-family:'JetBrains Mono',monospace;resize:vertical;"></textarea>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+        <button class="btn btn-sm" onclick="whBulkPreview()">Проверить</button>
+        <button class="btn btn-primary" id="wh-bulk-apply" onclick="whBulkApply()" style="display:none;">Импортировать</button>
+      </div>
+      <div id="wh-bulk-preview" style="margin-top:14px;"></div>
+    </div>
+
+    <div class="divider"></div>
+
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0;">
       <div class="section-title" style="margin:0;white-space:nowrap;">Остатки на складе</div>
       <div style="display:flex;gap:10px;align-items:center;flex:1;justify-content:flex-end;flex-wrap:wrap;">

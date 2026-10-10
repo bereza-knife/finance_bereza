@@ -4601,7 +4601,7 @@ function whEditItem(id) {
   whEditingId = id;
   document.getElementById('wh-name').value = it.name || '';
   document.getElementById('wh-artikul').value = it.artikul || '';
-  document.getElementById('wh-category').value = it.category || 'Расходники';
+  document.getElementById('wh-category').value = it.category || WH_CAT_NAMES[0];
   document.getElementById('wh-unit').value = it.unit || 'шт';
   document.getElementById('wh-qty').value = it.qty || 0;
   document.getElementById('wh-min').value = it.min || 0;

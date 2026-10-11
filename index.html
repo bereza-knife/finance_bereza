@@ -4675,8 +4675,10 @@ function whBulkPreview() {
       problems.push(`Строка ${i+1}: «${name}» — уже есть на складе, пропущу`); return;
     }
 
+    // Рукоять без группы — дерево или кость, они приходят брусками
     const row = { name, qty, category: cat, min,
-                  unit: hasVariant ? 'шт' : (cols[2] || 'шт') };
+                  unit: (cat === 'РУКОЯТЬ' && !variant) ? WH_BRUSOK
+                      : hasVariant ? 'шт' : (cols[2] || 'шт') };
 
     if (cat === 'РУКОЯТЬ') {
       const code  = WH_HANDLE_BY_NAME[whNorm(base)];

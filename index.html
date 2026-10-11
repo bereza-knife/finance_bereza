@@ -4796,6 +4796,9 @@ function whExportHistory() {
                 rows, 'bereza_sklad_istoriya');
 }
 
+// Стоимость остатка по позиции
+const whItemValue = it => (it && it.price != null) ? (it.qty || 0) * it.price : 0;
+
 // Кол-во позиций ниже минимума
 function whLowStockCount() {
   return Object.values(whItems).filter(it => it.min > 0 && it.qty <= it.min).length;

@@ -4606,10 +4606,14 @@ function whToggleBulk() {
   document.getElementById('wh-bulk-toggle').textContent = open ? 'свернуть' : 'развернуть';
 }
 
-// Следующий свободный номер артикула внутри категории: продолжаем нумерацию,
-// а не начинаем с единицы, иначе повторный импорт создаст дубли артикулов.
+// Позиции вне справочника получают артикул с пометкой X: иначе запасной HD-01
+// столкнулся бы с настоящим кодом материала HD-01 (карельская берёза).
+const whFallbackArtikul = (prefix, n) => `${prefix}-X${String(n).padStart(2, '0')}`;
+
+// Следующий свободный номер: продолжаем нумерацию, а не начинаем с единицы,
+// иначе повторный импорт создаст дубли артикулов.
 function whNextArtikulNum(prefix) {
-  const re = new RegExp('^' + prefix + '-(\\d+)$');
+  const re = new RegExp('^' + prefix + '-X(\\d+)$');
   const used = Object.values(whItems)
     .map(it => (it.artikul || '').match(re))
     .filter(Boolean)

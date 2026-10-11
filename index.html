@@ -5103,13 +5103,17 @@ function whEmpSubmit() {
   if (amount > (item.qty || 0)) {
     if (!confirm('На складе только ' + (item.qty||0) + ' ' + item.unit + '. Списать всё равно (остаток станет 0)?')) return;
   }
-  const comment = (document.getElementById('emp-comment')?.value || '').trim();
+  const userComment = (document.getElementById('emp-comment')?.value || '').trim();
+  // Без этой пометки в журнале осталось бы «−0.5 брусок» без объяснения
+  const made = brusok ? `${brusok.handles} рук. ${brusok.kind}` : '';
+  const comment = [made, userComment].filter(Boolean).join(' · ');
   const itemId = whEmpItemId;
   whApplyDelta(itemId, -amount, (err, applied) => {
     if (err) { alert('Не удалось записать расход. Проверь интернет и попробуй ещё раз.'); return; }
     if (!applied) { alert('«' + item.name + '» уже на нуле — списывать нечего.'); return; }
     whLogHistory(itemId, item, applied, currentWhEmployee, comment);
-    alert('Записан расход: ' + item.name + ' ' + applied + ' ' + item.unit);
+    alert('Записан расход: ' + item.name + ' ' + applied + ' ' + item.unit
+          + (brusok ? ` (${brusok.handles} рукоятей ${brusok.kind})` : ''));
     whEmpItemId = null;
     whEmpCategory = null;
     whRenderEmployee();

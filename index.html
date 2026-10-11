@@ -5005,6 +5005,12 @@ function whRenderFull() {
             : ''}</div>
       </div>
       <div class="wh-item-qty ${low ? 'low' : ''}">${it.qty} ${it.unit}</div>
+      <div style="min-width:120px;text-align:right;font-size:11px;line-height:1.5;">
+        ${it.price != null
+          ? `<div style="color:var(--muted);">${it.price.toLocaleString('ru')} ₽/${it.unit}</div>
+             <div style="color:var(--accent);">${Math.round(whItemValue(it)).toLocaleString('ru')} ₽</div>`
+          : '<div style="color:var(--muted);">цены нет</div>'}
+      </div>
       <div class="wh-item-actions">
         <button class="btn btn-sm" onclick="whAddStock('${id}')" style="border-color:#2a4a3a;color:var(--green);">+ Приход</button>
         <button class="btn btn-sm" onclick="whRemoveStock('${id}')" style="border-color:var(--red);color:var(--red);">− Расход</button>

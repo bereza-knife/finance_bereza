@@ -4724,6 +4724,9 @@ function whBulkPreview() {
       if (row.price != null && row.price !== cur.price)
         changes.push(`цена ${cur.price != null ? cur.price.toLocaleString('ru') : '—'} → ${row.price.toLocaleString('ru')} ₽`);
       if (row.min !== (cur.min || 0)) changes.push(`минимум ${cur.min || 0} → ${row.min}`);
+      // Единицу тоже обновляем: позиции, заведённые до появления брусков,
+      // иначе навсегда остались бы в штуках и пересчёт рукоятей к ним не применялся
+      if (row.unit && row.unit !== cur.unit) changes.push(`ед. изм. ${cur.unit || '—'} → ${row.unit}`);
       if (updateQty && row.qty !== (cur.qty || 0)) changes.push(`остаток ${cur.qty || 0} → ${row.qty}`);
       if (!changes.length) { skipped++; return; }
       updates.push({ id: existingId, row, cur, changes });

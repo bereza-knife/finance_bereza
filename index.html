@@ -4606,14 +4606,16 @@ function whToggleBulk() {
   document.getElementById('wh-bulk-toggle').textContent = open ? 'свернуть' : 'развернуть';
 }
 
-// Позиции вне справочника получают артикул с пометкой X: иначе запасной HD-01
-// столкнулся бы с настоящим кодом материала HD-01 (карельская берёза).
-const whFallbackArtikul = (prefix, n) => `${prefix}-X${String(n).padStart(2, '0')}`;
+// Пометка X — «не нашлось в справочнике». Нужна там, где справочник есть:
+// иначе запасной HD-01 столкнулся бы с настоящим кодом HD-01 (карельская берёза).
+// У расходников и упаковки справочника нет, выпадать не из чего — там обычный номер.
+const whFallbackArtikul = (prefix, n, outOfRegistry) =>
+  `${prefix}-${outOfRegistry ? 'X' : ''}${String(n).padStart(2, '0')}`;
 
 // Следующий свободный номер: продолжаем нумерацию, а не начинаем с единицы,
-// иначе повторный импорт создаст дубли артикулов.
+// иначе повторный импорт создаст дубли артикулов. Ловим обе формы — с X и без.
 function whNextArtikulNum(prefix) {
-  const re = new RegExp('^' + prefix + '-X(\\d+)$');
+  const re = new RegExp('^' + prefix + '-X?(\\d+)$');
   const used = Object.values(whItems)
     .map(it => (it.artikul || '').match(re))
     .filter(Boolean)
@@ -4681,7 +4683,7 @@ function whBulkPreview() {
       if (!code) notes.add(`«${base}» — нет в справочнике материалов рукояти, артикул будет без кода`);
       row.artikul = code
         ? `${prefix}-${code}${group ? '-' + group : ''}`
-        : `${prefix}-${String(num++).padStart(2,'0')}`;
+        : whFallbackArtikul(prefix, num++);
     } else if (variant) {
       const modelId = WH_MODEL_BY_NAME[whNorm(base)];
       const steel   = WH_STEEL_BY_NAME[whNorm(variant)];
@@ -4690,9 +4692,9 @@ function whBulkPreview() {
       if (!steel)   notes.add(`«${variant}» — нет в справочнике сталей, артикул будет без кода стали`);
       row.artikul = (modelId && steel)
         ? `${prefix}-${String(modelId).padStart(3,'0')}-${steel}`
-        : `${prefix}-${String(num++).padStart(2,'0')}`;
+        : whFallbackArtikul(prefix, num++);
     } else {
-      row.artikul = `${prefix}-${String(num++).padStart(2,'0')}`;
+      row.artikul = whFallbackArtikul(prefix, num++);
     }
     rows.push(row);
   });

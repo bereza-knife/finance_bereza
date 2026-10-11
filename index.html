@@ -4735,7 +4735,13 @@ function whBulkPreview() {
     (problems.length ? `<div style="border:1px solid var(--tint-red-border);background:var(--tint-red-bg);padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.7;">
         ${problems.map(p => '• ' + p).join('<br>')}
       </div>` : '') +
-    (rows.length ? `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">К импорту: ${rows.length}</div>` +
+    (updates.length ? `<div style="font-size:11px;color:var(--muted);margin:0 0 8px;">Обновится: ${updates.length}</div>` +
+      updates.map(u => `<div class="wh-history-row">
+        <div style="min-width:110px;color:var(--accent);">${u.row.artikul}</div>
+        <div style="min-width:220px;">${u.row.name}</div>
+        <div style="flex:1;color:var(--green);">${u.changes.join(' · ')}</div>
+      </div>`).join('') : '') +
+    (rows.length ? `<div style="font-size:11px;color:var(--muted);margin:${updates.length ? '16px' : '0'} 0 8px;">Новых: ${rows.length}</div>` +
       rows.map(r => `<div class="wh-history-row">
         <div style="min-width:110px;color:var(--accent);">${r.artikul}</div>
         <div style="min-width:220px;">${r.name}</div>
@@ -4743,11 +4749,15 @@ function whBulkPreview() {
         <div style="min-width:90px;color:var(--muted);">${r.price != null ? r.price.toLocaleString('ru') + ' ₽' : ''}</div>
         <div style="min-width:60px;color:var(--muted);">${r.kind || ''}</div>
         <div style="min-width:120px;color:var(--muted);">${r.category}</div>
-      </div>`).join('')
-      : '<div style="color:var(--muted);">Импортировать нечего.</div>');
+      </div>`).join('') : '') +
+    (!rows.length && !updates.length ? '<div style="color:var(--muted);">Менять нечего.</div>' : '');
 
-  if (rows.length) { whBulkParsed = rows; applyBtn.style.display = 'inline-block';
-                     applyBtn.textContent = `Импортировать ${rows.length}`; }
+  if (rows.length || updates.length) {
+    whBulkParsed = { rows, updates };
+    applyBtn.style.display = 'inline-block';
+    applyBtn.textContent = [rows.length ? `Добавить ${rows.length}` : '',
+                            updates.length ? `обновить ${updates.length}` : ''].filter(Boolean).join(' и ');
+  }
 }
 
 function whBulkApply() {

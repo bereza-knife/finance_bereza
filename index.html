@@ -1454,6 +1454,38 @@
       <button class="btn btn-sm" onclick="whToggleBulk()" id="wh-bulk-toggle" style="margin-left:10px;">развернуть</button>
     </div>
     <div id="wh-bulk-box" style="display:none;">
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+        <button class="btn btn-sm" id="wh-tab-import" onclick="whBulkMode('import')">Импорт позиций</button>
+        <button class="btn btn-sm" id="wh-tab-move" onclick="whBulkMode('move')">Приход / расход списком</button>
+      </div>
+
+      <div id="wh-move-pane" style="display:none;">
+        <div style="color:var(--muted);font-size:11px;line-height:1.6;margin-bottom:12px;">
+          По строке на операцию: <b>название или артикул</b>, затем <b>количество</b>.
+          Без знака — расход, со знаком «+» — приход. Для брусков можно добавить
+          <b>шеф</b> или <b>стейк</b> в конце, тогда число means рукояти, а не бруски.
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px;">
+          <div class="form-group" style="flex:1;min-width:180px;margin:0;">
+            <label class="form-label">Чей список вносим</label>
+            <select class="form-control" id="wh-move-emp"></select>
+          </div>
+          <div class="form-group" style="flex:2;min-width:200px;margin:0;">
+            <label class="form-label">Общий комментарий — необязательно</label>
+            <input class="form-control" id="wh-move-note" type="text" placeholder="Напр.: список за 11.10">
+          </div>
+        </div>
+        <textarea class="form-control" id="wh-move-data" rows="8"
+                  placeholder="граб 3 стейк&#10;клей 2&#10;GYUTO 180 N690 1&#10;HD-16-ST 4&#10;лента кубитрон P36 +10"
+                  style="font-family:'JetBrains Mono',monospace;resize:vertical;"></textarea>
+        <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+          <button class="btn btn-sm" onclick="whMovePreview()">Проверить</button>
+          <button class="btn btn-primary" id="wh-move-apply" onclick="whMoveApply()" style="display:none;">Записать</button>
+        </div>
+        <div id="wh-move-preview" style="margin-top:14px;"></div>
+      </div>
+
+      <div id="wh-import-pane">
       <div style="color:var(--muted);font-size:11px;line-height:1.6;margin-bottom:12px;">
         Вставь таблицу из Excel: <b>название</b>, <b>количество</b>, <b>ед. изм.</b> — либо
         <b>название</b>, <b>сталь или группа</b>, <b>количество</b>. Четвёртой колонкой можно

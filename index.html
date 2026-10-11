@@ -4948,9 +4948,11 @@ function whRenderFull() {
   const countEl = document.getElementById('wh-items-count');
   if (countEl) {
     const total = Object.keys(whItems).length;
+    const zeros = Object.values(whItems).filter(it => !(it.qty > 0)).length;
     countEl.textContent = entries.length === total
       ? `Позиций: ${total}`
-      : `Показано ${entries.length} из ${total}`;
+      : `Показано ${entries.length} из ${total}` +
+        (stockF === 'has' && zeros ? ` · скрыто нулевых: ${zeros}` : '');
   }
 
   listEl.innerHTML = entries.length ? entries.map(([id, it]) => {

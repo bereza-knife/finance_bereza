@@ -4845,6 +4845,53 @@ function whExportHistory() {
                 rows, 'bereza_sklad_istoriya');
 }
 
+// ============ КАРТОЧКА ПОЗИЦИИ ============
+let whOpenCard = null;
+
+function whToggleCard(id) {
+  whOpenCard = whOpenCard === id ? null : id;
+  whRenderFull();
+}
+
+// Операции по позиции. Импорт пишет историю без itemId, поэтому
+// подстраховываемся совпадением по названию.
+function whItemHistory(id) {
+  const it = whItems[id];
+  if (!it) return [];
+  return whHistory.filter(h => h.itemId ? h.itemId === id : h.item === it.name);
+}
+
+function whRenderCard(id) {
+  const it = whItems[id];
+  const rows = whItemHistory(id);
+  if (!rows.length) {
+    return `<div style="padding:12px 16px;color:var(--muted);font-size:11px;border-top:1px solid var(--line);">
+      Движений по этой позиции пока нет.</div>`;
+  }
+  // Остаток «после операции» считаем от текущего назад: история идёт от новых к старым
+  let running = it.qty || 0;
+  const withBalance = rows.map(h => { const after = running; running -= h.delta; return { h, after }; });
+  const inSum  = rows.filter(h => h.delta > 0).reduce((s, h) => s + h.delta, 0);
+  const outSum = rows.filter(h => h.delta < 0).reduce((s, h) => s - h.delta, 0);
+
+  return `<div style="border-top:1px solid var(--line);padding:12px 16px;background:var(--surface2);">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">
+      Операций: ${rows.length} · приход ${inSum} ${it.unit} · расход ${outSum} ${it.unit}
+    </div>
+    <div style="overflow-x:auto;">
+    ${withBalance.slice(0, 50).map(({ h, after }) => `
+      <div class="wh-history-row" style="padding:5px 0;">
+        <div style="min-width:130px;color:var(--muted);">${h.date || ''}</div>
+        <div style="min-width:70px;" class="${h.delta > 0 ? 'wh-h-plus' : 'wh-h-minus'}">${h.delta > 0 ? '+' : ''}${h.delta}</div>
+        <div style="min-width:70px;color:var(--muted);">стало ${after}</div>
+        <div style="min-width:90px;">${h.employee || ''}</div>
+        <div style="flex:1;color:var(--muted);font-size:10px;">${h.comment || ''}</div>
+      </div>`).join('')}
+    </div>
+    ${rows.length > 50 ? `<div style="font-size:10px;color:var(--muted);margin-top:8px;">Показаны последние 50 из ${rows.length}</div>` : ''}
+  </div>`;
+}
+
 // Стоимость остатка по позиции
 const whItemValue = it => (it && it.price != null) ? (it.qty || 0) * it.price : 0;
 

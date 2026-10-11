@@ -4547,6 +4547,10 @@ function whInitCategorySelects() {
   if (filter) filter.innerHTML = '<option value="">Все категории</option>' + opts;
   const bulk = document.getElementById('wh-bulk-cat');
   if (bulk) bulk.innerHTML = opts;
+
+  const emp = document.getElementById('wh-move-emp');
+  if (emp) emp.innerHTML = ['Алексей', 'Михаил', 'Матвей', 'Дмитрий', 'Александр']
+    .map(n => `<option value="${n}">${n}</option>`).join('');
 }
 
 let whItems = JSON.parse(localStorage.getItem('bn_wh_items') || '{}');

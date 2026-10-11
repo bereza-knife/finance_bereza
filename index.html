@@ -4578,8 +4578,13 @@ const whNum = s => /^-?\d+(?:[.,]\d+)?$/.test((s || '').trim())
 
 // Модель и сталь ищем по названию в справочниках заказов, чтобы склад
 // говорил с заказами на одном языке, а не завёл свою параллельную нумерацию.
-const WH_MODEL_BY_NAME = Object.fromEntries(Object.entries(MODELS).map(([id, n]) => [whNorm(n), +id]));
-const WH_STEEL_BY_NAME = Object.fromEntries(Object.entries(STEELS).map(([code, n]) => [whNorm(n), code]));
+const WH_MODEL_BY_NAME  = Object.fromEntries(Object.entries(MODELS).map(([id, n]) => [whNorm(n), +id]));
+const WH_STEEL_BY_NAME  = Object.fromEntries(Object.entries(STEELS).map(([code, n]) => [whNorm(n), code]));
+const WH_HANDLE_BY_NAME = Object.fromEntries(Object.entries(HANDLE_NAMES).map(([code, n]) => [whNorm(n), code]));
+
+// Один и тот же материал рукояти идёт в трёх размерах — это физически разные
+// остатки, поэтому группа входит в артикул, иначе они схлопнутся в одну позицию.
+const WH_HANDLE_GROUPS = { 'шеф': 'SH', 'стейк': 'ST', 'вилка/ложка': 'VL' };
 
 function whClassify(modelId) {
   if (!modelId) return '';

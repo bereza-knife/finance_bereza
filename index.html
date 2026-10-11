@@ -4785,6 +4785,8 @@ function whToggleBulk() {
   const open = box.style.display === 'none';
   box.style.display = open ? 'block' : 'none';
   document.getElementById('wh-bulk-toggle').textContent = open ? 'свернуть' : 'развернуть';
+  // Повседневный режим — внесение списков, импорт нужен реже
+  if (open && !document.getElementById('wh-move-pane').style.display) whBulkMode('move');
 }
 
 // Пометка X — «не нашлось в справочнике». Нужна там, где справочник есть:

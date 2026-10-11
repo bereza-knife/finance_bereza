@@ -4789,6 +4789,7 @@ function whBulkApply() {
     const p = `items/${u.id}/`;
     if (u.row.price != null) payload[p + 'price'] = u.row.price;
     payload[p + 'min'] = u.row.min;
+    if (u.row.unit) payload[p + 'unit'] = u.row.unit;
     if (u.changes.some(c => c.startsWith('остаток'))) payload[p + 'qty'] = u.row.qty;
   });
 

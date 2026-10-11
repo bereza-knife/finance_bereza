@@ -4683,7 +4683,7 @@ function whBulkPreview() {
       if (!code) notes.add(`«${base}» — нет в справочнике материалов рукояти, артикул будет без кода`);
       row.artikul = code
         ? `${prefix}-${code}${group ? '-' + group : ''}`
-        : whFallbackArtikul(prefix, num++);
+        : whFallbackArtikul(prefix, num++, true);
     } else if (variant) {
       const modelId = WH_MODEL_BY_NAME[whNorm(base)];
       const steel   = WH_STEEL_BY_NAME[whNorm(variant)];
@@ -4692,9 +4692,9 @@ function whBulkPreview() {
       if (!steel)   notes.add(`«${variant}» — нет в справочнике сталей, артикул будет без кода стали`);
       row.artikul = (modelId && steel)
         ? `${prefix}-${String(modelId).padStart(3,'0')}-${steel}`
-        : whFallbackArtikul(prefix, num++);
+        : whFallbackArtikul(prefix, num++, true);
     } else {
-      row.artikul = whFallbackArtikul(prefix, num++);
+      row.artikul = whFallbackArtikul(prefix, num++, false);
     }
     rows.push(row);
   });

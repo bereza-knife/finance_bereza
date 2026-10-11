@@ -5138,6 +5138,7 @@ function whEditItem(id) {
   document.getElementById('wh-unit').value = it.unit || 'шт';
   document.getElementById('wh-qty').value = it.qty || 0;
   document.getElementById('wh-min').value = it.min || 0;
+  document.getElementById('wh-price').value = it.price != null ? it.price : '';
   document.getElementById('wh-add-btn').textContent = '✓ Сохранить';
   document.getElementById('wh-cancel-btn').style.display = 'inline-block';
   document.getElementById('wh-form-title').textContent = 'Редактировать позицию';

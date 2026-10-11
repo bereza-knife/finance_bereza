@@ -4914,6 +4914,25 @@ function whRevertOp(key) {
   });
 }
 
+// Наполняет фильтр вариантов тем, что реально есть в выбранной категории,
+// и возвращает текущий выбор. Если выбранного варианта там больше нет — сбрасывает.
+function whSyncVariantFilter(catF) {
+  const sel = document.getElementById('wh-variant-filter');
+  if (!sel) return '';
+  const inCat = Object.values(whItems).filter(it => !catF || it.category === catF);
+  const variants = [...new Set(inCat.map(it => it.variant).filter(Boolean))]
+                     .sort((a, b) => a.localeCompare(b, 'ru'));
+  const label = catF === 'КЛИНКИ' ? 'Все стали'
+              : catF === 'РУКОЯТЬ' ? 'Все группы'
+              : 'Все варианты';
+  const want = variants.includes(sel.value) ? sel.value : '';
+  sel.innerHTML = `<option value="">${label}</option>` +
+    variants.map(v => `<option value="${v}">${v}</option>`).join('');
+  sel.value = want;
+  sel.style.display = variants.length ? '' : 'none';
+  return want;
+}
+
 function whRenderFull() {
   const listEl = document.getElementById('wh-items-list');
   const histEl = document.getElementById('wh-history-list');

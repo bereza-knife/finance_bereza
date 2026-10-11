@@ -4778,12 +4778,17 @@ function whDownloadCSV(headers, rows, name) {
 }
 
 function whExportItems() {
-  const rows = Object.values(whItems).map(it => [
+  const items = Object.values(whItems);
+  const rows = items.map(it => [
     it.category || '', it.kind || '', it.artikul || '', it.name || '',
     it.model || '', it.variant || '', it.qty || 0,
-    it.unit || '', it.min || 0, (it.min > 0 && it.qty <= it.min) ? 'да' : ''
+    it.unit || '', it.min || 0, (it.min > 0 && it.qty <= it.min) ? 'да' : '',
+    it.price != null ? it.price : '', it.price != null ? Math.round(whItemValue(it)) : ''
   ]);
-  whDownloadCSV(['Категория','Тип','Артикул','Название','Модель','Сталь/вариант','Остаток','Ед.','Минимум','Ниже минимума'],
+  rows.push([]);
+  rows.push(['ИТОГО', '', '', '', '', '', '', '', '', '', '',
+             Math.round(items.reduce((s, it) => s + whItemValue(it), 0))]);
+  whDownloadCSV(['Категория','Тип','Артикул','Название','Модель','Сталь/вариант','Остаток','Ед.','Минимум','Ниже минимума','Цена','Стоимость'],
                 rows, 'bereza_sklad_ostatki');
 }
 

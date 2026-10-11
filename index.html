@@ -4893,10 +4893,10 @@ function whAddStock(id) {
 function whRemoveStock(id) {
   const item = whItems[id];
   if (!item) return;
-  const amountStr = prompt('Расход / списание — количество (' + item.unit + '):', '1');
+  const amountStr = prompt('Расход / списание — количество (' + item.unit + '):' + whUnitHint(item), '1');
   if (amountStr === null) return;
-  const amount = Math.abs(+amountStr) || 0;
-  if (!amount) return;
+  const amount = Math.abs(whNum(amountStr)) || 0;
+  if (!amount) { showToast('Не понял количество — введите число, например 2 или 1.5'); return; }
   if (amount > (item.qty || 0)) {
     if (!confirm('На складе только ' + (item.qty||0) + ' ' + item.unit + '. Списать всё равно (остаток станет 0)?')) return;
   }

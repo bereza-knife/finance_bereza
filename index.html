@@ -1443,6 +1443,10 @@
         <label class="form-label">Мин. остаток</label>
         <input class="form-control" id="wh-min" type="number" placeholder="0" value="0">
       </div>
+      <div class="form-group" style="flex:1;min-width:110px;">
+        <label class="form-label">Цена за ед. ₽</label>
+        <input class="form-control" id="wh-price" type="number" step="0.01" placeholder="—">
+      </div>
       <button class="btn btn-primary" id="wh-add-btn" onclick="whAddItem()" style="height:38px;">+ Добавить</button>
       <button class="btn btn-sm" id="wh-cancel-btn" onclick="whCancelEdit()" style="height:38px;display:none;">Отмена</button>
     </div>

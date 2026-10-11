@@ -4650,7 +4650,9 @@ function whBulkPreview() {
   const prefix = WH_CATEGORIES[cat].prefix;
   const existingNames = new Map(Object.entries(whItems).map(([id, it]) => [(it.name || '').toLowerCase(), id]));
   let num = whNextArtikulNum(prefix);
-  const rows = [], problems = [], notes = new Set();
+  const updateQty = !!document.getElementById('wh-bulk-qty')?.checked;
+  const rows = [], updates = [], problems = [], notes = new Set();
+  let skipped = 0;
 
   lines.forEach((line, i) => {
     // Из Excel приходит таб; на всякий случай принимаем и 2+ пробела.

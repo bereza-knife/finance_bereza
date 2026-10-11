@@ -5074,10 +5074,31 @@ function whEmpSelectItem(id) {
   whEmpItemId = id;
   whRenderEmployee();
 }
+// Сколько брусков уйдёт на введённое число рукоятей
+function whEmpBrusokCost() {
+  const handles = Math.abs(+document.getElementById('emp-amount')?.value) || 0;
+  const kind = document.getElementById('emp-kind')?.value || 'шеф';
+  return { handles, kind, blocks: handles / WH_BRUSOK_YIELD[kind] };
+}
+
+function whEmpUpdateBrusok() {
+  const hint = document.getElementById('emp-brusok-hint');
+  if (!hint) return;
+  const item = whItems[whEmpItemId];
+  const { handles, kind, blocks } = whEmpBrusokCost();
+  hint.textContent = handles
+    ? `${handles} ${kind === 'шеф' ? 'шефских' : 'стейковых'} рукоятей — спишется ${blocks} брусков, останется ${Math.max(0, (item.qty || 0) - blocks)}`
+    : `В наличии ${item.qty} брусков: хватит на ${item.qty} шефских или ${item.qty * WH_BRUSOK_YIELD['стейк']} стейковых рукоятей`;
+}
+
 function whEmpSubmit() {
   const item = whItems[whEmpItemId];
   if (!item) return;
-  const amount = Math.abs(+document.getElementById('emp-amount').value) || 0;
+
+  // У брусков сотрудник вводит число рукоятей, а списывается материал
+  const brusok = whIsBrusok(item) ? whEmpBrusokCost() : null;
+  if (brusok && !brusok.handles) { alert('Введите количество рукоятей'); return; }
+  const amount = brusok ? brusok.blocks : (Math.abs(+document.getElementById('emp-amount').value) || 0);
   if (!amount) { alert('Введите количество'); return; }
   if (amount > (item.qty || 0)) {
     if (!confirm('На складе только ' + (item.qty||0) + ' ' + item.unit + '. Списать всё равно (остаток станет 0)?')) return;

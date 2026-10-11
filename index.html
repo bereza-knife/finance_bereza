@@ -5102,10 +5102,11 @@ function whAddItem() {
   if (whEditingId) {
     // Правим только поля формы: модель, сталь и тип рукояти в ней не представлены,
     // и запись объекта целиком их стирала бы.
-    const patch = { name, artikul, category, unit, qty, min };
-    if (price !== null) patch.price = price;
-    whItems[whEditingId] = { ...whItems[whEditingId], ...patch };
-    whSaveItem(whEditingId, whItems[whEditingId]);
+    const merged = { ...whItems[whEditingId], name, artikul, category, unit, qty, min };
+    // Пустое поле цены means «цены нет» — иначе её нельзя было бы убрать
+    if (price === null) delete merged.price; else merged.price = price;
+    whItems[whEditingId] = merged;
+    whSaveItem(whEditingId, merged);
     whCancelEdit();
     whRenderFull();
     return;

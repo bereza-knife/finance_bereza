@@ -4648,7 +4648,7 @@ function whBulkPreview() {
   if (!lines.length) { out.innerHTML = '<div style="color:var(--muted);">Пусто — вставь таблицу.</div>'; return; }
 
   const prefix = WH_CATEGORIES[cat].prefix;
-  const existingNames = new Set(Object.values(whItems).map(it => (it.name || '').toLowerCase()));
+  const existingNames = new Map(Object.entries(whItems).map(([id, it]) => [(it.name || '').toLowerCase(), id]));
   let num = whNextArtikulNum(prefix);
   const rows = [], problems = [], notes = new Set();
 

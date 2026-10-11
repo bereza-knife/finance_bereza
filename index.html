@@ -5101,7 +5101,9 @@ function whRenderFull() {
 
   listEl.innerHTML = entries.length ? entries.map(([id, it]) => {
     const low = it.min > 0 && it.qty <= it.min;
-    return `<div class="wh-item ${low ? 'low' : ''}">
+    const open = whOpenCard === id;
+    return `<div class="wh-item ${low ? 'low' : ''}" style="${open ? 'display:block;padding:0;' : ''}">
+      <div style="${open ? 'display:flex;align-items:center;gap:14px;padding:14px 16px;flex-wrap:wrap;' : 'display:contents;'}">
       <div>
         <div class="wh-item-name">${it.name}${it.artikul ? ' <span style="color:var(--muted);font-size:11px;">арт. '+it.artikul+'</span>' : ''}${low ? ' <span style="color:var(--red);font-size:10px;">⚠ мало</span>' : ''}</div>
         <div class="wh-item-cat">${it.category}${it.kind ? ' · ' + it.kind : ''} · мин. ${it.min} ${it.unit}${

@@ -4587,6 +4587,13 @@ const WH_HANDLE_BY_NAME = Object.fromEntries(Object.entries(HANDLE_NAMES).map(([
 // остатки, поэтому группа входит в артикул, иначе они схлопнутся в одну позицию.
 const WH_HANDLE_GROUPS = { 'шеф': 'SH', 'стейк': 'ST', 'вилка/ложка': 'VL' };
 
+// Дерево и кость считаются брусками: из одного бруска выходит одна шефская
+// рукоять либо две стейковых. Карбон и металл приходят уже разделёнными
+// по размеру, их это не касается.
+const WH_BRUSOK = 'брусок';
+const WH_BRUSOK_YIELD = { 'шеф': 1, 'стейк': 2 };
+const whIsBrusok = it => it && it.category === 'РУКОЯТЬ' && it.unit === WH_BRUSOK;
+
 function whClassify(modelId) {
   if (!modelId) return '';
   return STEAK_MODELS.includes(modelId) ? 'стейк' : 'шеф';

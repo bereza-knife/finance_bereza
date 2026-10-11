@@ -4664,7 +4664,21 @@ function whBulkPreview() {
     const row = { name, qty, category: cat, min,
                   unit: hasVariant ? 'шт' : (cols[2] || 'шт') };
 
-    if (variant) {
+    if (cat === 'РУКОЯТЬ') {
+      const code  = WH_HANDLE_BY_NAME[whNorm(base)];
+      const group = variant ? WH_HANDLE_GROUPS[whNorm(variant)] : '';
+      row.model = base;
+      if (variant) {
+        row.variant = variant;
+        const g = whNorm(variant);
+        if (g === 'шеф' || g === 'стейк') row.kind = g;
+        if (!group) notes.add(`«${variant}» — неизвестная группа рукояти, артикул будет без неё`);
+      }
+      if (!code) notes.add(`«${base}» — нет в справочнике материалов рукояти, артикул будет без кода`);
+      row.artikul = code
+        ? `${prefix}-${code}${group ? '-' + group : ''}`
+        : `${prefix}-${String(num++).padStart(2,'0')}`;
+    } else if (variant) {
       const modelId = WH_MODEL_BY_NAME[whNorm(base)];
       const steel   = WH_STEEL_BY_NAME[whNorm(variant)];
       row.model = base; row.variant = variant; row.kind = whClassify(modelId);

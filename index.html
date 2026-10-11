@@ -5096,10 +5096,15 @@ function whAddItem() {
   const unit = document.getElementById('wh-unit').value.trim() || 'шт';
   const qty = +document.getElementById('wh-qty').value || 0;
   const min = +document.getElementById('wh-min').value || 0;
+  const priceRaw = document.getElementById('wh-price').value.trim();
+  const price = priceRaw === '' ? null : (whNum(priceRaw) || 0);
 
   if (whEditingId) {
-    // Редактирование существующей позиции (без изменения истории)
-    whItems[whEditingId] = { name, artikul, category, unit, qty, min };
+    // Правим только поля формы: модель, сталь и тип рукояти в ней не представлены,
+    // и запись объекта целиком их стирала бы.
+    const patch = { name, artikul, category, unit, qty, min };
+    if (price !== null) patch.price = price;
+    whItems[whEditingId] = { ...whItems[whEditingId], ...patch };
     whSaveItem(whEditingId, whItems[whEditingId]);
     whCancelEdit();
     whRenderFull();
@@ -5108,6 +5113,7 @@ function whAddItem() {
 
   const id = 'i_' + Date.now();
   const item = { name, artikul, category, unit, qty, min };
+  if (price !== null) item.price = price;
   whItems[id] = item;
   whSaveItem(id, item);
   if (qty > 0) whLogHistory(id, item, qty, 'Алексей (первичный приход)', '');

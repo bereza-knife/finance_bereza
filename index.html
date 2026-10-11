@@ -4761,11 +4761,13 @@ function whBulkPreview() {
 }
 
 function whBulkApply() {
-  if (!whBulkParsed || !whBulkParsed.length) return;
-  const rows = whBulkParsed;
-  if (!confirm(`Добавить на склад ${rows.length} позиций?`)) return;
+  if (!whBulkParsed) return;
+  const { rows, updates: edits } = whBulkParsed;
+  if (!rows.length && !edits.length) return;
+  if (!confirm([rows.length ? `Добавить ${rows.length} позиций` : '',
+                edits.length ? `обновить ${edits.length}` : ''].filter(Boolean).join(' и ') + '?')) return;
 
-  const updates = {};
+  const payload = {};
   rows.forEach((r, i) => {
     const item = { name: r.name, artikul: r.artikul, category: r.category,
                    unit: r.unit, qty: r.qty, min: r.min };
@@ -4773,12 +4775,20 @@ function whBulkApply() {
     if (r.variant) item.variant = r.variant;
     if (r.kind)    item.kind    = r.kind;
     if (r.price != null) item.price = r.price;
-    updates['items/i_' + (Date.now() + i)] = item;
+    payload['items/i_' + (Date.now() + i)] = item;
   });
-  fbDb.ref('warehouse').update(updates, err => {
+  // Правим только присланные поля: остальное в позиции остаётся нетронутым
+  edits.forEach(u => {
+    const p = `items/${u.id}/`;
+    if (u.row.price != null) payload[p + 'price'] = u.row.price;
+    payload[p + 'min'] = u.row.min;
+    if (u.changes.some(c => c.startsWith('остаток'))) payload[p + 'qty'] = u.row.qty;
+  });
+
+  fbDb.ref('warehouse').update(payload, err => {
     if (err) { showToast('Импорт не прошёл — проверь связь'); return; }
     rows.forEach(r => whLogHistory('', r, r.qty, 'Алексей (импорт)', 'первичный ввод'));
-    showToast(`Импортировано позиций: ${rows.length}`);
+    showToast(`Добавлено: ${rows.length}, обновлено: ${edits.length}`);
     document.getElementById('wh-bulk-data').value = '';
     document.getElementById('wh-bulk-preview').innerHTML = '';
     document.getElementById('wh-bulk-apply').style.display = 'none';

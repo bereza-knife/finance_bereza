@@ -4680,6 +4680,10 @@ function whBulkPreview() {
                   unit: (cat === 'РУКОЯТЬ' && !variant) ? WH_BRUSOK
                       : hasVariant ? 'шт' : (cols[2] || 'шт') };
 
+    // Четвёртая колонка — цена за единицу, если она есть
+    const price = whNum(cols[3]);
+    if (!isNaN(price)) row.price = price;
+
     if (cat === 'РУКОЯТЬ') {
       const code  = WH_HANDLE_BY_NAME[whNorm(base)];
       const group = variant ? WH_HANDLE_GROUPS[whNorm(variant)] : '';

@@ -1469,6 +1469,10 @@
           <label class="form-label">Мин. остаток для всех</label>
           <input class="form-control" id="wh-bulk-min" type="number" value="0">
         </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);padding-bottom:10px;cursor:pointer;">
+          <input type="checkbox" id="wh-bulk-qty" onchange="whBulkPreview()">
+          Перезаписывать остатки<br>у существующих позиций
+        </label>
       </div>
       <textarea class="form-control" id="wh-bulk-data" rows="8"
                 placeholder="ЛЕНТА КУБИТРОН P36&#9;9&#9;шт&#9;450&#10;граб&#9;138&#9;брусок&#9;1000&#10;карбон Твилл серый&#9;Стейк&#9;10&#9;1500"

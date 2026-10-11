@@ -4605,6 +4605,136 @@ function whLogHistory(itemId, item, delta, employee, comment) {
   fbDb.ref('warehouse/history').push(entry);
 }
 
+// ============ ПАКЕТНЫЙ ПРИХОД / РАСХОД ============
+let whMoveParsed = null;
+
+function whBulkMode(mode) {
+  const move = mode === 'move';
+  document.getElementById('wh-move-pane').style.display   = move ? 'block' : 'none';
+  document.getElementById('wh-import-pane').style.display = move ? 'none' : 'block';
+  const on = 'var(--accent)', off = 'var(--border)';
+  document.getElementById('wh-tab-move').style.borderColor   = move ? on : off;
+  document.getElementById('wh-tab-import').style.borderColor = move ? off : on;
+  document.getElementById('wh-tab-move').style.color   = move ? on : 'var(--muted)';
+  document.getElementById('wh-tab-import').style.color = move ? 'var(--muted)' : on;
+}
+
+// Поиск позиции по тому, что человек переписал с листка: сначала точные
+// совпадения, потом вхождение всех слов. Несколько кандидатов — не угадываем.
+function whFindItem(text) {
+  const q = whNorm(text);
+  if (!q) return { found: null, candidates: [] };
+  const all = Object.entries(whItems);
+  const exact = f => all.filter(([, it]) => whNorm(f(it)) === q);
+
+  let hit = exact(it => it.artikul);
+  if (hit.length !== 1) hit = exact(it => it.name);
+  if (hit.length !== 1) {
+    const words = q.split(' ').filter(Boolean);
+    hit = all.filter(([, it]) => {
+      const hay = whNorm(`${it.name} ${it.artikul || ''}`);
+      return words.every(w => hay.includes(w));
+    });
+  }
+  return hit.length === 1
+    ? { found: { id: hit[0][0], it: hit[0][1] } , candidates: [] }
+    : { found: null, candidates: hit.map(([, it]) => it.name) };
+}
+
+function whMovePreview() {
+  const emp  = document.getElementById('wh-move-emp').value;
+  const note = document.getElementById('wh-move-note').value.trim();
+  const out  = document.getElementById('wh-move-preview');
+  const btn  = document.getElementById('wh-move-apply');
+  whMoveParsed = null; btn.style.display = 'none';
+
+  const lines = document.getElementById('wh-move-data').value
+    .split('\n').map(l => l.trim()).filter(Boolean);
+  if (!lines.length) { out.innerHTML = '<div style="color:var(--muted);">Пусто — вставь список.</div>'; return; }
+
+  const ops = [], problems = [];
+  const planned = {};   // несколько строк на одну позицию должны складываться
+
+  lines.forEach((line, i) => {
+    // «название <число> [шеф|стейк]» — тип рукояти только после числа,
+    // иначе он спутается с названиями вида «карбон Твилл серый · ШЕФ»
+    const m = line.replace(/\t/g, ' ').match(/^(.*?)\s+([+-]?\d+(?:[.,]\d+)?)\s*(шеф|стейк)?$/i);
+    if (!m) { problems.push(`Строка ${i+1}: «${line}» — не нашёл количество в конце строки`); return; }
+    const [, rawName, rawNum, rawKind] = m;
+    const num = whNum(rawNum.replace('+', ''));
+    if (!num) { problems.push(`Строка ${i+1}: «${line}» — количество нулевое`); return; }
+
+    const { found, candidates } = whFindItem(rawName);
+    if (!found) {
+      problems.push(candidates.length
+        ? `Строка ${i+1}: «${rawName}» — подходит несколько: ${candidates.slice(0,4).join(', ')}${candidates.length>4?'…':''}. Уточни или укажи артикул`
+        : `Строка ${i+1}: «${rawName}» — на складе не нашёл`);
+      return;
+    }
+
+    const { id, it } = found;
+    const kind = rawKind ? rawKind.toLowerCase() : '';
+    if (kind && !whIsBrusok(it)) {
+      problems.push(`Строка ${i+1}: «${it.name}» считается в ${it.unit}, «${kind}» тут не применяется`); return;
+    }
+    // Для брусков число с пометкой — это рукояти, их переводим в материал
+    const amount = kind ? num / WH_BRUSOK_YIELD[kind] : num;
+    const delta  = rawNum.startsWith('+') ? amount : -amount;
+
+    planned[id] = (planned[id] || 0) + delta;
+    ops.push({ id, it, delta, kind, handles: kind ? num : 0,
+               after: (it.qty || 0) + planned[id] });
+  });
+
+  const negative = ops.filter(o => o.after < 0);
+  out.innerHTML =
+    (problems.length ? `<div style="border:1px solid var(--tint-red-border);background:var(--tint-red-bg);padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.7;">
+        ${problems.map(p => '• ' + p).join('<br>')}</div>` : '') +
+    (negative.length ? `<div style="border:1px solid var(--tint-gold-border);background:var(--tint-gold-bg);padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.7;">
+        Списывается больше, чем есть — остаток упрётся в ноль:<br>
+        ${negative.map(o => `• ${o.it.name}: в наличии ${o.it.qty} ${o.it.unit}`).join('<br>')}</div>` : '') +
+    (ops.length ? `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Операций: ${ops.length} · записываю на «${emp}»${note ? ' · ' + note : ''}</div>` +
+      ops.map(o => `<div class="wh-history-row">
+        <div style="min-width:110px;color:var(--accent);">${o.it.artikul || ''}</div>
+        <div style="min-width:220px;">${o.it.name}</div>
+        <div style="min-width:90px;" class="${o.delta > 0 ? 'wh-h-plus' : 'wh-h-minus'}">${o.delta > 0 ? '+' : ''}${o.delta} ${o.it.unit}</div>
+        <div style="min-width:150px;color:var(--muted);">${o.it.qty} → ${Math.max(0, o.after)}</div>
+        <div style="flex:1;color:var(--muted);font-size:10px;">${o.handles ? o.handles + ' рук. ' + o.kind : ''}</div>
+      </div>`).join('')
+      : '<div style="color:var(--muted);">Записывать нечего.</div>');
+
+  if (ops.length) {
+    whMoveParsed = { ops, emp, note };
+    btn.style.display = 'inline-block';
+    btn.textContent = `Записать ${ops.length}`;
+  }
+}
+
+function whMoveApply() {
+  if (!whMoveParsed) return;
+  const { ops, emp, note } = whMoveParsed;
+  if (!confirm(`Записать ${ops.length} операций на «${emp}»?`)) return;
+
+  let done = 0, failed = 0;
+  ops.forEach(o => {
+    whApplyDelta(o.id, o.delta, (err, applied) => {
+      if (err || !applied) { failed++; }
+      else {
+        done++;
+        const made = o.handles ? `${o.handles} рук. ${o.kind}` : '';
+        whLogHistory(o.id, o.it, applied, emp, [made, note].filter(Boolean).join(' · '));
+      }
+      if (done + failed === ops.length) {
+        showToast(failed ? `Записано ${done}, не прошло ${failed}` : `Записано операций: ${done}`);
+        document.getElementById('wh-move-data').value = '';
+        document.getElementById('wh-move-preview').innerHTML = '';
+        document.getElementById('wh-move-apply').style.display = 'none';
+        whMoveParsed = null;
+      }
+    });
+  });
+}
+
 // ============ МАССОВЫЙ ИМПОРТ ============
 let whBulkParsed = null;
 

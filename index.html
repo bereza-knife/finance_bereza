@@ -1485,11 +1485,12 @@
       <div style="display:flex;gap:10px;align-items:center;flex:1;justify-content:flex-end;flex-wrap:wrap;">
         <input class="filter-input" id="wh-search" type="text" placeholder="Поиск по названию, артикулу..." oninput="whRenderFull()" style="max-width:280px;">
         <select class="filter-input" id="wh-cat-filter" onchange="whRenderFull()" style="max-width:190px;"></select>
-        <select class="filter-input" id="wh-stock-filter" onchange="whRenderFull()" style="max-width:170px;">
-          <option value="">Любой остаток</option>
+        <select class="filter-input" id="wh-variant-filter" onchange="whRenderFull()" style="max-width:190px;"></select>
+        <select class="filter-input" id="wh-stock-filter" onchange="whRenderFull()" style="max-width:180px;">
+          <option value="has" selected>Только в наличии</option>
+          <option value="">Показать и нулевые</option>
           <option value="low">Ниже минимума</option>
-          <option value="zero">Закончились</option>
-          <option value="has">Есть в наличии</option>
+          <option value="zero">Только нулевые</option>
         </select>
         <select class="filter-input" id="wh-kind-filter" onchange="whRenderFull()" style="max-width:130px;">
           <option value="">Шеф и стейк</option>

@@ -5121,9 +5121,12 @@ function whRenderFull() {
       <div class="wh-item-actions">
         <button class="btn btn-sm" onclick="whAddStock('${id}')" style="border-color:#2a4a3a;color:var(--green);">+ Приход</button>
         <button class="btn btn-sm" onclick="whRemoveStock('${id}')" style="border-color:var(--red);color:var(--red);">− Расход</button>
+        <button class="btn btn-sm" onclick="whToggleCard('${id}')" style="border-color:${open ? 'var(--accent)' : 'var(--border)'};color:${open ? 'var(--accent)' : 'var(--muted)'};">${open ? '▴' : '▾'} История</button>
         <button class="btn btn-sm" onclick="whEditItem('${id}')" style="border-color:#4a3a10;color:var(--accent);">✎</button>
         <button class="btn btn-sm btn-danger" onclick="whDeleteItem('${id}')">✕</button>
       </div>
+      </div>
+      ${open ? whRenderCard(id) : ''}
     </div>`;
   }).join('') : `<div style="color:var(--muted);padding:20px 0;">Позиций пока нет.</div>`;
 

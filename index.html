@@ -4710,10 +4710,24 @@ function whBulkPreview() {
     } else {
       row.artikul = whFallbackArtikul(prefix, num++, false);
     }
+
+    // Позиция уже есть — не создаём вторую, а готовим обновление полей
+    if (existingId) {
+      const cur = whItems[existingId];
+      const changes = [];
+      if (row.price != null && row.price !== cur.price)
+        changes.push(`цена ${cur.price != null ? cur.price.toLocaleString('ru') : '—'} → ${row.price.toLocaleString('ru')} ₽`);
+      if (row.min !== (cur.min || 0)) changes.push(`минимум ${cur.min || 0} → ${row.min}`);
+      if (updateQty && row.qty !== (cur.qty || 0)) changes.push(`остаток ${cur.qty || 0} → ${row.qty}`);
+      if (!changes.length) { skipped++; return; }
+      updates.push({ id: existingId, row, cur, changes });
+      return;
+    }
     rows.push(row);
   });
 
   problems.push(...notes);
+  if (skipped) problems.push(`Без изменений: ${skipped} — такие позиции уже есть, и в них нечего обновлять`);
 
   out.innerHTML =
     (problems.length ? `<div style="border:1px solid var(--tint-red-border);background:var(--tint-red-bg);padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.7;">

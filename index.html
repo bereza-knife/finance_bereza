@@ -4724,6 +4724,7 @@ function whBulkPreview() {
         <div style="min-width:110px;color:var(--accent);">${r.artikul}</div>
         <div style="min-width:220px;">${r.name}</div>
         <div style="min-width:80px;">${r.qty} ${r.unit}</div>
+        <div style="min-width:90px;color:var(--muted);">${r.price != null ? r.price.toLocaleString('ru') + ' ₽' : ''}</div>
         <div style="min-width:60px;color:var(--muted);">${r.kind || ''}</div>
         <div style="min-width:120px;color:var(--muted);">${r.category}</div>
       </div>`).join('')

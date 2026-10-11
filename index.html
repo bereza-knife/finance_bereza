@@ -4745,6 +4745,7 @@ function whBulkApply() {
     if (r.model)   item.model   = r.model;
     if (r.variant) item.variant = r.variant;
     if (r.kind)    item.kind    = r.kind;
+    if (r.price != null) item.price = r.price;
     updates['items/i_' + (Date.now() + i)] = item;
   });
   fbDb.ref('warehouse').update(updates, err => {

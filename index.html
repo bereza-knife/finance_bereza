@@ -4871,13 +4871,18 @@ function whCancelEdit() {
 }
 
 // Приход (только Алексей)
+// У брусков поясняем пересчёт: Алексей вводит материал, а не рукояти
+const whUnitHint = it => whIsBrusok(it)
+  ? `\n1 брусок = 1 шеф или ${WH_BRUSOK_YIELD['стейк']} стейка. В наличии: ${it.qty}`
+  : '';
+
 function whAddStock(id) {
   const item = whItems[id];
   if (!item) return;
-  const amountStr = prompt('Приход — количество (' + item.unit + '):', '1');
+  const amountStr = prompt('Приход — количество (' + item.unit + '):' + whUnitHint(item), '1');
   if (amountStr === null) return;
-  const amount = Math.abs(+amountStr) || 0;
-  if (!amount) return;
+  const amount = Math.abs(whNum(amountStr)) || 0;
+  if (!amount) { showToast('Не понял количество — введите число, например 2 или 1.5'); return; }
   whApplyDelta(id, amount, (err, applied) => {
     if (err) { showToast('Не удалось записать приход — проверь связь'); return; }
     whLogHistory(id, item, applied, 'Алексей', '');

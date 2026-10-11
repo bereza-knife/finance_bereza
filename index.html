@@ -4673,9 +4673,7 @@ function whBulkPreview() {
     if (isNaN(qty)) { problems.push(`Строка ${i+1}: «${base}» — не разобрал количество`); return; }
 
     const name = variant ? `${base} · ${variant}` : base;
-    if (existingNames.has(name.toLowerCase())) {
-      problems.push(`Строка ${i+1}: «${name}» — уже есть на складе, пропущу`); return;
-    }
+    const existingId = existingNames.get(name.toLowerCase());
 
     // Рукоять без группы — дерево или кость, они приходят брусками
     const row = { name, qty, category: cat, min,

@@ -5195,7 +5195,19 @@ function whRemoveStock(id) {
 function whDeleteItem(id) {
   const item = whItems[id];
   if (!item) return;
-  if (!confirm('Удалить позицию «' + item.name + '» со склада?')) return;
+  // Удаление позиции с остатком уносит и товар, и его историю — вернуть нечем,
+  // корзины на складе нет. Сначала списываем: тогда расход хотя бы попадёт в журнал.
+  if ((item.qty || 0) !== 0) {
+    const val = whItemValue(item);
+    alert('«' + item.name + '» удалить нельзя: на складе ' + item.qty + ' ' + item.unit +
+          (val ? ' на ' + Math.round(val).toLocaleString('ru') + ' ₽' : '') +
+          '.\n\nСначала спишите остаток в ноль — расход запишется в историю. ' +
+          'Пустую позицию можно удалить.');
+    return;
+  }
+  const n = whItemHistory(id).length;
+  if (!confirm('Удалить позицию «' + item.name + '» со склада?' +
+               (n ? '\nВместе с ней из карточки пропадёт история: ' + n + ' операций.' : ''))) return;
   delete whItems[id];
   fbDb.ref('warehouse/items/' + id).remove();
   whRenderFull();

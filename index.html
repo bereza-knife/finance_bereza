@@ -1554,16 +1554,16 @@
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0;">
       <div class="section-title" style="margin:0;white-space:nowrap;">Остатки на складе</div>
       <div style="display:flex;gap:10px;align-items:center;flex:1;justify-content:flex-end;flex-wrap:wrap;">
-        <input class="filter-input" id="wh-search" type="text" placeholder="Поиск по названию, артикулу..." oninput="whRenderFull()" style="max-width:280px;">
-        <select class="filter-input" id="wh-cat-filter" onchange="whRenderFull()" style="max-width:190px;"></select>
-        <select class="filter-input" id="wh-variant-filter" onchange="whRenderFull()" style="max-width:190px;"></select>
-        <select class="filter-input" id="wh-stock-filter" onchange="whRenderFull()" style="max-width:180px;">
+        <input class="filter-input" id="wh-search" type="text" placeholder="Поиск по названию, артикулу..." oninput="whRenderFull()" style="flex:1 1 200px;min-width:160px;max-width:280px;">
+        <select class="filter-input" id="wh-cat-filter" onchange="whRenderFull()" style="flex:1 1 150px;min-width:140px;max-width:190px;"></select>
+        <select class="filter-input" id="wh-variant-filter" onchange="whRenderFull()" style="flex:1 1 150px;min-width:140px;max-width:190px;"></select>
+        <select class="filter-input" id="wh-stock-filter" onchange="whRenderFull()" style="flex:1 1 150px;min-width:150px;max-width:180px;">
           <option value="has" selected>Только в наличии</option>
           <option value="">Показать и нулевые</option>
           <option value="low">Ниже минимума</option>
           <option value="zero">Только нулевые</option>
         </select>
-        <select class="filter-input" id="wh-kind-filter" onchange="whRenderFull()" style="max-width:130px;">
+        <select class="filter-input" id="wh-kind-filter" onchange="whRenderFull()" style="flex:1 1 130px;min-width:120px;max-width:140px;">
           <option value="">Шеф и стейк</option>
           <option value="шеф">Только шеф</option>
           <option value="стейк">Только стейк</option>

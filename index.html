@@ -5063,6 +5063,63 @@ function whRenderCard(id) {
   </div>`;
 }
 
+// ============ СВЕРКА ИСТОРИИ С ОСТАТКОМ ============
+// Остаток можно изменить мимо истории: через форму позиции или импортом
+// с перезаписью остатков. Тогда сумма движений перестаёт сходиться с остатком,
+// и заметить это иначе нельзя.
+function whReconcile() {
+  return Object.entries(whItems).map(([id, it]) => {
+    const rows = whItemHistory(id);
+    const sum = rows.reduce((s, h) => s + (h.delta || 0), 0);
+    const qty = it.qty || 0;
+    // Дробные бруски дают хвосты вроде 0.30000000000000004
+    const diff = Math.round((qty - sum) * 100) / 100;
+    return { id, it, qty, sum, diff, ops: rows.length };
+  }).filter(r => r.diff !== 0)
+    .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
+}
+
+function whToggleReconcile() {
+  const box = document.getElementById('wh-recon-box');
+  const open = box.style.display === 'none';
+  box.style.display = open ? 'block' : 'none';
+  document.getElementById('wh-recon-toggle').textContent = open ? 'свернуть' : 'проверить';
+  if (open) whRenderReconcile();
+}
+
+function whRenderReconcile() {
+  const box = document.getElementById('wh-recon-box');
+  if (!box || box.style.display === 'none') return;
+  const bad = whReconcile();
+  const total = Object.keys(whItems).length;
+
+  if (!bad.length) {
+    box.innerHTML = `<div style="border:1px solid var(--tint-green-border);background:var(--tint-green-bg);padding:12px 14px;font-size:11px;line-height:1.7;">
+      Сходится по всем ${total} позициям: остаток равен сумме движений.</div>`;
+    return;
+  }
+  box.innerHTML =
+    `<div style="border:1px solid var(--tint-gold-border);background:var(--tint-gold-bg);padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.7;">
+      Расходится у <b>${bad.length}</b> из ${total}. Это значит, что остаток меняли
+      не через приход и расход — правкой позиции или импортом с перезаписью.
+      С этих позиций разумно начинать пересчёт.
+    </div>` +
+    `<div class="wh-history-row" style="color:var(--muted);text-transform:uppercase;font-size:9px;letter-spacing:1px;">
+      <div style="min-width:110px;">Артикул</div><div style="min-width:220px;">Название</div>
+      <div style="min-width:90px;">Остаток</div><div style="min-width:110px;">По истории</div>
+      <div style="min-width:90px;">Разница</div><div style="min-width:70px;">Операций</div>
+    </div>` +
+    bad.slice(0, 100).map(r => `<div class="wh-history-row">
+      <div style="min-width:110px;color:var(--accent);">${r.it.artikul || ''}</div>
+      <div style="min-width:220px;">${r.it.name}</div>
+      <div style="min-width:90px;">${r.qty} ${r.it.unit}</div>
+      <div style="min-width:110px;color:var(--muted);">${r.sum} ${r.it.unit}</div>
+      <div style="min-width:90px;" class="${r.diff > 0 ? 'wh-h-plus' : 'wh-h-minus'}">${r.diff > 0 ? '+' : ''}${r.diff}</div>
+      <div style="min-width:70px;color:var(--muted);">${r.ops}</div>
+    </div>`).join('') +
+    (bad.length > 100 ? `<div style="font-size:10px;color:var(--muted);margin-top:8px;">Показаны 100 из ${bad.length}</div>` : '');
+}
+
 // Стоимость остатка по позиции
 const whItemValue = it => (it && it.price != null) ? (it.qty || 0) * it.price : 0;
 

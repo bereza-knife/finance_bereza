@@ -4778,6 +4778,111 @@ function whMoveApply() {
   });
 }
 
+// ============ ИНВЕНТАРИЗАЦИЯ ============
+let whInvParsed = null;
+
+// Заготовка для пересчёта: выгружаем то, что сейчас видно в списке,
+// чтобы на складе оставалось только исправить разошедшиеся числа.
+function whInvFillTemplate() {
+  const catF   = document.getElementById('wh-cat-filter')?.value || '';
+  const rows = Object.values(whItems)
+    .filter(it => !catF || it.category === catF)
+    .sort((a, b) => (a.artikul || '').localeCompare(b.artikul || '', 'ru'))
+    .map(it => `${it.artikul || it.name} ${num2_(it.qty)}`);
+  document.getElementById('wh-inv-data').value = rows.join('\n');
+  showToast(catF ? `Подставлено: ${catF}, позиций ${rows.length}` : `Подставлено позиций: ${rows.length}`);
+}
+
+// Дробные бруски дают хвосты вида 0.30000000000000004
+const num2_ = v => Math.round((Number(v) || 0) * 100) / 100;
+
+function whInvPreview() {
+  const emp  = document.getElementById('wh-inv-emp').value;
+  const note = document.getElementById('wh-inv-note').value.trim();
+  const out  = document.getElementById('wh-inv-preview');
+  const btn  = document.getElementById('wh-inv-apply');
+  whInvParsed = null; btn.style.display = 'none';
+
+  const lines = document.getElementById('wh-inv-data').value
+    .split('\n').map(l => l.trim()).filter(Boolean);
+  if (!lines.length) { out.innerHTML = '<div style="color:var(--muted);">Пусто — вставь результат пересчёта.</div>'; return; }
+
+  const diffs = [], same = [], problems = [];
+  const seen = {};
+
+  lines.forEach((line, i) => {
+    const m = line.replace(/\t/g, ' ').match(/^(.*?)\s+(\d+(?:[.,]\d+)?)$/);
+    if (!m) { problems.push(`Строка ${i+1}: «${line}» — не нашёл число в конце строки`); return; }
+    const fact = whNum(m[2]);
+    if (isNaN(fact)) { problems.push(`Строка ${i+1}: «${line}» — не разобрал количество`); return; }
+
+    const { found, candidates } = whFindItem(m[1]);
+    if (!found) {
+      problems.push(candidates.length
+        ? `Строка ${i+1}: «${m[1]}» — подходит несколько: ${candidates.slice(0,4).join(', ')}${candidates.length>4?'…':''}. Уточни или укажи артикул`
+        : `Строка ${i+1}: «${m[1]}» — на складе не нашёл`);
+      return;
+    }
+    if (seen[found.id]) { problems.push(`Строка ${i+1}: «${found.it.name}» уже была выше — возьму первое значение`); return; }
+    seen[found.id] = true;
+
+    const was = num2_(found.it.qty);
+    const delta = num2_(fact - was);
+    (delta === 0 ? same : diffs).push({ id: found.id, it: found.it, was, fact, delta });
+  });
+
+  diffs.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+  const lossVal = diffs.filter(d => d.delta < 0)
+    .reduce((s, d) => s + (d.it.price != null ? Math.abs(d.delta) * d.it.price : 0), 0);
+
+  out.innerHTML =
+    (problems.length ? `<div style="border:1px solid var(--tint-red-border);background:var(--tint-red-bg);padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.7;">
+        ${problems.map(p => '• ' + p).join('<br>')}</div>` : '') +
+    `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">
+      Сошлось: ${same.length} · расхождений: ${diffs.length}${lossVal ? ' · недостача на ' + Math.round(lossVal).toLocaleString('ru') + ' ₽' : ''}
+      ${diffs.length ? ' · записываю на «' + emp + '»' : ''}
+    </div>` +
+    (diffs.length ? diffs.map(d => `<div class="wh-history-row">
+        <div style="min-width:110px;color:var(--accent);">${d.it.artikul || ''}</div>
+        <div style="min-width:220px;">${d.it.name}</div>
+        <div style="min-width:150px;color:var(--muted);">было ${d.was} → факт ${d.fact} ${d.it.unit}</div>
+        <div style="min-width:90px;" class="${d.delta > 0 ? 'wh-h-plus' : 'wh-h-minus'}">${d.delta > 0 ? '+' : ''}${d.delta}</div>
+        <div style="flex:1;color:var(--muted);font-size:10px;">${d.it.price != null ? Math.round(Math.abs(d.delta) * d.it.price).toLocaleString('ru') + ' ₽' : ''}</div>
+      </div>`).join('')
+      : '<div style="color:var(--muted);">Все пересчитанные позиции сходятся — править нечего.</div>');
+
+  if (diffs.length) {
+    whInvParsed = { diffs, emp, note };
+    btn.style.display = 'inline-block';
+    btn.textContent = `Применить ${diffs.length}`;
+  }
+}
+
+function whInvApply() {
+  if (!whInvParsed) return;
+  const { diffs, emp, note } = whInvParsed;
+  if (!confirm(`Привести ${diffs.length} позиций к факту? Остатки изменятся, расхождения попадут в историю.`)) return;
+
+  let done = 0, failed = 0;
+  diffs.forEach(d => {
+    whApplyDelta(d.id, d.delta, (err, applied) => {
+      if (err) failed++;
+      else {
+        done++;
+        whLogHistory(d.id, d.it, applied, emp,
+          ['инвентаризация: было ' + d.was + ', факт ' + d.fact, note].filter(Boolean).join(' · '));
+      }
+      if (done + failed === diffs.length) {
+        showToast(failed ? `Применено ${done}, не прошло ${failed}` : `Остатки приведены к факту: ${done}`);
+        document.getElementById('wh-inv-data').value = '';
+        document.getElementById('wh-inv-preview').innerHTML = '';
+        document.getElementById('wh-inv-apply').style.display = 'none';
+        whInvParsed = null;
+      }
+    });
+  });
+}
+
 // ============ МАССОВЫЙ ИМПОРТ ============
 let whBulkParsed = null;
 

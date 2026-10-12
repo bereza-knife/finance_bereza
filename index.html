@@ -4651,14 +4651,15 @@ function whLogHistory(itemId, item, delta, employee, comment) {
 let whMoveParsed = null;
 
 function whBulkMode(mode) {
-  const move = mode === 'move';
-  document.getElementById('wh-move-pane').style.display   = move ? 'block' : 'none';
-  document.getElementById('wh-import-pane').style.display = move ? 'none' : 'block';
-  const on = 'var(--accent)', off = 'var(--border)';
-  document.getElementById('wh-tab-move').style.borderColor   = move ? on : off;
-  document.getElementById('wh-tab-import').style.borderColor = move ? off : on;
-  document.getElementById('wh-tab-move').style.color   = move ? on : 'var(--muted)';
-  document.getElementById('wh-tab-import').style.color = move ? 'var(--muted)' : on;
+  const panes = { move: 'wh-move-pane', import: 'wh-import-pane', inv: 'wh-inv-pane' };
+  const tabs  = { move: 'wh-tab-move',  import: 'wh-tab-import',  inv: 'wh-tab-inv' };
+  Object.keys(panes).forEach(m => {
+    const active = m === mode;
+    document.getElementById(panes[m]).style.display = active ? 'block' : 'none';
+    const tab = document.getElementById(tabs[m]);
+    tab.style.borderColor = active ? 'var(--accent)' : 'var(--border)';
+    tab.style.color       = active ? 'var(--accent)' : 'var(--muted)';
+  });
 }
 
 // Поиск позиции по тому, что человек переписал с листка: сначала точные

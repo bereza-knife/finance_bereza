@@ -1461,6 +1461,34 @@
       <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
         <button class="btn btn-sm" id="wh-tab-import" onclick="whBulkMode('import')">Импорт позиций</button>
         <button class="btn btn-sm" id="wh-tab-move" onclick="whBulkMode('move')">Приход / расход списком</button>
+        <button class="btn btn-sm" id="wh-tab-inv" onclick="whBulkMode('inv')">Инвентаризация</button>
+      </div>
+
+      <div id="wh-inv-pane" style="display:none;">
+        <div style="color:var(--muted);font-size:11px;line-height:1.6;margin-bottom:12px;">
+          Пересчёт по факту. По строке на позицию: <b>название или артикул</b>, затем
+          <b>сколько насчитали</b>. Позиции, которых нет в списке, не трогаются —
+          можно считать склад по частям. Расхождения запишутся в историю как корректировка.
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px;">
+          <div class="form-group" style="flex:1;min-width:180px;margin:0;">
+            <label class="form-label">Кто считал</label>
+            <select class="form-control" id="wh-inv-emp"></select>
+          </div>
+          <div class="form-group" style="flex:2;min-width:200px;margin:0;">
+            <label class="form-label">Пометка — необязательно</label>
+            <input class="form-control" id="wh-inv-note" type="text" placeholder="Напр.: стеллаж с рукоятями">
+          </div>
+        </div>
+        <textarea class="form-control" id="wh-inv-data" rows="8"
+                  placeholder="граб 130&#10;КЛЕЙ AKFIX 15&#10;HD-16-ST 9"
+                  style="font-family:'JetBrains Mono',monospace;resize:vertical;"></textarea>
+        <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+          <button class="btn btn-sm" onclick="whInvPreview()">Сверить</button>
+          <button class="btn btn-sm" onclick="whInvFillTemplate()">Подставить текущие остатки</button>
+          <button class="btn btn-primary" id="wh-inv-apply" onclick="whInvApply()" style="display:none;">Применить</button>
+        </div>
+        <div id="wh-inv-preview" style="margin-top:14px;"></div>
       </div>
 
       <div id="wh-move-pane" style="display:none;">

@@ -4586,9 +4586,12 @@ function whInitCategorySelects() {
   const bulk = document.getElementById('wh-bulk-cat');
   if (bulk) bulk.innerHTML = opts;
 
-  const emp = document.getElementById('wh-move-emp');
-  if (emp) emp.innerHTML = ['Алексей', 'Михаил', 'Матвей', 'Дмитрий', 'Александр']
+  const people = ['Алексей', 'Михаил', 'Матвей', 'Дмитрий', 'Александр']
     .map(n => `<option value="${n}">${n}</option>`).join('');
+  ['wh-move-emp', 'wh-inv-emp'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = people;
+  });
 }
 
 let whItems = JSON.parse(localStorage.getItem('bn_wh_items') || '{}');

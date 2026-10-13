@@ -4567,6 +4567,37 @@ window.addEventListener('beforeunload', e => {
 // Категории и подсказки (что входит в каждую)
 // Категории склада. Списки справа — только подсказка на карточке у сотрудника,
 // на данные не влияют. Префикс идёт в автоартикул при массовом импорте.
+// ============ НАЛИЧИЕ: ножи изготовлены, но не проданы ============
+const STOCK_REASONS = ['отказ клиента', 'отмена заказа', 'сделан про запас',
+  'не принят по качеству', 'образец/витрина', 'возврат', 'другое'];
+
+const STOCK_STATUS = { available: 'в наличии', reserved: 'забронирован', sold: 'продан' };
+
+let stock = [];
+
+function listenStock() {
+  fbDb.ref('stock').on('value', snap => {
+    const d = snap.val() || {};
+    stock = Object.entries(d).map(([k, v]) => ({ ...v, _key: k }))
+                  .sort((a, b) => (a.ts || 0) - (b.ts || 0));
+    stockExpireReservations();
+    renderStock();
+    renderMishaStock();
+  });
+}
+
+// Бронь снимается сама по истечении срока — иначе список врёт о доступности
+function stockExpireReservations() {
+  const today = new Date().toISOString().slice(0, 10);
+  stock.filter(s => s.status === 'reserved' && s.reservedUntil && s.reservedUntil < today)
+       .forEach(s => {
+         fbDb.ref('stock/' + s._key).update({ status: 'available', reservedFor: null, reservedUntil: null });
+       });
+}
+
+const stockDays = s => Math.floor((Date.now() - (s.ts || Date.now())) / 86400000);
+const stockActive = () => stock.filter(s => s.status !== 'sold');
+
 const WH_CATEGORIES = {
   'КЛИНКИ':           { prefix: 'BL', hint: ['Клинки', 'Вилки', 'Тесаки'] },
   'РУКОЯТЬ':          { prefix: 'HD', hint: ['Материал ручек', 'Больстеры', 'Вставки', 'Лайнеры', 'Пины'] },

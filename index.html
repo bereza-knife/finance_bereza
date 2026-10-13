@@ -6003,5 +6003,17 @@ firebase.auth().onAuthStateChanged(fbUser => {
 
 <!-- Уведомления — общие для всех кабинетов -->
 <div class="toast" id="toast"></div>
+
+<div class="modal-back" id="modal-back" onclick="if(event.target===this) closeModal()">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-sub" id="modal-sub"></div>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="modal-ok" style="flex:1;">Подтвердить</button>
+      <button class="btn btn-sm" onclick="closeModal()">Отмена</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

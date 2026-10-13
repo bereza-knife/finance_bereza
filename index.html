@@ -1451,6 +1451,32 @@
   </div>
 
   <!-- СКЛАД (полный доступ) -->
+  <div class="view-stock" id="view-stock">
+    <div class="stats" id="stock-stats" style="margin-bottom:20px;"></div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0;">
+      <div class="section-title" style="margin:0;white-space:nowrap;">Ножи в наличии</div>
+      <div style="display:flex;gap:10px;align-items:center;flex:1;justify-content:flex-end;flex-wrap:wrap;">
+        <select class="filter-input" id="stock-f-model"  onchange="renderStock()" style="flex:1 1 150px;min-width:140px;max-width:190px;"></select>
+        <select class="filter-input" id="stock-f-steel"  onchange="renderStock()" style="flex:1 1 150px;min-width:140px;max-width:190px;"></select>
+        <select class="filter-input" id="stock-f-reason" onchange="renderStock()" style="flex:1 1 150px;min-width:150px;max-width:200px;"></select>
+        <select class="filter-input" id="stock-f-status" onchange="renderStock()" style="flex:1 1 140px;min-width:140px;max-width:170px;">
+          <option value="">Все статусы</option>
+          <option value="available">В наличии</option>
+          <option value="reserved">Забронированы</option>
+          <option value="sold">Проданы</option>
+        </select>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap;">
+          <input type="checkbox" id="stock-f-stale" onchange="renderStock()"> только залежалые
+        </label>
+        <button class="btn btn-sm" onclick="stockAddManual()" style="border-color:#2a4a3a;color:var(--green);">+ Добавить нож</button>
+        <button class="export-btn" onclick="stockExport()">↓ CSV</button>
+      </div>
+    </div>
+    <div id="stock-count" style="color:var(--muted);font-size:11px;margin-bottom:10px;"></div>
+    <div id="stock-list"></div>
+  </div>
+
   <div class="view-warehouse" id="view-warehouse">
     <div class="section-title" style="margin-bottom:16px;" id="wh-form-title">Добавить позицию</div>
     <div class="form-row" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:24px;">

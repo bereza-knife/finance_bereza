@@ -1711,6 +1711,7 @@
     <div class="nav">
       <button class="nav-btn active" onclick="showMishaView('orders')">Заказы</button>
       <button class="nav-btn" onclick="showMishaView('clients')">Клиенты</button>
+      <button class="nav-btn" onclick="showMishaView('stock')">В наличии <span id="m-stock-badge" style="display:none;background:var(--accent2);color:#0e0c0a;font-size:9px;padding:1px 6px;border-radius:8px;margin-left:2px;">0</span></button>
       <button class="nav-btn" onclick="showMishaView('analytics')">Аналитика</button>
     </div>
     <label id="theme-toggle-button" title="Светлая / тёмная тема">
@@ -2051,6 +2052,18 @@
   </div>
 
   <!-- АНАЛИТИКА МИХАИЛА -->
+  <div id="m-view-stock" style="display:none;padding:24px;overflow-y:auto;height:calc(100vh - 73px);width:100%;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+      <div class="section-title" style="margin:0;white-space:nowrap;">Готовые ножи в наличии</div>
+      <div style="display:flex;gap:10px;align-items:center;flex:1;justify-content:flex-end;flex-wrap:wrap;">
+        <select class="filter-input" id="m-stock-f-model" onchange="renderMishaStock()" style="flex:1 1 150px;min-width:140px;max-width:190px;"></select>
+        <select class="filter-input" id="m-stock-f-steel" onchange="renderMishaStock()" style="flex:1 1 150px;min-width:140px;max-width:190px;"></select>
+      </div>
+    </div>
+    <div id="m-stock-count" style="color:var(--muted);font-size:11px;margin-bottom:10px;"></div>
+    <div id="m-stock-list"></div>
+  </div>
+
   <div id="m-view-analytics" style="display:none;padding:24px;overflow-y:auto;height:calc(100vh - 73px);width:100%;">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px;">
       <div class="section-title" style="margin:0;border:none;padding:0;">Аналитика</div>
@@ -3391,12 +3404,14 @@ function showView(v) {
 function showMishaView(v) {
   document.getElementById('m-view-orders').style.display    = v==='orders'    ? 'flex'  : 'none';
   document.getElementById('m-view-clients').style.display   = v==='clients'   ? 'block' : 'none';
+  document.getElementById('m-view-stock').style.display     = v==='stock'     ? 'block' : 'none';
   document.getElementById('m-view-analytics').style.display = v==='analytics' ? 'block' : 'none';
-  const views = ['orders','clients','analytics'];
+  const views = ['orders','clients','stock','analytics'];
   document.querySelectorAll('#app-misha .nav .nav-btn').forEach((b,i) => {
     b.classList.toggle('active', views[i] === v);
   });
   if (v==='clients') renderMishaClients();
+  if (v==='stock') renderMishaStock();
   if (v==='analytics') renderMishaAnalytics();
 }
 
@@ -4999,6 +5014,72 @@ function stockAddManual() {
       fbDb.ref('stock/' + e.id).set(e);
       closeModal(); showToast('Добавлен в наличие');
     });
+}
+
+// ---- Наличие у Михаила: без себестоимости и без причины попадания ----
+function renderMishaStock() {
+  const list = document.getElementById('m-stock-list');
+  if (!list) return;
+  const avail = stock.filter(s => s.status !== 'sold');
+
+  const fill = (id, label, vals) => {
+    const el = document.getElementById(id); if (!el) return;
+    const cur = el.value;
+    el.innerHTML = `<option value="">${label}</option>` +
+      [...new Set(vals)].filter(Boolean).sort((a, b) => String(a).localeCompare(String(b), 'ru'))
+        .map(v => `<option value="${v}">${v}</option>`).join('');
+    el.value = cur;
+  };
+  fill('m-stock-f-model', 'Все модели', avail.map(s => s.modelName));
+  fill('m-stock-f-steel', 'Все стали',  avail.map(s => s.steelName));
+
+  const fM = document.getElementById('m-stock-f-model')?.value || '';
+  const fS = document.getElementById('m-stock-f-steel')?.value || '';
+  const rows = avail.filter(s => (!fM || s.modelName === fM) && (!fS || s.steelName === fS))
+                    .sort((a, b) => (a.ts || 0) - (b.ts || 0));
+
+  const badge = document.getElementById('m-stock-badge');
+  if (badge) { badge.textContent = avail.length; badge.style.display = avail.length ? 'inline-block' : 'none'; }
+  const cnt = document.getElementById('m-stock-count');
+  if (cnt) cnt.textContent = rows.length === avail.length
+    ? `Ножей: ${rows.length}` : `Показано ${rows.length} из ${avail.length}`;
+
+  list.innerHTML = rows.length ? rows.map(s => {
+    const d = stockDays(s);
+    const cls = d > 90 ? 'stale' : d > 30 ? 'aged' : 'fresh';
+    return `<div class="stock-row ${cls}">
+      <div style="flex:1;min-width:200px;">
+        <div class="stock-name">${s.modelName || '—'}${s.steelName ? ' · ' + s.steelName : ''}
+          ${s.artikul ? `<span style="color:var(--muted);font-size:11px;"> ${s.artikul}</span>` : ''}</div>
+        <div class="stock-sub">${s.handleName || '—'}
+          ${s.status === 'reserved' ? ` · бронь: ${s.reservedFor || '—'} до ${s.reservedUntil || '—'}` : ''}</div>
+      </div>
+      <div style="min-width:110px;text-align:right;font-size:13px;color:var(--accent);">
+        ${(s.retailPrice || 0).toLocaleString('ru')} ₽</div>
+      <div class="stock-days ${cls}">${d}<span style="font-size:9px;color:var(--muted);"> дн.</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-sm" onclick="mStockSell('${s._key}')" style="border-color:#2a4a3a;color:var(--green);">Продать</button>
+        <button class="btn btn-sm" onclick="stockReserve('${s._key}')" style="border-color:#4a3a10;color:var(--accent);">${s.status === 'reserved' ? 'Снять бронь' : 'Бронь'}</button>
+      </div>
+    </div>`;
+  }).join('') : '<div class="empty-state"><div class="icon">◇</div>Готовых ножей нет</div>';
+}
+
+// Продажа из наличия у Михаила: заполняем его форму заказа конфигурацией
+function mStockSell(key) {
+  const s = stock.find(x => x._key === key);
+  if (!s) return;
+  if (!confirmDiscard('m', 'Открыть форму заказа для продажи ножа из наличия?')) return;
+  stockSellingKey = key;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v == null ? '' : v; };
+  ['m-client','m-phone','m-tg','m-email','m-price','m-prepay','m-note'].forEach(i => set(i, ''));
+  set('m-model', s.modelId); set('m-steel', s.steelId); set('m-handle', s.handleId);
+  set('m-shape', s.shapeId); set('m-bolster', s.bolsterId); set('m-insert', s.insertId);
+  set('m-liner', s.linerId); set('m-vsechka', s.vsechkaId); set('m-pin', s.pin);
+  set('m-qty', 1);
+  if (typeof updateMishaAll === 'function') updateMishaAll();
+  showMishaView('orders');
+  showToast('Заполни клиента и цену — нож спишется из наличия при сохранении');
 }
 
 function stockExport() {

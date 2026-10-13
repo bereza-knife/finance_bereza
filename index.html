@@ -3101,6 +3101,15 @@ function saveOrder() {
   orders.unshift(order);
   saveOrders(order);
   logOrder('create', order, `${order.modelName || '—'}${order.steelName ? ' · ' + order.steelName : ''}${order.price ? ' · ' + order.price.toLocaleString('ru') + ' ₽' : ''}`);
+
+  // Если заказ создавался продажей ножа из наличия — закрываем ту позицию
+  if (stockSellingKey) {
+    fbDb.ref('stock/' + stockSellingKey).update({ status: 'sold', soldOrderId: order.id,
+                                                  reservedFor: null, reservedUntil: null });
+    logOrder('stock_sold', order, `Продан нож из наличия · ${order.modelName || '—'}`);
+    stockSellingKey = null;
+  }
+
   renderOrders();
   showToast(`Заказ №${order.id} создан`);
 
@@ -3349,15 +3358,17 @@ function showView(v) {
   document.getElementById('view-prod').style.display      = v==='prod'      ? 'block' : 'none';
   document.getElementById('view-clients').style.display   = v==='clients'   ? 'block' : 'none';
   document.getElementById('view-analytics').style.display = v==='analytics' ? 'block' : 'none';
+  document.getElementById('view-stock').style.display     = v==='stock'     ? 'block' : 'none';
   document.getElementById('view-warehouse').style.display = v==='warehouse' ? 'block' : 'none';
   document.getElementById('view-journal').style.display   = v==='journal'   ? 'block' : 'none';
-  const views = ['orders','prod','clients','analytics','warehouse','journal'];
+  const views = ['orders','prod','clients','analytics','stock','warehouse','journal'];
   document.querySelectorAll('#app-lesha .nav .nav-btn').forEach((b,i) => {
     b.classList.toggle('active', views[i] === v);
   });
   if (v==='analytics') renderAnalytics();
   if (v==='prod') renderProd();
   if (v==='clients') renderClients();
+  if (v==='stock') renderStock();
   if (v==='warehouse') whRenderFull();
   if (v==='journal') renderJournal();
 }

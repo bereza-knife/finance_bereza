@@ -4659,6 +4659,122 @@ function stockExpireReservations() {
 const stockDays = s => Math.floor((Date.now() - (s.ts || Date.now())) / 86400000);
 const stockActive = () => stock.filter(s => s.status !== 'sold');
 
+// ---- Модалка ----
+let modalOnOk = null;
+function openModal(title, sub, bodyHtml, okText, onOk) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-sub').innerHTML = sub || '';
+  document.getElementById('modal-body').innerHTML = bodyHtml || '';
+  const ok = document.getElementById('modal-ok');
+  ok.textContent = okText || 'Подтвердить';
+  modalOnOk = onOk;
+  ok.onclick = () => { if (modalOnOk) modalOnOk(); };
+  document.getElementById('modal-back').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('modal-back').classList.remove('show');
+  modalOnOk = null;
+}
+
+const reasonSelectHtml = (id, cur) => `
+  <div class="form-group">
+    <label class="form-label">Причина</label>
+    <select class="form-control" id="${id}">
+      ${STOCK_REASONS.map(r => `<option value="${r}"${r === cur ? ' selected' : ''}>${r}</option>`).join('')}
+    </select>
+  </div>`;
+
+// ---- Перенос заказа в наличие ----
+// Заказ уходит в корзину с пометкой movedToStock: выручка считается только
+// по orders, поэтому перенесённый нож перестаёт числиться в продажах.
+function stockEntryFromOrder(o, reason, note) {
+  return {
+    id: 's_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    ts: Date.now(),
+    date: new Date().toLocaleDateString('ru'),
+    modelId: o.modelId || null, modelName: o.modelName || '',
+    steelId: o.steelId || null, steelName: o.steelName || '',
+    handleId: o.handleId || null, handleName: o.handleName || '',
+    bolsterId: o.bolsterId || null, insertId: o.insertId || null,
+    linerId: o.linerId || null, vsechkaId: o.vsechkaId || null,
+    shapeId: o.shapeId || null, pin: o.pin || '',
+    artikul: o.artikul || '', cost: o.cost || 0,
+    leshaPrice: orderLeshaPrice(o) || 0,
+    retailPrice: o.price || 0,
+    reason: reason, note: note || '',
+    sourceOrderId: o.id, reservedFor: null, reservedUntil: null,
+    status: 'available', soldOrderId: null
+  };
+}
+
+function moveOrdersToStock(ids, reason, note) {
+  const list = ids.map(id => orders.find(o => o.id === id)).filter(Boolean);
+  if (!list.length) return;
+  const updates = {};
+  list.forEach(o => {
+    const e = stockEntryFromOrder(o, reason, note);
+    updates['stock/' + e.id] = e;
+    fbDb.ref('deletedOrders').push({
+      ...o, movedToStock: true,
+      deletedTs: Date.now(), deletedDate: new Date().toLocaleString('ru-RU'),
+      deletedBy: currentUserName()
+    });
+    logOrder('to_stock', o, `В наличие · ${reason}${note ? ' · ' + note : ''}`);
+  });
+  fbDb.ref().update(updates, err => {
+    if (err) { showToast('Не удалось перенести — проверь связь'); return; }
+    orders = orders.filter(o => !ids.includes(o.id));
+    saveOrders(); renderOrders(); renderMishaOrders();
+    stockSelected.clear();
+    showToast(list.length === 1 ? `Заказ №${list[0].id} в наличии` : `Перенесено в наличие: ${list.length}`);
+    closeModal();
+  });
+}
+
+function orderToStock(id) {
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+  if (o.status === 'paid') { showToast('Заказ оплачен — перенести нельзя'); return; }
+  openModal('В наличие',
+    `Заказ №${o.id} · ${o.client || '—'}<br>${o.modelName || '—'}${o.steelName ? ' · ' + o.steelName : ''}` +
+    `<br><br>Заказ уйдёт в корзину и перестанет числиться в выручке, а нож встанет в наличие.`,
+    reasonSelectHtml('mdl-reason') + `
+      <div class="form-group"><label class="form-label">Комментарий</label>
+      <input class="form-control" id="mdl-note" type="text" placeholder="необязательно"></div>`,
+    'Перенести',
+    () => moveOrdersToStock([id], document.getElementById('mdl-reason').value,
+                            document.getElementById('mdl-note').value.trim()));
+}
+
+// ---- Массовый перенос ----
+const stockSelected = new Set();
+function stockToggleSel(id, on) {
+  if (on) stockSelected.add(id); else stockSelected.delete(id);
+  stockRenderBulkBar();
+}
+function stockRenderBulkBar() {
+  const bar = document.getElementById('bulk-bar');
+  if (!bar) return;
+  const n = stockSelected.size;
+  bar.style.display = n ? 'flex' : 'none';
+  const btn = document.getElementById('bulk-btn');
+  if (btn) btn.textContent = `Перенести в наличие (${n})`;
+}
+function stockBulkMove() {
+  const ids = [...stockSelected];
+  const paid = ids.filter(id => (orders.find(o => o.id === id) || {}).status === 'paid');
+  if (paid.length) { showToast(`Оплаченные переносить нельзя: №${paid.join(', №')}`); return; }
+  const nums = ids.map(i => '№' + i).join(', ');
+  openModal('Перенести в наличие',
+    `Заказов: <b>${ids.length}</b> — ${nums}<br><br>Все уйдут в корзину и перестанут числиться в выручке.`,
+    reasonSelectHtml('mdl-reason') + `
+      <div class="form-group"><label class="form-label">Комментарий</label>
+      <input class="form-control" id="mdl-note" type="text" placeholder="необязательно"></div>`,
+    `Перенести ${ids.length}`,
+    () => moveOrdersToStock(ids, document.getElementById('mdl-reason').value,
+                            document.getElementById('mdl-note').value.trim()));
+}
+
 const WH_CATEGORIES = {
   'КЛИНКИ':           { prefix: 'BL', hint: ['Клинки', 'Вилки', 'Тесаки'] },
   'РУКОЯТЬ':          { prefix: 'HD', hint: ['Материал ручек', 'Больстеры', 'Вставки', 'Лайнеры', 'Пины'] },

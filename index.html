@@ -864,7 +864,7 @@
     .panel-orders { overflow-y: visible; padding: 20px 18px; }
 
     /* Вкладки во всю высоту → по контенту */
-    .view-clients, .view-prod, .view-warehouse, .view-analytics, .view-journal { height: auto; overflow-y: visible; padding: 20px 18px; }
+    .view-clients, .view-prod, .view-warehouse, .view-analytics, .view-journal, .view-stock { height: auto; overflow-y: visible; padding: 20px 18px; }
 
     .stats-row { grid-template-columns: repeat(2, 1fr); }
     .prod-grid { grid-template-columns: 1fr; }
@@ -879,7 +879,12 @@
     .nav-btn { padding: 9px 10px; font-size: 10px; letter-spacing: 1px; }
 
     .panel-form, .panel-orders,
-    .view-clients, .view-prod, .view-warehouse, .view-analytics, .view-journal { padding: 16px 14px; }
+    .view-clients, .view-prod, .view-warehouse, .view-analytics, .view-journal, .view-stock { padding: 16px 14px; }
+    /* Наличие: строка разворачивается в столбец, кнопки на всю ширину */
+    .stock-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .stock-row > div { width: 100%; text-align: left !important; }
+    .stock-days { text-align: left; min-width: 0; }
+    .modal-box { padding: 18px; }
 
     /* Парные поля — в одну колонку */
     .form-row { grid-template-columns: 1fr; }
@@ -3628,6 +3633,39 @@ function renderAnalytics() {
           </div>`).join('') || '<div style="color:var(--muted);font-size:11px;">Нет данных</div>'}
       </div>
     </div>`}
+    ${stockAnalyticsHtml(fmt)}
+  `;
+}
+
+// Наличие в аналитике: это замороженные деньги, а не выручка,
+// поэтому блок отдельный и в прибыль не входит.
+function stockAnalyticsHtml(fmt) {
+  const act = stockActive();
+  if (!act.length) return '';
+  const frozen = act.reduce((s, x) => s + (x.cost || 0), 0);
+  const avgDays = Math.round(act.reduce((s, x) => s + stockDays(x), 0) / act.length);
+  const byReason = {};
+  act.forEach(x => {
+    const r = x.reason || 'другое';
+    if (!byReason[r]) byReason[r] = { n: 0, cost: 0 };
+    byReason[r].n++; byReason[r].cost += x.cost || 0;
+  });
+  const rows = Object.entries(byReason).sort((a, b) => b[1].cost - a[1].cost);
+  return `
+    <div class="divider" style="margin:32px 0 20px;"></div>
+    <div class="section-title">Наличие — готовые непроданные ножи</div>
+    <div class="stats" style="margin-bottom:20px;">
+      <div class="stat-card"><div class="stat-label">Ножей</div><div class="stat-value">${act.length}</div></div>
+      <div class="stat-card"><div class="stat-label">Заморожено</div><div class="stat-value">${fmt(frozen)}</div></div>
+      <div class="stat-card"><div class="stat-label">Средний срок</div><div class="stat-value">${avgDays} дн.</div></div>
+      <div class="stat-card"><div class="stat-label">Дольше 90 дней</div><div class="stat-value" style="${act.filter(x=>stockDays(x)>90).length?'color:var(--red);':''}">${act.filter(x => stockDays(x) > 90).length}</div></div>
+    </div>
+    <div class="section-title">Почему попали в наличие</div>
+    ${rows.map(([r, v]) => `
+      <div class="cost-row">
+        <span class="label">${r}</span>
+        <span class="value">${v.n} шт. · ${fmt(v.cost)}</span>
+      </div>`).join('')}
   `;
 }
 
@@ -3901,6 +3939,15 @@ function saveMishaOrder() {
   orders.unshift(order);
   saveOrders(order);
   logOrder('create', order, `${order.modelName || '—'}${order.steelName ? ' · ' + order.steelName : ''}${order.price ? ' · ' + order.price.toLocaleString('ru') + ' ₽' : ''}`);
+
+  // Продажа ножа из наличия — закрываем позицию
+  if (stockSellingKey) {
+    fbDb.ref('stock/' + stockSellingKey).update({ status: 'sold', soldOrderId: order.id,
+                                                  reservedFor: null, reservedUntil: null });
+    logOrder('stock_sold', order, `Продан нож из наличия · ${order.modelName || '—'}`);
+    stockSellingKey = null;
+  }
+
   renderOrders();
   renderMishaOrders();
   showToast(`Заказ №${order.id} создан`);
@@ -4913,7 +4960,8 @@ function stockSell(key) {
   set('f-shape', s.shapeId); set('f-bolster', s.bolsterId); set('f-insert', s.insertId);
   set('f-liner', s.linerId); set('f-vsechka', s.vsechkaId); set('f-pin', s.pin);
   set('f-qty', 1);
-  set('f-lesha-price', s.leshaPrice || '');
+  // Цену для Михаила не подставляем: updateAll пересчитает её по текущему прайсу,
+  // а в записи наличия она могла устареть
   updateAll();
   showView('orders');
   document.querySelector('#app-lesha .panel-form').scrollTo({ top: 0, behavior: 'smooth' });

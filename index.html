@@ -4775,6 +4775,217 @@ function stockBulkMove() {
                             document.getElementById('mdl-note').value.trim()));
 }
 
+// ---- Рендер «Наличия» ----
+function stockFillFilters() {
+  const act = stockActive();
+  const fill = (id, label, vals) => {
+    const el = document.getElementById(id); if (!el) return;
+    const cur = el.value;
+    el.innerHTML = `<option value="">${label}</option>` +
+      [...new Set(vals)].filter(Boolean).sort((a, b) => String(a).localeCompare(String(b), 'ru'))
+        .map(v => `<option value="${v}">${v}</option>`).join('');
+    el.value = cur;
+  };
+  fill('stock-f-model',  'Все модели', act.map(s => s.modelName));
+  fill('stock-f-steel',  'Все стали',  act.map(s => s.steelName));
+  fill('stock-f-reason', 'Все причины', stock.map(s => s.reason));
+}
+
+function renderStock() {
+  const list = document.getElementById('stock-list');
+  if (!list) return;
+  stockFillFilters();
+
+  const fM = document.getElementById('stock-f-model')?.value || '';
+  const fS = document.getElementById('stock-f-steel')?.value || '';
+  const fR = document.getElementById('stock-f-reason')?.value || '';
+  const fSt = document.getElementById('stock-f-status')?.value || '';
+  const stale = !!document.getElementById('stock-f-stale')?.checked;
+
+  const rows = stock.filter(s => {
+    if (!fSt && s.status === 'sold') return false;   // проданные прячем, пока не выбраны явно
+    if (fSt && s.status !== fSt) return false;
+    if (fM && s.modelName !== fM) return false;
+    if (fS && s.steelName !== fS) return false;
+    if (fR && s.reason !== fR) return false;
+    if (stale && stockDays(s) <= 90) return false;
+    return true;
+  }).sort((a, b) => (a.ts || 0) - (b.ts || 0));   // самые старые сверху
+
+  // Сводка — по активным, независимо от фильтров
+  const act = stockActive();
+  const frozen = act.reduce((s, x) => s + (x.cost || 0), 0);
+  const potential = act.reduce((s, x) => s + (x.retailPrice || 0), 0);
+  const old90 = act.filter(x => stockDays(x) > 90).length;
+  const statsEl = document.getElementById('stock-stats');
+  if (statsEl) statsEl.innerHTML = `
+    <div class="stat-card"><div class="stat-label">Ножей в наличии</div><div class="stat-value">${act.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Заморожено денег</div><div class="stat-value">${frozen.toLocaleString('ru')} ₽</div></div>
+    <div class="stat-card"><div class="stat-label">Потенциальная выручка</div><div class="stat-value">${potential.toLocaleString('ru')} ₽</div></div>
+    <div class="stat-card"><div class="stat-label">Лежат дольше 90 дней</div><div class="stat-value" style="${old90 ? 'color:var(--red);' : ''}">${old90}</div></div>`;
+
+  const badge = document.getElementById('stock-nav-badge');
+  if (badge) { badge.textContent = act.length; badge.style.display = act.length ? 'inline-block' : 'none'; }
+
+  const cnt = document.getElementById('stock-count');
+  if (cnt) cnt.textContent = rows.length === act.length
+    ? `Позиций: ${rows.length}` : `Показано ${rows.length} из ${act.length}`;
+
+  list.innerHTML = rows.length ? rows.map(s => {
+    const d = stockDays(s);
+    const cls = d > 90 ? 'stale' : d > 30 ? 'aged' : 'fresh';
+    return `<div class="stock-row ${cls}">
+      <div style="flex:1;min-width:200px;">
+        <div class="stock-name">${s.modelName || '—'}${s.steelName ? ' · ' + s.steelName : ''}
+          ${s.artikul ? `<span style="color:var(--muted);font-size:11px;"> ${s.artikul}</span>` : ''}</div>
+        <div class="stock-sub">${s.handleName || '—'} · ${s.reason || '—'}${s.note ? ' · ' + s.note : ''}
+          ${s.status === 'reserved' ? ` · бронь: ${s.reservedFor || '—'} до ${s.reservedUntil || '—'}` : ''}
+          ${s.status === 'sold' ? ` · продан заказом №${s.soldOrderId || '—'}` : ''}</div>
+      </div>
+      <div style="min-width:110px;text-align:right;font-size:11px;line-height:1.6;">
+        <div style="color:var(--muted);">себес ${(s.cost || 0).toLocaleString('ru')} ₽</div>
+        <div style="color:var(--accent);">${(s.retailPrice || 0).toLocaleString('ru')} ₽</div>
+      </div>
+      <div class="stock-days ${cls}">${d}<span style="font-size:9px;color:var(--muted);"> дн.</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        ${s.status !== 'sold' ? `
+          <button class="btn btn-sm" onclick="stockSell('${s._key}')" style="border-color:#2a4a3a;color:var(--green);">Продать</button>
+          <button class="btn btn-sm" onclick="stockReserve('${s._key}')" style="border-color:#4a3a10;color:var(--accent);">${s.status === 'reserved' ? 'Снять бронь' : 'Бронь'}</button>` : ''}
+        <button class="btn btn-sm" onclick="stockEdit('${s._key}')">✎</button>
+        <button class="btn btn-sm btn-danger" onclick="stockDelete('${s._key}')">✕</button>
+      </div>
+    </div>`;
+  }).join('') : '<div class="empty-state"><div class="icon">◇</div>Ножей в наличии нет</div>';
+}
+
+// ---- Действия по ножу ----
+function stockSell(key) {
+  const s = stock.find(x => x._key === key);
+  if (!s) return;
+  if (!confirmDiscard('f', 'Открыть форму заказа для продажи ножа из наличия?')) return;
+  // Форма заполняется конфигурацией из наличия; клиента и цену вводит менеджер
+  stockSellingKey = key;
+  editingOrderId = null;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v == null ? '' : v; };
+  ['f-client','f-phone','f-tg','f-email','f-price','f-prepay','f-note'].forEach(i => set(i, ''));
+  set('f-model', s.modelId); set('f-steel', s.steelId); set('f-handle', s.handleId);
+  set('f-shape', s.shapeId); set('f-bolster', s.bolsterId); set('f-insert', s.insertId);
+  set('f-liner', s.linerId); set('f-vsechka', s.vsechkaId); set('f-pin', s.pin);
+  set('f-qty', 1);
+  set('f-lesha-price', s.leshaPrice || '');
+  updateAll();
+  showView('orders');
+  document.querySelector('#app-lesha .panel-form').scrollTo({ top: 0, behavior: 'smooth' });
+  showToast('Заполни клиента и цену — нож спишется из наличия при сохранении');
+}
+let stockSellingKey = null;
+
+function stockReserve(key) {
+  const s = stock.find(x => x._key === key);
+  if (!s) return;
+  if (s.status === 'reserved') {
+    fbDb.ref('stock/' + key).update({ status: 'available', reservedFor: null, reservedUntil: null });
+    showToast('Бронь снята');
+    return;
+  }
+  const plus14 = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
+  openModal('Бронь', `${s.modelName || '—'}${s.steelName ? ' · ' + s.steelName : ''}`,
+    `<div class="form-group"><label class="form-label">Для кого</label>
+       <input class="form-control" id="mdl-who" type="text" placeholder="Имя клиента"></div>
+     <div class="form-group"><label class="form-label">До какой даты</label>
+       <input class="form-control" id="mdl-until" type="date" value="${plus14}"></div>`,
+    'Забронировать',
+    () => {
+      const who = document.getElementById('mdl-who').value.trim();
+      if (!who) { showToast('Укажи, для кого бронь'); return; }
+      fbDb.ref('stock/' + key).update({
+        status: 'reserved', reservedFor: who,
+        reservedUntil: document.getElementById('mdl-until').value || null
+      });
+      closeModal(); showToast('Забронирован');
+    });
+}
+
+function stockEdit(key) {
+  const s = stock.find(x => x._key === key);
+  if (!s) return;
+  openModal('Редактировать', `${s.modelName || '—'}${s.steelName ? ' · ' + s.steelName : ''}`,
+    reasonSelectHtml('mdl-reason', s.reason) + `
+    <div class="form-group"><label class="form-label">Комментарий</label>
+      <input class="form-control" id="mdl-note" type="text" value="${(s.note || '').replace(/"/g, '&quot;')}"></div>
+    <div class="form-group"><label class="form-label">Цена продажи, ₽</label>
+      <input class="form-control" id="mdl-price" type="number" value="${s.retailPrice || ''}"></div>`,
+    'Сохранить',
+    () => {
+      fbDb.ref('stock/' + key).update({
+        reason: document.getElementById('mdl-reason').value,
+        note: document.getElementById('mdl-note').value.trim(),
+        retailPrice: +document.getElementById('mdl-price').value || 0
+      });
+      closeModal(); showToast('Сохранено');
+    });
+}
+
+function stockDelete(key) {
+  const s = stock.find(x => x._key === key);
+  if (!s) return;
+  if (!confirm(`Удалить из наличия «${s.modelName || '—'}${s.steelName ? ' · ' + s.steelName : ''}»?\n` +
+               `Себестоимость ${(s.cost || 0).toLocaleString('ru')} ₽ перестанет числиться.`)) return;
+  logOrder('stock_delete', { id: s.sourceOrderId || 0, client: '' },
+           `Удалён из наличия: ${s.modelName || '—'} · ${s.artikul || ''}`);
+  fbDb.ref('stock/' + key).remove();
+  showToast('Удалено из наличия');
+}
+
+// Добавить нож в наличие без заказа: берём то, что сейчас набрано в форме заказа
+function stockAddManual() {
+  const modelId = +document.getElementById('f-model').value;
+  const steelId = document.getElementById('f-steel').value;
+  const handleId = document.getElementById('f-handle').value;
+  if (!modelId || !steelId || !handleId) {
+    showToast('Сначала собери нож в форме заказа: модель, сталь, рукоять');
+    showView('orders');
+    return;
+  }
+  const fake = {
+    id: null, modelId, modelName: MODELS[modelId], steelId, steelName: STEELS[steelId],
+    handleId, handleName: HANDLE_NAMES[handleId],
+    bolsterId: document.getElementById('f-bolster').value,
+    insertId:  document.getElementById('f-insert').value,
+    linerId:   document.getElementById('f-liner').value,
+    vsechkaId: document.getElementById('f-vsechka').value,
+    shapeId:   document.getElementById('f-shape').value,
+    pin: document.getElementById('f-pin').value || '',
+    artikul: document.getElementById('artikul-display').textContent,
+    cost: currentCost, price: recommendedRetail || 0, leshaPrice: recommendedPrice || 0
+  };
+  openModal('Добавить нож в наличие',
+    `${fake.modelName} · ${fake.steelName} · ${fake.handleName}<br>Себестоимость ${currentCost.toLocaleString('ru')} ₽`,
+    reasonSelectHtml('mdl-reason', 'сделан про запас') + `
+      <div class="form-group"><label class="form-label">Комментарий</label>
+      <input class="form-control" id="mdl-note" type="text" placeholder="необязательно"></div>`,
+    'Добавить',
+    () => {
+      const e = stockEntryFromOrder(fake, document.getElementById('mdl-reason').value,
+                                   document.getElementById('mdl-note').value.trim());
+      e.sourceOrderId = null;
+      e.leshaPrice = recommendedPrice || 0;
+      fbDb.ref('stock/' + e.id).set(e);
+      closeModal(); showToast('Добавлен в наличие');
+    });
+}
+
+function stockExport() {
+  const rows = stock.map(s => [
+    s.date || '', s.artikul || '', s.modelName || '', s.steelName || '', s.handleName || '',
+    s.cost || 0, s.retailPrice || 0, s.reason || '', stockDays(s),
+    STOCK_STATUS[s.status] || s.status, s.sourceOrderId || '', s.soldOrderId || ''
+  ]);
+  whDownloadCSV(['Дата','Артикул','Модель','Сталь','Рукоять','Себестоимость','Цена',
+                 'Причина','Дней','Статус','Из заказа','Продан заказом'],
+                rows, 'bereza_nalichie');
+}
+
 const WH_CATEGORIES = {
   'КЛИНКИ':           { prefix: 'BL', hint: ['Клинки', 'Вилки', 'Тесаки'] },
   'РУКОЯТЬ':          { prefix: 'HD', hint: ['Материал ручек', 'Больстеры', 'Вставки', 'Лайнеры', 'Пины'] },
